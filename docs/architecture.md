@@ -2,6 +2,7 @@
 
 ## High-Level Design
 
+```text
 Double Clap
     |
     V
@@ -22,3 +23,4 @@ Voice Engine       Information Services
                                          |
                                          V
                                    Music Player
+```
