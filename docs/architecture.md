@@ -11,16 +11,15 @@ Clap Detection Service
     V
 CLAP Core Engine
     |
-    +-------------------+
-    |                   |
-    V                   V
-Voice Engine       Information Services
-                        |
-         +--------------+-------------+
-         |              |             |
-         V              V             V
-      Weather      System Info      Forex
-                                         |
-                                         V
-                                   Music Player
+    +---------------------------+
+    |            |              |
+    V            V              V
+Voice Engine Information   Music Player
+              Services
+                   |
+      +------------+------------+
+      |            |            |
+      V            V            V
+   Weather    System Info    Forex
+`
 ```
