@@ -1,2 +1,5 @@
+from greeting import speak
+
 print("Project CLAP Activated")
-print("Good evening Marc")
+
+speak("Good morning Marc")
