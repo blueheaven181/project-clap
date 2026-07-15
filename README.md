@@ -46,8 +46,8 @@ while building a useful assistant for daily life.
 
 ### Version 0.1 - First Contact
 
-- [ ] Detect double clap
-- [ ] Play voice greeting
+- [X] Detect double clap
+- [X] Play voice greeting
 
 Success Criteria:
 
@@ -56,6 +56,20 @@ Clap Clap
 ↓
 "Good morning Marc."
 ```
+
+## Current Status
+
+✅ Version 0.1 - First Contact Complete
+
+Current Features:
+
+- Double clap detection
+- Neural voice greeting
+- Reusable voice engine
+
+
+
+
 
 ---
 
