@@ -25,10 +25,32 @@ Completed
 
 ---
 
+
+
 ## Sprint 1.2 - Voice Engine 🚧
 
-In Progress
+Status: In Progress
 
-- Create reusable greeting.py
-- Standardize speech engine
-- Prepare for weather and monitoring services
+Objective:
+
+Create a reusable voice engine that can be used across all Project CLAP modules.
+
+Tasks:
+
+- [ ] Create greeting.py
+- [ ] Move GuyNeural voice code into reusable function
+- [ ] Create speak() method
+- [ ] Test voice output
+- [ ] Integrate with main.py
+
+Success Criteria:
+
+Project CLAP can say:
+
+"Good morning Marc"
+
+using:
+
+from greeting import speak
+
+speak("Good morning Marc")
