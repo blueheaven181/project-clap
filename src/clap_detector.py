@@ -2,7 +2,9 @@ import sounddevice as sd
 import numpy as np
 import time
 
+
 from greeting import speak, get_greeting
+from weather import get_weather
 
 
 
@@ -28,6 +30,11 @@ def detect_clap(indata, frames, time_info, status):
 
     current_time = time.time()
 
+    if double_clap_detected:
+     return
+
+
+
     if volume > CLAP_THRESHOLD:
 
         if current_time - last_clap_time < CLAP_COOLDOWN:
@@ -50,6 +57,8 @@ def detect_clap(indata, frames, time_info, status):
             if clap_times[-1] - clap_times[-2] <= DOUBLE_CLAP_WINDOW:
 
                 print("DOUBLE CLAP DETECTED")
+                
+                clap_times.clear()
 
                 double_clap_detected = True
 
@@ -63,11 +72,16 @@ with sd.InputStream(callback=detect_clap):
     while True:
 
         if double_clap_detected:
-         
 
-         print(get_greeting())
-         speak(f"{get_greeting()}. Project CLAP activated.")
+           greeting = f"{get_greeting()}. Project CLAP activated."
 
-         break
+           weather_report = get_weather()
 
-        time.sleep(0.1)
+           print(greeting)
+           print(weather_report)
+
+           speak(greeting)
+
+           speak(weather_report)
+
+           break
