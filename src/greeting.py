@@ -1,8 +1,25 @@
 import asyncio
 import edge_tts
 from playsound import playsound
+from datetime import datetime
 
 VOICE = "en-US-GuyNeural"
+
+
+def get_greeting():
+
+    current_hour = datetime.now().hour
+
+    if 5 <= current_hour < 12:
+        return "Good morning Marc"
+
+    elif 12 <= current_hour < 18:
+        return "Good afternoon Marc"
+
+    else:
+        return "Good evening Marc"
+
+
 
 
 def speak(message):

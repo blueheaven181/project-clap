@@ -1,7 +1,11 @@
 import sounddevice as sd
 import numpy as np
 import time
-from greeting import speak
+
+from greeting import speak, get_greeting
+
+speak(f"{get_greeting()}. Project CLAP activated.")
+
 
 CLAP_THRESHOLD = 0.30
 DOUBLE_CLAP_WINDOW = 1.0
