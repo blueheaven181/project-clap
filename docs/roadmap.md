@@ -116,7 +116,47 @@ Evening:
 Good evening Marc
 
 
+## Sprint 2.0.1 - Stability Improvements ✅
 
+Status: Completed
+
+Objective:
+
+Improve reliability of Project CLAP activation and voice playback.
+
+Tasks:
+
+- [x] Fix startup greeting issue
+- [x] Fix incorrect time-based greeting
+- [x] Calibrate clap detection threshold
+- [x] Add clap cooldown protection
+- [x] Reduce false clap detections
+- [x] Clean up temporary audio files
+- [x] Update .gitignore for generated MP3 files
+
+Success Criteria:
+
+Run Project CLAP
+
+↓
+
+Listening for claps...
+
+↓
+
+👏 👏
+
+↓
+
+DOUBLE CLAP DETECTED
+
+↓
+
+Good morning / afternoon / evening Marc
+
+↓
+
+No false activations
 
 
 ## Milestones
