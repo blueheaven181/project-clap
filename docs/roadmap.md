@@ -159,6 +159,28 @@ Good morning / afternoon / evening Marc
 No false activations
 
 
+## Sprint 2.1 - Weather Module 🚧
+
+Status: In Progress
+
+Objective:
+
+Provide live weather information for Abu Dhabi.
+
+Tasks:
+
+- [x] Install requests
+- [x] Create weather.py
+- [x] Retrieve weather data
+- [x] Display weather information
+- [ ] Integrate with voice engine
+- [ ] Integrate with Project CLAP activation
+
+Success Criteria:
+
+Weather in Abu Dhabi is 35 degrees Celsius with Clear.
+
+
 ## Milestones
 
 ### 2026-07-12
