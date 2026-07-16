@@ -1,5 +1,7 @@
 import asyncio
 import edge_tts
+import uuid
+import os
 from playsound import playsound
 from datetime import datetime
 
@@ -23,9 +25,14 @@ def get_greeting():
 
 
 def speak(message):
+
+    filename = f"speech_{uuid.uuid4().hex}.mp3"
+
     async def generate():
         communicate = edge_tts.Communicate(message, VOICE)
-        await communicate.save("speech.mp3")
+        await communicate.save(filename)
 
     asyncio.run(generate())
-    playsound("speech.mp3")
+
+    playsound(filename)
+    os.remove(filename)
