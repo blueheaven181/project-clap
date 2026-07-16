@@ -87,7 +87,33 @@ Project CLAP Activated
 
 
 
+## Sprint 2.0 - Intelligent Greeting ✅
 
+Status: Completed
+
+Objective:
+
+Make Project CLAP aware of the current time and
+deliver the appropriate greeting.
+
+Tasks:
+
+- [x] Detect current time
+- [x] Determine greeting
+- [x] Integrate with greeting.py
+- [x] Update main.py
+- [x] Update clap activation greeting
+
+Success Criteria:
+
+Morning:
+Good morning Marc
+
+Afternoon:
+Good afternoon Marc
+
+Evening:
+Good evening Marc
 
 
 

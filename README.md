@@ -65,11 +65,11 @@ Current Features:
 
 - Double clap detection
 - Neural voice greeting
+- Intelligent time-based greetings
 - Reusable voice engine
 
 
-
-
+### Next Release
 
 ---
 
