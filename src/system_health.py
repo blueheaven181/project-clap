@@ -9,11 +9,25 @@ def get_system_health():
 
     disk = psutil.disk_usage("/").percent
 
-    return (
-    f"CPU utilization is {cpu:.1f} percent. "
-    f"Memory utilization is {memory:.1f} percent. "
-    f"Disk utilization is {disk:.1f} percent."
+    
+    report = (
+        f"Regarding system health. "
+        f"CPU utilization is {cpu:.1f} percent. "
+        f"Memory utilization is {memory:.1f} percent. "
+        f"Disk utilization is {disk:.1f} percent. "
     )
+
+    if cpu > 90:
+        report += " Warning. CPU utilization is high."
+
+    if memory > 90:
+        report += " Warning. Memory utilization is high."
+
+    if disk > 90:
+        report += " Warning. Disk utilization is high."
+
+    return report
+
 
 
 if __name__ == "__main__":
