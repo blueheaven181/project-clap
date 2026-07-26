@@ -29,7 +29,7 @@ def speak(message):
     filename = f"speech_{uuid.uuid4().hex}.mp3"
 
     async def generate():
-        communicate = edge_tts.Communicate(message, VOICE)
+        communicate = edge_tts.Communicate(message, VOICE, rate="+10%")
         await communicate.save(filename)
 
     asyncio.run(generate())

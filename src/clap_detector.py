@@ -5,6 +5,7 @@ import time
 
 from greeting import speak, get_greeting
 from weather import get_weather
+from system_health import get_system_health
 
 
 
@@ -76,12 +77,16 @@ with sd.InputStream(callback=detect_clap):
            greeting = f"{get_greeting()}. Project CLAP activated."
 
            weather_report = get_weather()
+           system_report = get_system_health()
 
            print(greeting)
            print(weather_report)
+           print(system_report)
 
            speak(greeting)
 
            speak(weather_report)
+
+           speak(system_report)
 
            break
