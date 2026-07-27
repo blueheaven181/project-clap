@@ -97,9 +97,8 @@ with sd.InputStream(callback=detect_clap):
 
            speak(greeting)
 
-           speak("Would you like to hear your daily briefing?"
-                 "the weather only, ?"
-                  "or system health only?")
+           speak("How can I help? "
+                 "Say daily briefing, weather,system, health, or forex.")
 
 
 
@@ -121,6 +120,8 @@ with sd.InputStream(callback=detect_clap):
                 "whether",
                 "system",
                 "health",
+                "forex",
+                "currency",
             }
 
 

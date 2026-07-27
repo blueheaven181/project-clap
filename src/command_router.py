@@ -2,6 +2,7 @@ from greeting import speak
 from weather import get_weather
 from voice_commands import listen_for_response
 from system_health import get_system_health
+from forex import get_forex
 
 
 def route_command(command):
@@ -28,7 +29,17 @@ def route_command(command):
         print(system_report)
         speak(system_report)
 
-    return True
+        return True
+
+    if "forex" in command or "currency" in command:
+        forex_report = get_forex()
+
+        print(forex_report)
+        speak(forex_report)
+
+        return True
+
+
 
     speak("Sorry Marc, I do not understand that command yet.")
     return False
