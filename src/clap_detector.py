@@ -12,6 +12,7 @@ from forex import get_forex, open_forex_charts
 from workspace import arrange_workspace
 from spotify import play_spotify
 from voice_commands import listen_for_response
+from command_router import route_command
 from background_music import (
     start_background_music,
     stop_background_music,
@@ -96,7 +97,8 @@ with sd.InputStream(callback=detect_clap):
 
            speak(greeting)
 
-           speak("Would you like to hear your daily briefing?")
+           speak("Would you like to hear your daily briefing?"
+                 "or would you like the weather only?")
 
 
 
@@ -108,11 +110,22 @@ with sd.InputStream(callback=detect_clap):
                ).lower()
 
 
+
+
            yes_words = {"yes", "yeah", "yep", "sure", "okay", "ok"}
 
-           if any(word in response.split() for word in yes_words):
 
+           if "weather" in response or "whether" in response:
+               route_command(response)
 
+               double_clap_detected = False
+               print("Listening for claps...")
+               continue
+
+           if (
+               any(word in response.split() for word in yes_words)
+               or "briefing" in response
+           ):
 
                 weather_report = get_weather()
                 system_report = get_system_health()
