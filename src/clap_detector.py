@@ -12,6 +12,13 @@ from forex import get_forex, open_forex_charts
 from workspace import arrange_workspace
 from spotify import play_spotify
 from voice_commands import listen_for_response
+from background_music import (
+    start_background_music,
+    stop_background_music,
+)
+
+
+
 
 
 
@@ -116,9 +123,18 @@ with sd.InputStream(callback=detect_clap):
                 print(system_report)
                 print(forex_report)
 
-                speak(weather_report)
-                speak(system_report)
-                speak(forex_report)
+
+                start_background_music()
+
+                try:
+                    speak(weather_report)
+                    speak(system_report)
+                    speak(forex_report)
+
+                finally:
+                    stop_background_music()
+
+
                 speak("Opening your trading workspace")
                 open_forex_charts()
                 time.sleep(5)
