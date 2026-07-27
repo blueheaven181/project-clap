@@ -18,6 +18,31 @@ def open_forex_charts():
              "--new-window",
              url]
         )
+
+
+def convert_aed_to_php(amount):
+
+    url = "https://open.er-api.com/v6/latest/USD"
+
+    response = requests.get(url, timeout=10)
+    response.raise_for_status()
+
+    data = response.json()
+
+    aedphp_rate = (
+        data["rates"]["PHP"] / data["rates"]["AED"]
+    )
+
+    converted_amount = round(amount * aedphp_rate, 2)
+
+    return (
+        f"{amount:g} UAE dirhams is approximately "
+        f"{converted_amount:,.2f} Philippine pesos."
+    )
+
+
+
+
 def get_forex():
 
     url = "https://open.er-api.com/v6/latest/USD"
