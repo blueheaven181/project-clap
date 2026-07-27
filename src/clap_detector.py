@@ -11,6 +11,7 @@ from system_health import get_system_health
 from forex import get_forex, open_forex_charts
 from workspace import arrange_workspace
 from spotify import play_spotify
+from voice_commands import listen_for_response
 
 
 
@@ -89,14 +90,22 @@ with sd.InputStream(callback=detect_clap):
            speak(greeting)
 
            speak("Would you like to hear your daily briefing?")
-           response = input(
-                 "Would you like to hear your daily briefing? (y/n): "
-           ).lower()
-
-           print("Response =", response)
 
 
-           if response.strip().lower() in ["y", "yes"]:
+
+           response = listen_for_response()
+
+           if not response:
+              response = input(
+                 "Voice recognition failed. Please type yes or no: "
+               ).lower()
+
+
+           yes_words = {"yes", "yeah", "yep", "sure", "okay", "ok"}
+
+           if any(word in response.split() for word in yes_words):
+
+
 
                 weather_report = get_weather()
                 system_report = get_system_health()
@@ -126,22 +135,24 @@ with sd.InputStream(callback=detect_clap):
                 speak("Okay Marc,Standing by")
 
 
+
+
            speak("Would you like me to launch Spotify?")
 
-           spotify_response = input(
-             "Would you like me to launch Spotify? (y/n): "
-           ).lower()
+           spotify_response = listen_for_response()
 
-           if spotify_response.strip().lower() in ["y", "yes"]:
+           if not spotify_response:
+                spotify_response = input(
+                    "Voice recognition failed. Please type yes or no: "
+                ).lower()
 
-              speak("Launching Spotify.")
+           print("Spotify response =", spotify_response)
 
-              play_spotify()
-
+           if any(word in spotify_response.split() for word in yes_words):
+                speak("Launching Spotify.")
+                play_spotify()
            else:
-
-             speak("Okay Marc. Spotify will remain closed.")
-
+                speak("Okay Marc. Spotify will remain closed.")
 
 
            break
