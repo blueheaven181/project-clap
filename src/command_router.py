@@ -1,6 +1,7 @@
 from greeting import speak
 from weather import get_weather
 from voice_commands import listen_for_response
+from system_health import get_system_health
 
 
 def route_command(command):
@@ -20,6 +21,14 @@ def route_command(command):
         speak(weather_report)
 
         return True
+
+    if "system" in command or "health" in command:
+        system_report = get_system_health()
+
+        print(system_report)
+        speak(system_report)
+
+    return True
 
     speak("Sorry Marc, I do not understand that command yet.")
     return False
