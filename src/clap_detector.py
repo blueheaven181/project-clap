@@ -98,7 +98,8 @@ with sd.InputStream(callback=detect_clap):
            speak(greeting)
 
            speak("Would you like to hear your daily briefing?"
-                 "or would you like the weather only?")
+                 "the weather only, ?"
+                  "or system health only?")
 
 
 
@@ -115,7 +116,15 @@ with sd.InputStream(callback=detect_clap):
            yes_words = {"yes", "yeah", "yep", "sure", "okay", "ok"}
 
 
-           if "weather" in response or "whether" in response:
+           direct_command_words = {
+                "weather",
+                "whether",
+                "system",
+                "health",
+            }
+
+
+           if any(word in response for word in direct_command_words):
                route_command(response)
 
                double_clap_detected = False
