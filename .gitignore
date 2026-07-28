@@ -220,3 +220,16 @@ __marimo__/
 # Generated audio files
 speech*.mp3
 *.mp3
+
+# CLAP private configuration and credentials
+.env.*
+!.env.example
+config/credentials.json
+config/token.json
+config/secrets.*
+*.pem
+*.key
+
+# Private local data
+recordings/
+data/private/
