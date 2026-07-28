@@ -64,26 +64,26 @@ def detect_clap(indata, frames, time_info, status):
         ]
 
 
-        
+
 
         if len(clap_times) >= 2:
 
             if clap_times[-1] - clap_times[-2] <= DOUBLE_CLAP_WINDOW:
 
                 print("DOUBLE CLAP DETECTED")
-                
+
                 clap_times.clear()
 
                 double_clap_detected = True
 
-    
+
 
 
 print("Listening for claps...")
 
 with sd.InputStream(callback=detect_clap):
 
-     
+
 
      while True:
 
@@ -92,13 +92,13 @@ with sd.InputStream(callback=detect_clap):
            greeting = (
                f"{get_greeting()}. "
                f"CLAP is online "
-               
+
 )
 
            speak(greeting)
 
            speak("How can I help. ? "
-                 "Say daily briefing. weather, system health, forex." 
+                 "Say daily briefing. weather, system health, or forex."
                   )
 
 
@@ -121,7 +121,8 @@ with sd.InputStream(callback=detect_clap):
                 "whether",
                 "system",
                 "health",
-                "system health"
+                "system",
+                "health",
                 "forex",
                 "currency",
                 "aed",
@@ -131,6 +132,7 @@ with sd.InputStream(callback=detect_clap):
                 "tradingview",
                 "chart",
                 "charts",
+
             }
 
 
@@ -142,7 +144,7 @@ with sd.InputStream(callback=detect_clap):
                         "nope",
                         "nothing",
                         "done",
-                        "stop"
+                        "stop",
                         "thank you",
                     }
 
@@ -150,7 +152,7 @@ with sd.InputStream(callback=detect_clap):
                         speak(
                         "Is there anything else I can help you with? "
                           "Say your next command, or say no."
-            
+
                         )
 
                         time.sleep(1.5)
@@ -178,70 +180,69 @@ with sd.InputStream(callback=detect_clap):
                     continue
 
 
-                    if (
-                        any(word in response.split() for word in yes_words)
-                        or "briefing" in response
-                    ):
+           if (
+                any(word in response.split() for word in yes_words)
+                or "briefing" in response
+            ):
 
-                            weather_report = get_weather()
-                            system_report = get_system_health()
-                            forex_report = get_forex()
+                    weather_report = get_weather()
+                    system_report = get_system_health()
+                    forex_report = get_forex()
 
-                            print(greeting)
-                            print(weather_report)
-                            print(system_report)
-                            print(forex_report)
-
-
-                            start_background_music()
-
-                            try:
-                                speak(weather_report)
-                                speak(system_report)
-                                speak(forex_report)
-
-                            finally:
-                                stop_background_music()
+                    print(greeting)
+                    print(weather_report)
+                    print(system_report)
+                    print(forex_report)
 
 
-                            speak("Opening your trading workspace")
-                            open_forex_charts()
-                            time.sleep(5)
+                    start_background_music()
 
-                            try:
-                                arrange_workspace()
-                            except Exception as e:
-                                print("Workspace error:", e)
+                    try:
+                        speak(weather_report)
+                        speak(system_report)
+                        speak(forex_report)
 
-                            speak("Daily briefing complete.")    
-                        
-
-                    else:
-                            speak("Okay Marc,Standing by")
+                    finally:
+                        stop_background_music()
 
 
-                    speak("Would you like me to launch Spotify?")
+                    speak("Opening your trading workspace")
+                    open_forex_charts()
+                    time.sleep(5)
 
-                    spotify_response = listen_for_response()
+                    try:
+                        arrange_workspace()
+                    except Exception as e:
+                        print("Workspace error:", e)
 
-                    if not spotify_response:
-                        spotify_response = input(
-                            "Voice recognition failed. Please type yes or no: "
-                        ).lower()
-
-                    print("Spotify response =", spotify_response)
-
-                    if any(
-                        word in spotify_response.split() 
-                        for word in yes_words
-                    ):
-                        speak("Launching Spotify.")
-                        play_spotify()
-                    else:
-                            speak("Okay Marc. Spotify will remain closed.")
+                    speak("Daily briefing complete.")
 
 
-                    break
+           else:
+                speak("Okay Marc,Standing by")
 
 
-            
+           speak("Would you like me to launch Spotify?")
+
+           spotify_response = listen_for_response()
+
+           if not spotify_response:
+                spotify_response = input(
+                    "Voice recognition failed. Please type yes or no: "
+                     ).lower()
+
+           print("Spotify response =", spotify_response)
+
+           if any(
+                word in spotify_response.split()
+                for word in yes_words
+            ):
+                speak("Launching Spotify.")
+                play_spotify()
+           else:
+                    speak("Okay Marc. Spotify will remain closed.")
+
+
+           break
+
+
