@@ -1,6 +1,7 @@
 import sounddevice as sd
 import numpy as np
 import time
+from conversation import start_voice_conversation
 
 
 from greeting import speak
@@ -211,7 +212,7 @@ with sd.InputStream(
            speak(greeting)
 
            speak("How can I help. ? "
-                 "Say daily briefing. weather, system health, or forex."
+                 "Say a command, or ask me anything"
                   )
 
 
@@ -300,11 +301,29 @@ with sd.InputStream(
                     continue
 
 
+        is_briefing = (
+            any(word in response.split() for word in yes_words)
+            or "briefing" in response
+            )
 
-           if (
-                any(word in response.split() for word in yes_words)
-                or "briefing" in response
-            ):
+        if not is_briefing:
+            start_voice_conversation(
+                initial_message=response
+           )
+
+            wake_word_model.reset()
+            clap_times.clear()
+            double_clap_detected = False
+            wake_word_detected = False
+            last_clap_time = time.monotonic()
+            ignore_activation_until = (
+                time.monotonic() + ACTIVATION_COOLDOWN
+            )
+
+            print("Listening for double clap or Hey CLAP...")
+            continue
+
+        if is_briefing:
 
                     weather_report = get_weather()
                     system_report = get_system_health()
@@ -339,29 +358,26 @@ with sd.InputStream(
                     speak("Daily briefing complete.")
 
 
-           else:
-                speak("Okay Marc,Standing by")
+
+                    speak("Would you like me to launch Spotify?")
+
+                    spotify_response = listen_until_response(
+                        "I did not hear you. Please say yes or no."
+                      )
 
 
-           speak("Would you like me to launch Spotify?")
+                    print("Spotify response =", spotify_response)
 
-           spotify_response = listen_until_response(
-                   "I did not hear you. Please say yes or no."
-                )
-
-
-           print("Spotify response =", spotify_response)
-
-           if any(
-                word in spotify_response.split()
-                for word in yes_words
-            ):
-                speak("Launching Spotify.")
-                play_spotify()
-           else:
-                    speak("Okay Marc. Spotify will remain closed.")
+                    if any(
+                       word in spotify_response.split()
+                     for word in yes_words
+                    ):
+                     speak("Launching Spotify.")
+                     play_spotify()
+                    else:
+                     speak("Okay Marc. Spotify will remain closed.")
 
 
-           break
+                    break
 
 
