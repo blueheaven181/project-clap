@@ -4,7 +4,8 @@ import time
 
 
 
-
+from pathlib import Path
+from openwakeword.model import Model
 from greeting import speak, get_greeting
 from weather import get_weather
 from system_health import get_system_health
@@ -20,74 +21,183 @@ from background_music import (
 
 
 
-
-
-
-CLAP_THRESHOLD = 5
+CLAP_THRESHOLD = 12
+CLAP_SHARPNESS_THRESHOLD = 6.0
 DOUBLE_CLAP_WINDOW = 1.0
 CLAP_COOLDOWN = 0.3
 
 clap_times = []
 double_clap_detected = False
+wake_word_detected = False
 last_clap_time = 0
 
+SAMPLE_RATE = 16000
+CHUNK_SIZE = 1280
+MICROPHONE_INDEX = 1
+
+WAKE_WORD_THRESHOLD = 0.30
+ACTIVATION_COOLDOWN = 3.0
+ignore_activation_until = 0.0
 
 
-def detect_clap(indata, frames, time_info, status):
 
+def get_wake_word_model_path():
+    project_folder = Path(__file__).resolve().parent.parent
+
+    return (
+        project_folder
+        / "models"
+        / "wake_words"
+        / "hey_Clap.onnx"
+    )
+
+
+wake_word_model_path = get_wake_word_model_path()
+
+if not wake_word_model_path.exists():
+    raise FileNotFoundError(
+        f"Wake-word model was not found: {wake_word_model_path}"
+    )
+
+
+wake_word_model = Model(
+    wakeword_models=[str(wake_word_model_path)],
+    inference_framework="onnx",
+)
+
+
+
+
+
+
+
+def detect_activation(indata, frames, time_info, status):
     global double_clap_detected
+    global wake_word_detected
     global last_clap_time
+    global ignore_activation_until
 
-    volume = np.linalg.norm(indata) * 10
+    if double_clap_detected or wake_word_detected:
+        return
 
+    current_time = time.monotonic()
 
-
-    current_time = time.time()
-
-    if double_clap_detected:
+    if current_time < ignore_activation_until:
      return
 
 
+     # Convert microphone audio for the wake-word model.
+    audio_frame = np.clip(
+        indata.flatten(),
+        -1.0,
+        1.0,
+    )
 
-    if volume > CLAP_THRESHOLD:
+    audio_frame = (
+        audio_frame * 32767
+    ).astype(np.int16)
 
-        if current_time - last_clap_time < CLAP_COOLDOWN:
+    predictions = wake_word_model.predict(audio_frame)
+    highest_wake_score = max(
+        predictions.values(),
+        default=0.0,
+    )
+
+
+
+
+
+    for model_name, score in predictions.items():
+        if score >= WAKE_WORD_THRESHOLD:
+            print(
+                "HEY CLAP DETECTED:",
+                model_name,
+                f"score={score:.2f}",
+            )
+
+            clap_times.clear()
+            wake_word_detected = True
             return
 
-        last_clap_time = current_time
-
-        clap_times.append(current_time)
-
-        clap_times[:] = [
-            t for t in clap_times
-            if current_time - t <= DOUBLE_CLAP_WINDOW
-        ]
+    # Do not interpret speech resembling "Hey CLAP" as claps.
+    if highest_wake_score >= 0.10:
+        clap_times.clear()
+        return
 
 
+    # Check for a physical double clap.
+    volume = np.linalg.norm(indata) * 10
+
+    samples = indata.flatten()
+    peak = np.max(np.abs(samples))
+    rms = np.sqrt(np.mean(samples ** 2)) + 0.000001
+    sharpness = peak / rms
+
+    spectrum = np.abs(np.fft.rfft(samples))
+    frequencies = np.fft.rfftfreq(
+    len(samples),
+    d=1 / SAMPLE_RATE,
+    )
+
+    total_energy = np.sum(spectrum ** 2) + 0.000001
+    high_energy = np.sum(
+    spectrum[frequencies >= 2500] ** 2
+    )
+    high_frequency_ratio = high_energy / total_energy
 
 
-        if len(clap_times) >= 2:
-
-            if clap_times[-1] - clap_times[-2] <= DOUBLE_CLAP_WINDOW:
-
-                print("DOUBLE CLAP DETECTED")
-
-                clap_times.clear()
-
-                double_clap_detected = True
 
 
+    if (
+        volume <= CLAP_THRESHOLD
+        or sharpness < CLAP_SHARPNESS_THRESHOLD
+    ):
+        return
+
+    if current_time - last_clap_time < CLAP_COOLDOWN:
+        return
+
+    last_clap_time = current_time
+    clap_times.append(current_time)
+
+    clap_times[:] = [
+        clap_time
+        for clap_time in clap_times
+        if current_time - clap_time <= DOUBLE_CLAP_WINDOW
+    ]
+
+    if (
+        len(clap_times) >= 2
+        and clap_times[-1] - clap_times[-2]
+        <= DOUBLE_CLAP_WINDOW
+    ):
+        print("DOUBLE CLAP DETECTED")
+
+        clap_times.clear()
+        double_clap_detected = True
 
 
-print("Listening for claps...")
 
-with sd.InputStream(callback=detect_clap):
+print("Listening for double clap or Hey CLAP...")
 
-
+with sd.InputStream(
+    callback=detect_activation,
+    device=MICROPHONE_INDEX,
+    samplerate=SAMPLE_RATE,
+    channels=1,
+    dtype="float32",
+    blocksize=CHUNK_SIZE,
+    latency="high",
+):
 
      while True:
 
-        if double_clap_detected:
+
+        if not double_clap_detected and not wake_word_detected:
+            time.sleep(0.05)
+            continue
+
+        if double_clap_detected or wake_word_detected:
 
            greeting = (
                f"{get_greeting()}. "
@@ -128,7 +238,7 @@ with sd.InputStream(callback=detect_clap):
                 "aed",
                 "dirham",
                 "peso",
-                "pesos"
+                "pesos",
                 "tradingview",
                 "chart",
                 "charts",
@@ -166,8 +276,8 @@ with sd.InputStream(callback=detect_clap):
                             ).lower()
 
                         if any(
-                            word in follow_up.split()
-                            for word in no_words
+                            phrase in follow_up
+                            for phrase in no_words
                         ):
                             speak("Okay Marc, standing by.")
                             break
@@ -175,9 +285,18 @@ with sd.InputStream(callback=detect_clap):
                         route_command(follow_up)
 
 
+
+                    wake_word_model.reset()
+
+                    clap_times.clear()
                     double_clap_detected = False
-                    print("Listening for claps...")
+                    wake_word_detected = False
+                    last_clap_time = time.monotonic()
+                    ignore_activation_until = time.monotonic() + ACTIVATION_COOLDOWN
+
+                    print("Listening for double clap or Hey CLAP...")
                     continue
+
 
 
            if (
