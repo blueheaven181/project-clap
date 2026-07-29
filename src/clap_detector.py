@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 
-
+from greeting import speak
 from pathlib import Path
 from openwakeword.model import Model
 from greeting import speak, get_greeting
@@ -17,6 +17,9 @@ from command_router import route_command
 from background_music import (
     start_background_music,
     stop_background_music,
+)
+from voice_commands import (
+    listen_until_response,
 )
 
 
@@ -216,9 +219,9 @@ with sd.InputStream(
            response = listen_for_response()
 
            if not response:
-              response = input(
-                 "Voice recognition failed. Please type yes or no: "
-               ).lower()
+              response = listen_until_response(
+                    "I did not hear you. Please say your command again."
+              )
 
 
 
@@ -267,13 +270,12 @@ with sd.InputStream(
 
                         time.sleep(1.5)
 
-                        follow_up = listen_for_response()
 
-                        if not follow_up:
-                            follow_up = input(
-                                "Voice recognition failed. "
-                                "Please type your next command or no: "
-                            ).lower()
+
+                        follow_up = listen_until_response(
+                             "I did not hear you. Please say your next command, or say no."
+                        )
+
 
                         if any(
                             phrase in follow_up
@@ -343,12 +345,10 @@ with sd.InputStream(
 
            speak("Would you like me to launch Spotify?")
 
-           spotify_response = listen_for_response()
+           spotify_response = listen_until_response(
+                   "I did not hear you. Please say yes or no."
+                )
 
-           if not spotify_response:
-                spotify_response = input(
-                    "Voice recognition failed. Please type yes or no: "
-                     ).lower()
 
            print("Spotify response =", spotify_response)
 

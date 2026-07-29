@@ -1,6 +1,7 @@
 import speech_recognition as sr
 import time
 
+from greeting import speak
     
 def listen_for_response():
     recognizer = sr.Recognizer()
@@ -41,9 +42,28 @@ def listen_for_response():
     return ""
 
 
+def listen_until_response(retry_message=None):
+    """
+    Keep listening until CLAP understands a spoken response.
+    """
+
+    while True:
+        response = listen_for_response()
+
+        if response:
+            return response
+
+        if retry_message:
+            print(retry_message)
+            speak(retry_message)
+
+        time.sleep(0.5)
+
+
 if __name__ == "__main__":
 
-    response = listen_for_response()
-
-    print(response)
+    response = listen_until_response(
+        "I did not hear you, Please try again."
+    )
+    print("Final response:", response)
 
