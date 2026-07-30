@@ -21,6 +21,12 @@ from spotify import (
     resume_spotify,
     stop_spotify,
 )
+from system_volume import (
+    change_system_volume,
+    mute_system_volume,
+    set_system_volume,
+    unmute_system_volume,
+)
 
 
 def route_command(command):
@@ -32,6 +38,81 @@ def route_command(command):
     """
 
     command = command.strip().lower()
+
+    if "unmute" in command:
+        unmute_system_volume()
+        speak("System audio unmuted.")
+        return True
+
+    if "mute" in command:
+        speak("Muting system audio.")
+        mute_system_volume()
+        return True
+
+    if "volume" in command:
+        amount_match = re.search(
+            r"\b(\d+(?:\.\d+)?)\b",
+            command,
+        )
+
+        if not amount_match:
+            speak(
+                "Please include the volume percentage "
+                "you want me to use."
+            )
+            return True
+
+        amount = float(amount_match.group(1))
+
+        if any(
+            word in command
+            for word in {
+                "reduce",
+                "lower",
+                "decrease",
+                "down",
+                "quieter",
+            }
+        ):
+            final_volume = change_system_volume(-amount)
+            speak(
+                f"System volume reduced to "
+                f"{final_volume} percent."
+            )
+            return True
+
+        if any(
+            word in command
+            for word in {
+                "increase",
+                "raise",
+                "up",
+                "louder",
+            }
+        ):
+            final_volume = change_system_volume(amount)
+            speak(
+                f"System volume increased to "
+                f"{final_volume} percent."
+            )
+            return True
+
+        if "set" in command or "change" in command:
+            final_volume = set_system_volume(amount)
+            speak(
+                f"System volume set to "
+                f"{final_volume} percent."
+            )
+            return True
+
+        speak(
+            "Please say set, increase, or reduce volume, "
+            "followed by a percentage."
+        )
+        return True
+
+
+
 
     mood_commands = {
         "relaxing": {

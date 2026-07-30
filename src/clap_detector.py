@@ -295,6 +295,9 @@ with sd.InputStream(
                 "training",
                 "party",
                 "dance",
+                "volume",
+                "mute",
+                "unmute",
 
             }
 

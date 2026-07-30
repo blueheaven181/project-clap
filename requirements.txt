@@ -6,6 +6,7 @@ audioop-lts==0.2.2
 certifi==2026.7.22
 cffi==2.1.0
 charset-normalizer==3.4.9
+comtypes==1.4.16
 edge-tts==7.2.8
 frozenlist==1.8.0
 idna==3.18
@@ -25,6 +26,7 @@ pyperclip==1.11.0
 PyRect==0.2.0
 PyScreeze==1.0.1
 pytweening==1.2.0
+pycaw==20251023
 requests==2.34.2
 sounddevice==0.5.5
 SpeechRecognition==3.17.0
