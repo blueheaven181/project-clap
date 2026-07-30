@@ -1,37 +1,77 @@
-# 👏 CLAP
+# CLAP
 
 ## Clap-Activated Personal Assistant
 
-CLAP is a Python-based desktop assistant activated by a double clap. It provides voice-controlled daily briefings, system information, trading workspace automation, and music playback to help start the day efficiently.
+CLAP is a Python-based personal desktop assistant created by Marc Anthony Marquez.
+
+It combines voice activation, trusted automation commands, live information services, local artificial intelligence, desktop control, music playback, and communication coaching.
+
+CLAP is also a practical learning project for Python, software engineering, automation, APIs, artificial intelligence, Git, GitHub, documentation, and troubleshooting.
 
 ---
 
-## 🚀 Current Features
+## Current Status
 
-### Activation
+### Version 0.7 — Intelligent Voice Assistant
 
-- Double-clap detection
-- Clap cooldown and double-clap timing controls
+CLAP currently supports two activation methods:
 
-### Greetings
+- Double clap
+- “Hey CLAP” custom wake word
 
-- Intelligent time-based greetings
+Double-clap activation is currently the more reliable method. Wake-word detection remains under calibration, particularly when speaking farther away from the laptop.
+
+---
+
+## Current Features
+
+### Dual Activation
+
+- Physical double-clap detection
+- Custom “Hey CLAP” wake-word model
+- Clap sharpness filtering
+- Clap cooldown protection
+- Activation cooldown protection
+- Protection against interpreting “Hey CLAP” as a physical clap
+
+### Voice Interaction
+
 - Microsoft neural text-to-speech voice
+- Google speech recognition
+- Voice-only retry when speech is not understood
+- Natural spoken commands
+- Follow-up commands without repeating the greeting
+- Safe return to standby
+- Time-based morning, afternoon, and evening greetings
 
-### Voice Recognition
+### Speech and Briefing Control
 
-- Spoken Yes/No responses
-- Natural responses such as “Yes, start my daily briefing”
-- Voice-controlled Spotify confirmation
-- Keyboard fallback when voice recognition fails
-- Microphone and recognition error handling
+While CLAP is speaking, a double clap can pause the current message.
 
-### Interactive Daily Briefing
+After pausing, the following commands are supported:
 
-- Asks whether the user wants the daily briefing
-- Accepts spoken confirmation before execution
-- Plays quiet background music during the briefing
-- Stops background music safely when the briefing finishes
+- “Continue”
+- “Repeat”
+- “Stop”
+
+During the daily briefing:
+
+- Continue resumes speech and background music
+- Repeat restarts the current spoken section
+- Stop cancels the remaining briefing
+- Stop prevents trading charts and Spotify prompts from opening
+- CLAP returns safely to standby
+
+### Daily Briefing
+
+The complete daily briefing includes:
+
+- Abu Dhabi weather
+- Laptop system health
+- Forex information
+- Background briefing music
+- Trading workspace automation
+- Optional Spotify playback
 
 ### Weather
 
@@ -41,6 +81,7 @@ CLAP is a Python-based desktop assistant activated by a double clap. It provides
 - Humidity
 - Wind speed
 - Chance of rain
+- Daily high and low
 - Weather advisories
 
 ### System Health
@@ -48,107 +89,289 @@ CLAP is a Python-based desktop assistant activated by a double clap. It provides
 - CPU utilization
 - Memory utilization
 - Disk utilization
-- Health recommendations
+- Health warnings and recommendations
 
-### Forex
+### Forex and Currency Conversion
 
 - EUR/USD
 - GBP/USD
 - USD/JPY
-- AED-to-PHP conversion
+- AED-to-PHP exchange rate
+- Spoken AED amount conversion
+
+Example:
+
+```text
+How much is 500 dirhams in pesos?
+```
+
+### Live News
+
+CLAP can retrieve and speak current headlines through online news feeds.
+
+Supported categories:
+
+- General news
+- Artificial intelligence news
+- Technology news
+- Cybersecurity news
+- Forex news
+
+Example commands:
+
+```text
+Latest AI news
+Latest technology news
+Latest cybersecurity news
+Latest forex news
+Latest general news
+```
 
 ### Trading Workspace Automation
 
-- Opens the EUR/USD TradingView chart
-- Opens the GOLD TradingView chart
-- Automatically arranges charts across dual monitors
+- Opens EUR/USD TradingView chart
+- Opens GOLD TradingView chart
+- Uses Google Chrome
+- Arranges charts across two monitors
+- Includes application startup delays and error handling
 
 ### Spotify
 
-- Optional Spotify launch
-- Spoken Yes/No confirmation
-- Automatic playback
+- Opens Spotify
+- Starts playback
+- Pauses and resumes playback
+- Stops playback
+- Skips to the next track
+- Returns to the previous track
+- Opens configured mood playlists
+
+Example commands:
+
+```text
+Play Spotify
+Pause music
+Resume music
+Next track
+Previous track
+Stop music
+Play relaxing music
+```
+
+Private Spotify playlist details are stored locally and excluded from GitHub.
+
+### Windows System Volume
+
+- Get the current volume
+- Set an exact volume percentage
+- Increase volume by a spoken percentage
+- Decrease volume by a spoken percentage
+- Mute sound
+- Unmute sound
+
+Example commands:
+
+```text
+Set volume to 50 percent
+Reduce volume by 10 percent
+Increase volume by 20 percent
+Mute the sound
+Unmute the sound
+```
+
+### Local AI Conversation
+
+CLAP uses Ollama as its local AI engine.
+
+Current local model:
+
+```text
+llama3.2:1b
+```
+
+Conversation mode can support:
+
+- General conversations
+- Communication coaching
+- Articulation practice
+- Interview practice
+- NOC Engineer interview questions
+- Azure Administrator interview questions
+- Career coaching
+- Fitness coaching
+- Clear explanations for Python and technical concepts
+
+General questions are sent to the local AI engine. Trusted commands such as weather, system health, currency conversion, news, Spotify, and desktop automation remain handled by dedicated CLAP modules.
+
+### Private Local Profile
+
+CLAP can load Marc’s personal profile from:
+
+```text
+config/marc_profile.local.json
+```
+
+The private profile is excluded from GitHub. It allows local personalization without publishing personal information in the repository.
 
 ---
 
-## 🔄 Current Workflow
+## How CLAP Routes Requests
 
 ```text
-Double Clap
-    ↓
-CLAP is online
-    ↓
-Would you like to hear your daily briefing?
-    ↓
-Spoken Yes/No Response
-    ↓
-YES
-    ↓
-Background Music Starts
-    ↓
-Weather Briefing
-    ↓
-System Health Briefing
-    ↓
-Forex Briefing
-    ↓
-Background Music Stops
-    ↓
-Trading Workspace Automation
-    ↓
-Daily Briefing Complete
-    ↓
-Would you like me to launch Spotify?
-    ↓
-Spoken Yes/No Response
-    ↓
-Optional Spotify Autoplay
+Double Clap or “Hey CLAP”
+            |
+            v
+      “How can I help?”
+            |
+            v
+    Spoken user request
+            |
+      +-----+------+
+      |            |
+      v            v
+Trusted command   General question
+      |            |
+      v            v
+Dedicated module  Local Ollama AI
+```
 
+Examples of trusted commands:
+
+- Weather
+- System health
+- Forex
+- AED-to-PHP conversion
+- Live news
+- TradingView charts
+- Spotify
+- Windows system volume
+- Daily briefing
+
+Requests that are not recognized as trusted commands can enter local conversation mode.
 
 ---
 
-## 📂 Project Structure
+## Main Workflow
 
 ```text
-project-clap
-│
-├── assets
-│   └── briefing_music.mp3   # Local file; excluded from Git
-│
-├── config
-├── docs
-├── tests
-│
-├── src
-│   ├── background_music.py
-│   ├── clap_detector.py
-│   ├── forex.py
-│   ├── greeting.py
-│   ├── main.py
-│   ├── neural_voice.py
-│   ├── spotify.py
-│   ├── system_health.py
-│   ├── voice_commands.py
-│   ├── weather.py
-│   └── workspace.py
-│
-├── requirements.txt
-└── README.md
+Double Clap or “Hey CLAP”
+            |
+            v
+Time-based greeting
+            |
+            v
+“How can I help?”
+            |
+            v
+Command or conversation
+            |
+            v
+Optional follow-up request
+            |
+            v
+Standby
+```
+
+Daily briefing workflow:
+
+```text
+Activation
+    |
+    v
+Daily briefing request
+    |
+    v
+Background music starts
+    |
+    v
+Weather briefing
+    |
+    v
+System-health briefing
+    |
+    v
+Forex briefing
+    |
+    v
+Background music stops
+    |
+    v
+Trading workspace opens
+    |
+    v
+Optional Spotify playback
+    |
+    v
+Standby
 ```
 
 ---
 
-## ⚙️ Development Environment
+## Project Structure
 
-CLAP currently uses Python 3.13 because PyAudio support is required for microphone input.
+```text
+project-clap
+|
+|-- assets
+|   `-- briefing_music.mp3
+|
+|-- config
+|   |-- marc_profile.local.json
+|   `-- spotify_playlists.local.json
+|
+|-- docs
+|   |-- architecture.md
+|   |-- development_notes.md
+|   |-- dual_activation_test_checklist.md
+|   |-- local_ai_setup.md
+|   |-- project_charter.md
+|   |-- requirements.md
+|   |-- retrospective_2026-07-27.md
+|   `-- roadmap.md
+|
+|-- models
+|   `-- wake_words
+|       |-- hey_Clap.onnx
+|       `-- hey_Clap.onnx.data
+|
+|-- src
+|   |-- background_music.py
+|   |-- clap_detector.py
+|   |-- command_router.py
+|   |-- conversation.py
+|   |-- forex.py
+|   |-- greeting.py
+|   |-- news.py
+|   |-- spotify.py
+|   |-- system_health.py
+|   |-- system_volume.py
+|   |-- voice_commands.py
+|   |-- wake_word_test.py
+|   |-- weather.py
+|   `-- workspace.py
+|
+|-- tests
+|-- .gitignore
+|-- CHANGELOG.md
+|-- LICENSE
+|-- README.md
+`-- requirements.txt
+```
 
-Create a project environment:
+Local MP3 files, private profile data, credentials, playlist configuration, recordings, and virtual environments are intentionally excluded from GitHub.
+
+---
+
+## Development Environment
+
+CLAP uses Python 3.13 because its microphone dependencies, particularly PyAudio, are compatible with this version.
+
+Create the virtual environment:
 
 ```powershell
 py -3.13 -m venv .venv
 ```
 
-Install the dependencies:
+Install dependencies:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
@@ -160,109 +383,105 @@ Run CLAP:
 .\.venv\Scripts\python.exe .\src\clap_detector.py
 ```
 
-The following features require an internet connection:
+Check Python syntax:
 
-- Neural text-to-speech through `edge-tts`
+```powershell
+.\.venv\Scripts\python.exe -m py_compile .\src\clap_detector.py
+```
+
+---
+
+## Internet and Local Services
+
+The following features currently require an internet connection:
+
+- Microsoft neural voice through `edge-tts`
 - Google speech recognition
 - Weather information
 - Forex information
+- Live news feeds
+
+The following feature runs locally after its model has been downloaded:
+
+- Ollama conversation engine
+
+Desktop automation, local wake-word detection, system health, Windows volume control, and double-clap detection run locally.
 
 ---
 
-## 🏆 Current Status
+## Security and Privacy
 
-### Version 0.6 Release Candidate — Hands-Free Briefing
+Project CLAP follows a local-first security approach.
 
-Completed:
-
-- ✅ Double-clap activation
-- ✅ Neural voice greeting
-- ✅ Spoken briefing confirmation
-- ✅ Voice-recognition fallback handling
-- ✅ Weather briefing
-- ✅ System-health briefing
-- ✅ Forex briefing
-- ✅ AED-to-PHP conversion
-- ✅ Background briefing music
-- ✅ TradingView automation
-- ✅ Dual-monitor workspace automation
-- ✅ Spoken Spotify confirmation
-- ✅ Spotify autoplay
-- ✅ Python 3.13 virtual environment
-- ✅ Reproducible dependency installation
+- Secrets and credentials must not be committed to GitHub
+- Private profile data remains in local configuration files
+- Spotify playlist configuration remains local
+- Generated speech files are temporary
+- Downloaded briefing music remains local
+- Trusted automation commands use dedicated modules
+- Local AI does not receive authority to execute arbitrary commands
+- External integrations should use minimum required permissions
+- Destructive or sensitive actions should require confirmation
 
 ---
 
-## 🔮 Roadmap
+## Known Limitations
 
-### Version 0.7 — Voice Command Routing
-
-- [ ] Ask “How can I help?” after activation
-- [ ] Weather-only command
-- [ ] System-health-only command
-- [ ] Forex-only command
-- [ ] AED-to-PHP amount conversion
-- [ ] Full daily-briefing command
-- [ ] Trading-workspace command
-- [ ] Spotify command
-- [ ] Unknown-command response
-
-### Global Interruption
-
-- [ ] Global “CLAP, stop” voice command
-- [ ] Stop active speech
-- [ ] Stop background music
-- [ ] Cancel remaining briefing actions
-- [ ] Return safely to standby mode
-
-### Productivity Integrations
-
-- [ ] Google Calendar integration
-- [ ] Google Tasks integration
-- [ ] Daily schedule summary
-- [ ] Task reminders
-- [ ] News briefing
-
-### Smart Environment
-
-- [ ] Smart-curtain control
-- [ ] Smart-lighting control
-- [ ] Morning-routine automation
-- [ ] Presence detection
-- [ ] Room environmental monitoring
-
-### Architecture and Deployment
-
-- [ ] Separate desktop-control and service modules
-- [ ] Introduce a command router
-- [ ] Evaluate offline voice recognition
-- [ ] Containerize weather and forex services
-- [ ] Connect desktop CLAP to containerized services
-- [ ] Evaluate Azure Container Apps
+- “Hey CLAP” may be unreliable at longer distances
+- Double clap is currently the preferred activation method
+- Google speech recognition requires internet access
+- Neural text-to-speech requires internet access
+- Voice input currently uses a fixed recording period
+- Microphone selection is currently configured for the laptop’s built-in microphone
+- Wake-word accuracy depends on microphone quality, distance, and room noise
+- Local AI quality and response speed depend on the selected model and computer hardware
+- Desktop window automation depends on the current monitor arrangement
+- Spotify control currently relies mainly on desktop and media-key automation
 
 ---
 
-## 🧠 Development Philosophy
+## Next Priorities
 
-CLAP is both a personal assistant and a practical learning project.
+- Improve wake-word reliability
+- Refine pause, continue, repeat, and stop behavior
+- Add news to the optional daily briefing
+- Improve command and conversation routing
+- Add Google Calendar integration
+- Add Google Tasks integration
+- Integrate SwitchBot Curtain 3
+- Add smart-lighting scenes
+- Build morning, gym, relaxation, and party modes
+- Package CLAP as a Windows application
+- Evaluate a mobile companion application
+- Continue hybrid local and cloud architecture planning
+
+---
+
+## Development Philosophy
+
+CLAP is both a personal assistant and a learning journey.
 
 The project is used to learn:
 
 - Python programming
-- Software architecture
+- Software engineering
 - Automation
-- API integration
+- Artificial intelligence
 - Voice interaction
+- API integration
+- Desktop integration
 - Git and GitHub
 - Documentation
-- Debugging and troubleshooting
+- Debugging
+- Security
+- Project architecture
 
-Development favors small, testable improvements while preserving working functionality.
+Development favors small, testable, incremental improvements while preserving working functionality.
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 Marc Anthony Marquez
 
-NOC Engineer | Azure Administrator | Automation Enthusiast
+NOC Engineer | Azure Administrator | Automation and AI Enthusiast

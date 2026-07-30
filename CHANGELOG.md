@@ -1,186 +1,193 @@
-# Changelog
+## Version 0.7 — Intelligent Voice Assistant
 
-All notable changes to Project CLAP are recorded in this document.
-
----
-
-## Version 0.6 — Hands-Free Briefing
-
-**Date:** 2026-07-28  
-**Status:** Completed
+**Date:** 2026-07-31
+**Status:** Development Milestone
 
 ### Added
 
-- Voice-based Yes/No responses for the daily briefing
-- Voice-based Yes/No responses for Spotify
-- Support for natural responses such as:
-  - “Yes, please”
-  - “Yes, give me the daily briefing”
-  - “No, I don't want to hear it”
-  - “Sure”
-  - “Okay”
-- Five-second microphone recording window
-- Built-in laptop microphone selection
-- Keyboard fallback when voice recognition fails
-- Background music during the spoken daily briefing
-- Reusable `background_music.py` module
-- Configurable background-music volume
-- Smooth music fade-out after the briefing
-- Python 3.13 virtual environment
-- `requirements.txt` for dependency installation
-- Updated project README
-- Updated project roadmap
-- Sprint retrospective documentation
-- Development issues and lessons-learned documentation
+#### Dual Activation
+
+- Custom “Hey CLAP” OpenWakeWord model
+- Local wake-word detection
+- Double-clap and wake-word activation in the same listening loop
+- Activation cooldown protection
+- Wake-word score threshold configuration
+- Protection against interpreting “Hey CLAP” as a physical clap
+- Dual-activation stability checklist
+
+#### Voice Command Routing
+
+- Central `command_router.py` module
+- Weather-only voice command
+- System-health-only voice command
+- Forex-only voice command
+- TradingView voice command
+- Spotify voice commands
+- System-volume voice commands
+- News voice commands
+- Unknown-command handling
+- Follow-up commands without repeating the greeting
+
+#### Currency Conversion
+
+- Spoken AED amount detection
+- AED-to-PHP amount conversion
+- Support for questions such as:
+  - “How much is 500 dirhams in pesos?”
+  - “Convert 100 AED to Philippine pesos”
+- Missing-amount handling
+
+#### Local AI Conversation
+
+- Local Ollama integration
+- `llama3.2:1b` laptop model
+- Reusable `conversation.py` module
+- Conversation history
+- General conversation mode
+- Communication coaching
+- Articulation coaching
+- Interview practice
+- Career coaching
+- Fitness coaching
+- Conversation exit phrases
+- Inactivity checking
+- Conversation continuation confirmation
+- Routing of general questions to local AI
+- Private local user-profile configuration
+- Protection against committing private profile data to GitHub
+
+#### Controllable Speech
+
+- Dedicated `pygame` speech channel
+- Double-clap interruption while CLAP is speaking
+- Pause control
+- Continue control
+- Repeat control
+- Stop control
+- Background-music pause and resume synchronization
+- Complete briefing cancellation
+- Safe return to standby after cancellation
+
+#### Spotify Controls
+
+- Pause Spotify
+- Resume Spotify
+- Stop Spotify
+- Skip to the next track
+- Return to the previous track
+- Private mood-playlist configuration
+- Relaxing-music voice command
+
+#### Windows System Volume
+
+- New `system_volume.py` module
+- Read current system volume
+- Set an exact volume percentage
+- Increase volume by a requested percentage
+- Decrease volume by a requested percentage
+- Mute system sound
+- Unmute system sound
+
+#### Live News
+
+- New `news.py` module
+- Online RSS news retrieval
+- General news
+- Artificial intelligence news
+- Technology news
+- Cybersecurity news
+- Forex news
+- Short spoken headline summaries
+- Publication-source attribution
+- Network and feed-parsing error handling
+
+#### Documentation and Security
+
+- Local AI setup documentation
+- Dual-activation test checklist
+- Private configuration exclusions
+- Credential and secret exclusions
+- Expanded `.gitignore` security rules
+- Updated README
+- Updated roadmap
 
 ### Changed
 
-- Daily briefing confirmation changed from typed-only input to voice-first interaction
-- Spotify confirmation changed from typed-only input to voice-first interaction
-- Yes/No handling now checks keywords inside natural sentences
-- CLAP now uses Python 3.13 for improved PyAudio compatibility
-- The daily briefing workflow now starts and stops background music automatically
-- Project documentation was updated to reflect the current architecture and functionality
+- CLAP now asks “How can I help?” after activation
+- Interaction changed from a briefing-only workflow to command-or-conversation routing
+- Unrecognized general requests can enter local AI conversation mode
+- Trusted automation commands remain handled by dedicated modules
+- Voice recognition retries instead of requiring keyboard fallback
+- Follow-up commands can run without another activation and greeting
+- Speech playback changed from `playsound` to a controllable `pygame` channel
+- Double clap now serves as both an activation method and a speech-control signal
+- Background music now pauses and resumes with briefing speech
+- A stopped briefing no longer continues to system health, forex, charts, or Spotify
+- Spotify playback now supports configured moods and media controls
+- CLAP can now personalize local AI responses using a private local profile
 
 ### Fixed
 
-- PyAudio compatibility problem with Python 3.14
-- Voice recognition ending before the user had enough time to speak
-- Incorrect microphone selection
-- Longer spoken Yes responses not being accepted
-- Missing dependencies in the new Python environment
-- PowerShell virtual-environment activation limitation
-- Git push rejection caused by the remote branch being ahead
-- Background music continuing after briefing errors by using cleanup logic
+- Normal speech being incorrectly interpreted as a double clap
+- “Hey CLAP” being interpreted as a double clap
+- Repeated activation immediately after returning to standby
+- “No” incorrectly entering conversation mode
+- Voice-recognition failure returning to keyboard input
+- Temporary speech files remaining after interrupted sessions
+- Background music continuing after the briefing was stopped
+- Stopped briefings continuing into later modules
+- Speech pause and resume state becoming disconnected from background music
+- Spotify command import and indentation errors
+- Local AI referring to Marc in the third person
+- Local AI claiming to remember information that was not provided
+- Multiple Python indentation and control-flow issues found during incremental integration
 
 ### Tested
 
-The complete workflow was tested successfully with both Yes and No responses:
+The following workflows were tested successfully:
 
-```text
-Double Clap
-↓
-CLAP is online
-↓
-Spoken briefing confirmation
-↓
-Background briefing music
-↓
-Weather briefing
-↓
-System health briefing
-↓
-Forex briefing
-↓
-Trading workspace automation
-↓
-Spoken Spotify confirmation
-↓
-Spotify playback or standby
-```
+- Double-clap activation
+- “Hey CLAP” activation at close range
+- Weather command
+- System-health command
+- Forex command
+- AED-to-PHP amount conversion
+- TradingView chart opening and arrangement
+- Spotify play, pause, resume, stop, next, and previous controls
+- Relaxing Spotify playlist
+- Exact and relative Windows volume changes
+- Mute and unmute
+- Local AI conversation
+- Communication and interview coaching
+- Private local profile loading
+- Conversation exit and standby
+- Daily briefing with background music
+- Double-clap speech pause
+- Continue after pause
+- Repeat after pause
+- Full briefing stop and return to standby
+- General news
+- Artificial intelligence news
+- Technology news
+- Cybersecurity news
+- Forex news
 
 ### Known Limitations
 
+- “Hey CLAP” is less reliable at longer distances
+- Double clap remains the preferred activation method
+- The custom wake-word model requires further training
 - Voice recognition currently requires an internet connection
 - Neural text-to-speech currently requires an internet connection
-- Microphone device selection is fixed at `device_index=1`
-- Voice recording uses a fixed five-second window
-- CLAP cannot yet interrupt its own speech
-- The background music file must be placed locally at:
-  `assets/briefing_music.mp3`
-- MP3 files are intentionally excluded from GitHub
+- Weather, forex, and news require internet access
+- Voice input still uses a fixed recording duration
+- Microphone selection is currently fixed for the laptop
+- Direct voice interruption during loud speech or music is unreliable
+- Double clap is currently used before spoken pause controls
+- Local AI speed and quality are limited by laptop hardware
+- The `llama3.2:1b` model may occasionally produce weak or inaccurate answers
+- Spotify control relies mainly on desktop automation and media keys
+- News feeds may contain duplicate, low-quality, or loosely related headlines
+- Two experimental interruption test files remain under local review
 
 ---
-
-## Version 0.5 — Interactive Daily Assistant
-
-### Added
-
-- Interactive daily briefing confirmation
-- Weather briefing
-- System health briefing
-- Forex briefing
-- AED-to-PHP conversion
-- TradingView workspace automation
-- Dual-monitor chart arrangement
-- Spotify integration
-- Spotify autoplay
-
-### Interaction Method
-
-Daily briefing and Spotify responses were entered using the keyboard.
-
----
-
-## Version 0.4 — Workspace and Music Automation
-
-### Added
-
-- TradingView chart launching
-- EUR/USD workspace
-- GOLD workspace
-- Multi-monitor window arrangement
-- Spotify launching and playback automation
-
----
-
-## Version 0.3 — Information Briefing
-
-### Added
-
-- Abu Dhabi weather information
-- Temperature and feels-like temperature
-- Humidity
-- Wind speed
-- Chance of rain
-- Weather advisories
-- CPU utilization
-- Memory utilization
-- Disk utilization
-- System health recommendations
-- EUR/USD rate
-- GBP/USD rate
-- USD/JPY rate
-- AED-to-PHP conversion
-
----
-
-## Version 0.2 — Intelligent Activation
-
-### Added
-
-- Double-clap detection
-- Clap cooldown protection
-- Reduced false clap detections
-- Intelligent time-based greetings
-- Morning, afternoon, and evening responses
-- Reusable neural voice engine
-- Temporary speech-file cleanup
-
----
-
-## Version 0.1 — First Contact
-
-### Added
-
-- Initial Python project structure
-- GitHub repository
-- VS Code development environment
-- First Python application
-- First neural voice greeting
-- Initial project documentation
-
----
-
-## Planned for the Next Version
-
-- Central voice-command router
-- “Weather only” command
-- “System health only” command
-- Forex-only commands
-- AED amount-to-peso conversion
-- Trading workspace voice command
-- Spotify voice command
-- Global “CLAP, stop” command
-- “Hey CLAP” voice activation
-- “Good morning CLAP” morning-routine activation
