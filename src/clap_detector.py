@@ -4,10 +4,16 @@ import time
 from conversation import start_voice_conversation
 
 
-from greeting import speak
+
+from greeting import (
+    get_greeting,
+    is_speaking,
+    request_speech_control,
+    set_speech_control_handler,
+    speak,
+)
 from pathlib import Path
 from openwakeword.model import Model
-from greeting import speak, get_greeting
 from weather import get_weather
 from system_health import get_system_health
 from forex import get_forex, open_forex_charts
@@ -16,12 +22,16 @@ from spotify import play_spotify
 from voice_commands import listen_for_response
 from command_router import route_command
 from background_music import (
+    pause_background_music,
+    resume_background_music,
     start_background_music,
     stop_background_music,
 )
 from voice_commands import (
     listen_until_response,
 )
+
+
 
 
 
@@ -71,8 +81,63 @@ wake_word_model = Model(
 
 
 
+def handle_speech_control():
+    """
+    Listen for Marc's instruction after speech is paused.
+    """
+
+    continue_phrases = {
+        "continue",
+        "resume",
+        "carry on",
+        "go ahead",
+    }
+
+    repeat_phrases = {
+        "repeat",
+        "repeat that",
+        "say that again",
+    }
+
+    stop_phrases = {
+        "stop",
+        "cancel",
+        "full stop",
+        "stand by",
+        "standby",
+    }
+
+    pause_background_music()
+
+    print("Speech paused. Say continue, repeat, or stop.")
 
 
+
+    while True:
+        response = listen_for_response()
+
+        if not response:
+            print("Please say continue, repeat, or stop.")
+            continue
+
+        normalized_response = response.strip().lower()
+
+        if normalized_response in continue_phrases:
+            resume_background_music()
+            return "continue"
+
+        if normalized_response in repeat_phrases:
+            resume_background_music()
+            return "repeat"
+
+        if normalized_response in stop_phrases:
+            stop_background_music()
+            return "stop"
+
+        print("Please say continue, repeat, or stop.")
+
+
+set_speech_control_handler(handle_speech_control)
 
 
 def detect_activation(indata, frames, time_info, status):
@@ -81,53 +146,57 @@ def detect_activation(indata, frames, time_info, status):
     global last_clap_time
     global ignore_activation_until
 
-    if double_clap_detected or wake_word_detected:
+    currently_speaking = is_speaking()
+
+    # Once activated, ignore more activation attempts unless CLAP
+    # is speaking and the double clap is intended as speech control.
+    if (
+        (double_clap_detected or wake_word_detected)
+        and not currently_speaking
+    ):
         return
 
     current_time = time.monotonic()
 
     if current_time < ignore_activation_until:
-     return
-
-
-     # Convert microphone audio for the wake-word model.
-    audio_frame = np.clip(
-        indata.flatten(),
-        -1.0,
-        1.0,
-    )
-
-    audio_frame = (
-        audio_frame * 32767
-    ).astype(np.int16)
-
-    predictions = wake_word_model.predict(audio_frame)
-    highest_wake_score = max(
-        predictions.values(),
-        default=0.0,
-    )
-
-
-
-
-
-    for model_name, score in predictions.items():
-        if score >= WAKE_WORD_THRESHOLD:
-            print(
-                "HEY CLAP DETECTED:",
-                model_name,
-                f"score={score:.2f}",
-            )
-
-            clap_times.clear()
-            wake_word_detected = True
-            return
-
-    # Do not interpret speech resembling "Hey CLAP" as claps.
-    if highest_wake_score >= 0.10:
-        clap_times.clear()
         return
 
+    # Wake-word detection is disabled while CLAP is speaking.
+    # This prevents CLAP from hearing its own voice as "Hey CLAP".
+    if not currently_speaking:
+        audio_frame = np.clip(
+            indata.flatten(),
+            -1.0,
+            1.0,
+        )
+
+        audio_frame = (
+            audio_frame * 32767
+        ).astype(np.int16)
+
+        predictions = wake_word_model.predict(audio_frame)
+
+        highest_wake_score = max(
+            predictions.values(),
+            default=0.0,
+        )
+
+        for model_name, score in predictions.items():
+            if score >= WAKE_WORD_THRESHOLD:
+                print(
+                    "HEY CLAP DETECTED:",
+                    model_name,
+                    f"score={score:.2f}",
+                )
+
+                clap_times.clear()
+                wake_word_detected = True
+                return
+
+        # Do not interpret speech resembling "Hey CLAP" as claps.
+        if highest_wake_score >= 0.10:
+            clap_times.clear()
+            return
 
     # Check for a physical double clap.
     volume = np.linalg.norm(indata) * 10
@@ -136,21 +205,6 @@ def detect_activation(indata, frames, time_info, status):
     peak = np.max(np.abs(samples))
     rms = np.sqrt(np.mean(samples ** 2)) + 0.000001
     sharpness = peak / rms
-
-    spectrum = np.abs(np.fft.rfft(samples))
-    frequencies = np.fft.rfftfreq(
-    len(samples),
-    d=1 / SAMPLE_RATE,
-    )
-
-    total_energy = np.sum(spectrum ** 2) + 0.000001
-    high_energy = np.sum(
-    spectrum[frequencies >= 2500] ** 2
-    )
-    high_frequency_ratio = high_energy / total_energy
-
-
-
 
     if (
         volume <= CLAP_THRESHOLD
@@ -175,9 +229,15 @@ def detect_activation(indata, frames, time_info, status):
         and clap_times[-1] - clap_times[-2]
         <= DOUBLE_CLAP_WINDOW
     ):
-        print("DOUBLE CLAP DETECTED")
-
         clap_times.clear()
+
+        if currently_speaking:
+            if request_speech_control():
+                print("SPEECH CONTROL DOUBLE CLAP DETECTED")
+
+            return
+
+        print("DOUBLE CLAP DETECTED")
         double_clap_detected = True
 
 
@@ -379,15 +439,44 @@ with sd.InputStream(
                     print(forex_report)
 
 
+                    briefing_completed = True
+
                     start_background_music()
 
                     try:
-                        speak(weather_report)
-                        speak(system_report)
-                        speak(forex_report)
+                        if not speak(weather_report):
+                            briefing_completed = False
+
+                        elif not speak(system_report):
+                            briefing_completed = False
+
+                        elif not speak(forex_report):
+                            briefing_completed = False
 
                     finally:
                         stop_background_music()
+
+                    if not briefing_completed:
+                        print(
+                            "Daily briefing stopped. "
+                            "Returning to standby."
+                        )
+
+                        wake_word_model.reset()
+                        clap_times.clear()
+                        double_clap_detected = False
+                        wake_word_detected = False
+                        last_clap_time = time.monotonic()
+                        ignore_activation_until = (
+                            time.monotonic()
+                            + ACTIVATION_COOLDOWN
+                        )
+
+                        print(
+                            "Listening for double clap "
+                            "or Hey CLAP..."
+                        )
+                        continue
 
 
                     speak("Opening your trading workspace")
