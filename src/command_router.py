@@ -27,7 +27,11 @@ from system_volume import (
     set_system_volume,
     unmute_system_volume,
 )
-from news import get_latest_news
+from news import (
+    get_latest_news,
+    get_news_item,
+    summarize_news_article,
+)
 
 
 def route_command(command):
@@ -39,6 +43,62 @@ def route_command(command):
     """
 
     command = command.strip().lower()
+
+    headline_request = re.search(
+        r"\b(?:headline|story)\s*(one|two|three|1|2|3)\b",
+        command,
+    )
+
+    if headline_request and any(
+        phrase in command
+        for phrase in {
+            "tell me more",
+            "more about",
+            "details",
+            "explain",
+        }
+    ):
+        number_lookup = {
+            "one": 1,
+            "two": 2,
+            "three": 3,
+            "1": 1,
+            "2": 2,
+            "3": 3,
+        }
+
+        requested_number = number_lookup[
+            headline_request.group(1)
+        ]
+
+        selected_item = get_news_item(requested_number)
+
+        if not selected_item:
+            speak(
+                "I do not have that headline in memory. "
+                "Please request the latest news first."
+            )
+            return True
+
+
+        print(
+            "Selected news link:",
+             selected_item["link"],
+        )
+
+        speak(
+            f"Let me check headline {requested_number}."
+        )
+
+        article_summary = summarize_news_article(
+            requested_number
+        )
+
+        print("News summary:", article_summary)
+        speak(article_summary)
+        return True
+
+
 
     news_request_words = {
         "news",
@@ -300,7 +360,7 @@ def route_command(command):
         speak(forex_report)
 
         return True
-     
+
 
     speak("Sorry Marc, I do not understand that command yet.")
     return False

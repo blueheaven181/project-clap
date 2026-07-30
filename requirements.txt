@@ -37,3 +37,5 @@ typing_extensions==4.16.0
 urllib3==2.7.0
 yarl==1.24.5
 openwakeword==0.6.0
+googlenewsdecoder==0.1.7
+trafilatura==2.1.0
