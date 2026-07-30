@@ -229,6 +229,37 @@ with sd.InputStream(
 
            yes_words = {"yes", "yeah", "yep", "sure", "okay", "ok"}
 
+           no_words = {
+                "no",
+                "nope",
+                "nothing",
+                "done",
+                "stop",
+                "stand by",
+                "standby",
+                "exit",
+                "full stop",
+                "thank you",
+           }
+
+           normalized_response = response.strip().lower()
+
+           if normalized_response in no_words:
+                speak("Okay Marc, standing by.")
+
+                wake_word_model.reset()
+                clap_times.clear()
+                double_clap_detected = False
+                wake_word_detected = False
+                last_clap_time = time.monotonic()
+                ignore_activation_until = (
+                    time.monotonic() + ACTIVATION_COOLDOWN
+                )
+
+                print("Listening for double clap or Hey CLAP...")
+                continue
+
+
 
            direct_command_words = {
                 "weather",
@@ -246,6 +277,24 @@ with sd.InputStream(
                 "tradingview",
                 "chart",
                 "charts",
+                "spotify",
+                "music",
+                "song",
+                "track",
+                "relaxing",
+                "relax",
+                "relaxation",
+                "calm",
+                "chill",
+                "sleep",
+                "sleeping",
+                "bedtime",
+                "workout",
+                "gym",
+                "exercise",
+                "training",
+                "party",
+                "dance",
 
             }
 
@@ -253,14 +302,6 @@ with sd.InputStream(
            if any(word in response for word in direct_command_words):
                     route_command(response)
 
-                    no_words = {
-                        "no",
-                        "nope",
-                        "nothing",
-                        "done",
-                        "stop",
-                        "thank you",
-                    }
 
                     while True:
                         speak(

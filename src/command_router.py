@@ -12,6 +12,15 @@ from voice_commands import listen_for_response
 from system_health import get_system_health
 from forex import get_forex
 from workspace import arrange_workspace
+from spotify import (
+    next_spotify_track,
+    pause_spotify,
+    play_spotify,
+    play_spotify_mood,
+    previous_spotify_track,
+    resume_spotify,
+    stop_spotify,
+)
 
 
 def route_command(command):
@@ -23,6 +32,81 @@ def route_command(command):
     """
 
     command = command.strip().lower()
+
+    mood_commands = {
+        "relaxing": {
+            "relaxing",
+            "relax",
+            "relaxation",
+            "calm",
+            "chill",
+        },
+        "sleep": {
+            "sleep",
+            "sleeping",
+            "bedtime",
+        },
+        "workout": {
+            "workout",
+            "gym",
+            "exercise",
+            "training",
+        },
+        "party": {
+            "party",
+            "dance",
+        },
+    }
+
+    for mood, keywords in mood_commands.items():
+        if any(keyword in command for keyword in keywords):
+            if play_spotify_mood(mood):
+                speak(f"Playing your {mood} music.")
+            else:
+                speak(
+                    f"You have not configured a {mood} "
+                    "Spotify playlist yet."
+                )
+
+            return True
+
+    spotify_words = {
+        "spotify",
+        "music",
+        "song",
+        "track",
+    }
+
+    if any(word in command for word in spotify_words):
+        if "pause" in command:
+            speak("Pausing Spotify.")
+            pause_spotify()
+            return True
+
+        if "resume" in command or "continue" in command:
+            speak("Resuming Spotify.")
+            resume_spotify()
+            return True
+
+        if "stop" in command:
+            speak("Stopping Spotify.")
+            stop_spotify()
+            return True
+
+        if "next" in command or "skip" in command:
+            speak("Skipping to the next track.")
+            next_spotify_track()
+            return True
+
+        if "previous" in command or "back" in command:
+            speak("Returning to the previous track.")
+            previous_spotify_track()
+            return True
+
+        if "play" in command or "open" in command:
+            speak("Launching Spotify.")
+            play_spotify()
+            return True
 
     if "weather" in command:
         weather_report = get_weather()
