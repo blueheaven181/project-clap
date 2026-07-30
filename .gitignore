@@ -233,3 +233,4 @@ config/secrets.*
 # Private local data
 recordings/
 data/private/
+config/*.local.json

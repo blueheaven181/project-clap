@@ -1,3 +1,8 @@
+import json
+from pathlib import Path
+
+import requests
+
 import requests
 
 from greeting import speak
@@ -9,29 +14,117 @@ LOCAL_AI_MODEL = "llama3.2:1b"
 
 SYSTEM_PROMPT = """
 You are CLAP, Marc Anthony Marquez's personal assistant,
-communication coach, and interview-practice partner.
+communication coach, interview-practice partner, and fitness coach.
 
 Marc is a NOC Engineer based in Abu Dhabi with Azure
-Administrator experience. Explain concepts clearly and
-help him improve his confidence and professional communication.
+Administrator experience.
+
+Marc wants to improve his articulation, communication skills,
+interview confidence, and ability to express ideas clearly.
+
+Your responses will normally be spoken aloud:
+- Use short, natural, voice-friendly sentences.
+- Give the direct answer first.
+- Keep ordinary answers to a maximum of three short sentences.
+- Do not use Markdown, headings, tables, or long lists.
+- Ask only one question at a time.
+- Give more detail only when Marc requests it.
+- Never add a personal example unless Marc requests one.
+
+When acting as Marc's communication and articulation coach:
+- Evaluate whether his answer is clear, concise, and well structured.
+- Point out filler words, repetition, vague language, and long sentences.
+- Suggest clearer and more professional wording.
+- Provide a stronger version of his answer when useful.
+- Give encouraging but honest feedback.
+- Focus on only one or two improvements at a time.
+- Ask Marc to try the improved answer again when appropriate.
 
 When conducting an interview:
-- Ask one question at a time.
-- Wait for Marc's answer.
+- Act as an experienced hiring manager when requested.
+- Ask one interview question at a time.
+- Wait for Marc's answer before continuing.
 - Give concise and constructive feedback.
+- Evaluate the answer's clarity, relevance, structure, and confidence.
 - Suggest a stronger example answer when useful.
+- Do not invent facts about Marc's professional experience.
+
+When acting as Marc's fitness coach:
+- Help with general fitness, exercise planning, consistency, and motivation.
+- Explain exercises and training concepts in simple language.
+- Help estimate calories and macronutrients when enough information is provided.
+- Ask about Marc's goal, experience, equipment, and limitations before creating a plan.
+- Recommend gradual, realistic, and sustainable progress.
+- Never diagnose medical conditions.
+- Never present calorie or nutrition estimates as exact measurements.
+- Recommend professional medical advice for injuries, severe symptoms, or health concerns.
+- Keep fitness responses short and practical unless Marc requests more detail.
 
 Do not claim to know current live information unless it was
 provided by one of CLAP's approved online modules.
+
+Do not pretend to remember information that was not provided in
+the current conversation or included in this system prompt.
+
+- Speak directly to Marc using "you" and "your", not "Marc" or "he".
 """
+
+def load_marc_profile():
+    """
+    Load Marc's private local profile without committing it to GitHub.
+    """
+
+    project_folder = Path(__file__).resolve().parent.parent
+    profile_path = (
+        project_folder
+        / "config"
+        / "marc_profile.local.json"
+    )
+
+    try:
+        with profile_path.open(
+            "r",
+            encoding="utf-8",
+        ) as profile_file:
+            return json.load(profile_file)
+
+    except FileNotFoundError:
+        print("Private profile was not found.")
+        return {}
+
+    except json.JSONDecodeError as error:
+        print("Private profile contains invalid JSON:", error)
+        return {}
+
+
+marc_profile = load_marc_profile()
+
+marc_profile = load_marc_profile()
+
+private_context = (
+    SYSTEM_PROMPT
+    + "\n\nUse the following facts to personalize your assistance. "
+    + "Never mention this profile, private context, JSON, or how these "
+    + "facts were stored. "
+    + "Marc's current role is NOC Engineer. His Azure Administrator, "
+    + "system administration, system support, and end-user support "
+    + "roles are previous experience. "
+    + "Do not change or invent facts about his background.\n"
+    + "When asked about Marc's career, clearly state that he currently "
+    + "works as a NOC Engineer and has held this role for more than one "
+    + "year. He has more than 15 years of total IT experience. His "
+    + "previous experience includes end-user support, system support, "
+    + "system administration, and Azure administration. Never describe "
+    + "Azure Administrator as his current role.\n"
+    + json.dumps(marc_profile, ensure_ascii=False)
+)
 
 conversation_history = [
     {
         "role": "system",
-        "content": SYSTEM_PROMPT,
+        "content": private_context,
     }
 ]
-
 
 def chat_with_clap(user_message):
     conversation_history.append(
@@ -44,13 +137,19 @@ def chat_with_clap(user_message):
     try:
         response = requests.post(
             OLLAMA_URL,
+
             json={
                 "model": LOCAL_AI_MODEL,
                 "messages": conversation_history,
                 "stream": False,
+                "options": {
+                    "num_predict": 80,
+                    "temperature": 0.3,
+                },
             },
             timeout=120,
         )
+
 
         response.raise_for_status()
 
@@ -83,16 +182,33 @@ def start_voice_conversation(initial_message=None):
 
     exit_phrases = {
         "stop",
+        "stop talking",
+        "stand by",
+        "standby",
+        "stand bye",
+        "stan by",
+        "stan bhai",
         "exit",
+        "exit conversation",
+        "end conversation",
         "goodbye",
         "that is all",
         "that's all",
-        "stop conversation",
+        "that is enough",
+        "that's enough",
+        "full stop",
     }
 
     speak("Conversation mode started.")
 
     next_message = initial_message
+    conversation_turns = 0
+
+    # Temporarily use 2 so the checkpoint is quick to test.
+    max_conversation_turns = 10
+        # Temporary short values for testing.
+    inactivity_timeout_seconds = 120
+    presence_timeout_seconds = 30
 
     while True:
         if next_message:
@@ -100,10 +216,50 @@ def start_voice_conversation(initial_message=None):
             next_message = None
         else:
             user_message = listen_until_response(
-                "I did not hear you. Please say that again."
+                timeout_seconds=inactivity_timeout_seconds,
+                silent_retries=True,
             )
 
-        if user_message.strip() in exit_phrases:
+            if not user_message:
+                speak("Marc, are you still there?")
+
+                presence_response = listen_until_response(
+                    timeout_seconds=presence_timeout_seconds,
+                    silent_retries=True,
+                )
+
+                if not presence_response:
+                    speak(
+                        "I did not hear a response. "
+                        "I am returning to standby."
+                    )
+                    return
+
+                presence_words = {
+                    "yes",
+                    "yeah",
+                    "yep",
+                    "here",
+                    "i am here",
+                    "still here",
+                }
+
+                if any(
+                    phrase in presence_response
+                    for phrase in presence_words
+                ):
+                    speak(
+                        "Welcome back. Would you like to continue "
+                        "where we left off, or start a new topic?"
+                    )
+                    continue
+
+                speak("Okay Marc, standing by.")
+                return
+
+        normalized_message = user_message.strip().lower()
+
+        if normalized_message in exit_phrases:
             speak("Conversation mode ended. Standing by.")
             return
 
@@ -113,6 +269,37 @@ def start_voice_conversation(initial_message=None):
 
         print("CLAP:", assistant_message)
         speak(assistant_message)
+
+        conversation_turns += 1
+
+        if conversation_turns >= max_conversation_turns:
+            speak(
+                "Would you like to continue our conversation?"
+            )
+
+            continue_response = listen_until_response(
+                "I did not hear you. Please say yes or no."
+            )
+
+            continue_words = {
+                "yes",
+                "yeah",
+                "yep",
+                "sure",
+                "continue",
+                "okay",
+                "ok",
+            }
+
+            if any(
+                word in continue_response.split()
+                for word in continue_words
+            ):
+                conversation_turns = 0
+                speak("Okay, let us continue.")
+            else:
+                speak("Conversation mode ended. Standing by.")
+                return
 
 
 

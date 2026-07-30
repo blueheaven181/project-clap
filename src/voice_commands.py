@@ -42,18 +42,40 @@ def listen_for_response():
     return ""
 
 
-def listen_until_response(retry_message=None):
+def listen_until_response(
+    retry_message=None,
+    timeout_seconds=None,
+    silent_retries=False,
+):
     """
     Keep listening until CLAP understands a spoken response.
+
+    Return an empty string when the optional timeout expires.
     """
 
+    listening_started = time.monotonic()
+
     while True:
+        if (
+            timeout_seconds is not None
+            and time.monotonic() - listening_started
+            >= timeout_seconds
+        ):
+            return ""
+
         response = listen_for_response()
 
         if response:
             return response
 
-        if retry_message:
+        if (
+            timeout_seconds is not None
+            and time.monotonic() - listening_started
+            >= timeout_seconds
+        ):
+            return ""
+
+        if retry_message and not silent_retries:
             print(retry_message)
             speak(retry_message)
 
