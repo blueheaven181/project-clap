@@ -358,6 +358,12 @@ with sd.InputStream(
                 "volume",
                 "mute",
                 "unmute",
+                "news",
+                "latest",
+                "technology",
+                "tech",
+                "cybersecurity",
+                "cyber",
 
             }
 

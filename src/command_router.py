@@ -27,6 +27,7 @@ from system_volume import (
     set_system_volume,
     unmute_system_volume,
 )
+from news import get_latest_news
 
 
 def route_command(command):
@@ -38,6 +39,52 @@ def route_command(command):
     """
 
     command = command.strip().lower()
+
+    news_request_words = {
+        "news",
+        "latest",
+        "what's new",
+        "what is new",
+    }
+
+    if any(
+        phrase in command
+        for phrase in news_request_words
+    ):
+        if (
+            "artificial intelligence" in command
+            or " ai " in f" {command} "
+        ):
+            news_category = "ai"
+
+        elif (
+            "cybersecurity" in command
+            or "cyber security" in command
+            or "cyber" in command
+        ):
+            news_category = "cybersecurity"
+
+        elif (
+            "forex" in command
+            or "currency" in command
+        ):
+            news_category = "forex"
+
+        elif (
+            "technology" in command
+            or "tech" in command
+        ):
+            news_category = "technology"
+
+        else:
+            news_category = "general"
+
+        news_report = get_latest_news(news_category)
+
+        print(news_report)
+        speak(news_report)
+
+        return True
 
     if "unmute" in command:
         unmute_system_volume()
