@@ -28,6 +28,16 @@
 
 ### Fixed
 
+- Articulation answers now use silence-ended listening with a 45-second limit
+  instead of being cut off after a fixed five-second recording
+- Voice sensitivity now adapts after ambient-noise calibration rather than
+  forcing a high fixed microphone threshold
+- Articulation yes-or-no prompts and command follow-ups now return to standby
+  after three missed responses instead of retrying indefinitely
+- Stop and standby phrases cancel articulation training without being scored as
+  an exercise answer
+- Double-clap speech control now uses a more sensitive threshold and longer
+  timing window while CLAP is speaking
 - Duplicate `requests` import and private-profile loading in the conversation
   module were removed
 - Calendar routing no longer prevents weather, news, volume, Spotify, and
@@ -48,6 +58,8 @@
 
 ### Tested
 
+- The focused voice and articulation suites pass all 17 tests
+- The full regression suite passes all 28 tests
 - All affected articulation Python files compile successfully
 - The 13-test articulation suite and 24-test full regression suite pass
 - Today's Calendar schedule can be read successfully

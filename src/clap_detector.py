@@ -40,6 +40,9 @@ CLAP_THRESHOLD = 12
 CLAP_SHARPNESS_THRESHOLD = 6.0
 DOUBLE_CLAP_WINDOW = 1.0
 CLAP_COOLDOWN = 0.3
+SPEECH_CONTROL_CLAP_THRESHOLD = 8
+SPEECH_CONTROL_SHARPNESS_THRESHOLD = 4.5
+SPEECH_CONTROL_DOUBLE_CLAP_WINDOW = 1.5
 
 clap_times = []
 double_clap_detected = False
@@ -211,9 +214,25 @@ def detect_activation(indata, frames, time_info, status):
     rms = np.sqrt(np.mean(samples ** 2)) + 0.000001
     sharpness = peak / rms
 
+    active_volume_threshold = (
+        SPEECH_CONTROL_CLAP_THRESHOLD
+        if currently_speaking
+        else CLAP_THRESHOLD
+    )
+    active_sharpness_threshold = (
+        SPEECH_CONTROL_SHARPNESS_THRESHOLD
+        if currently_speaking
+        else CLAP_SHARPNESS_THRESHOLD
+    )
+    active_double_clap_window = (
+        SPEECH_CONTROL_DOUBLE_CLAP_WINDOW
+        if currently_speaking
+        else DOUBLE_CLAP_WINDOW
+    )
+
     if (
-        volume <= CLAP_THRESHOLD
-        or sharpness < CLAP_SHARPNESS_THRESHOLD
+        volume <= active_volume_threshold
+        or sharpness < active_sharpness_threshold
     ):
         return
 
@@ -226,13 +245,13 @@ def detect_activation(indata, frames, time_info, status):
     clap_times[:] = [
         clap_time
         for clap_time in clap_times
-        if current_time - clap_time <= DOUBLE_CLAP_WINDOW
+        if current_time - clap_time <= active_double_clap_window
     ]
 
     if (
         len(clap_times) >= 2
         and clap_times[-1] - clap_times[-2]
-        <= DOUBLE_CLAP_WINDOW
+        <= active_double_clap_window
     ):
         clap_times.clear()
 
@@ -413,8 +432,14 @@ with sd.InputStream(
 
 
                         follow_up = listen_until_response(
-                             "I did not hear you. Please say your next command, or say no."
+                             "I did not hear you. Please say your next command, or say no.",
+                             max_attempts=3,
                         )
+
+
+                        if not follow_up:
+                            speak("Okay Marc, standing by.")
+                            break
 
 
                         if any(

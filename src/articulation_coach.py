@@ -57,6 +57,16 @@ FILLER_PATTERNS = (
     r"\blike\b",
 )
 
+SESSION_STOP_PHRASES = {
+    "stop",
+    "cancel",
+    "done",
+    "no",
+    "stand by",
+    "standby",
+    "full stop",
+}
+
 
 def normalize_voice_command(command):
     """Normalize punctuation and common articulation recognition variants."""
@@ -186,8 +196,15 @@ def start_articulation_training(exercise_index=0, exercise_mode=None):
     speak(mode["prompt"])
 
     answer = listen_until_response(
-        "I did not hear your answer. Please try again."
+        "I did not hear your answer. Please try again, or say stop.",
+        max_attempts=3,
+        phrase_time_limit=45,
+        pause_threshold=1.5,
     )
+
+    if not answer or normalize_voice_command(answer) in SESSION_STOP_PHRASES:
+        speak("Articulation training cancelled. Returning to standby.")
+        return True
 
     print("Articulation answer received for scoring.")
 
@@ -197,7 +214,9 @@ def start_articulation_training(exercise_index=0, exercise_mode=None):
 
     speak("Would you like to try the answer one more time?")
     retry_response = listen_until_response(
-        "I did not hear you. Please say yes or no."
+        "I did not hear you. Please say yes or no.",
+        max_attempts=3,
+        phrase_time_limit=4,
     )
 
     yes_words = {
@@ -207,8 +226,18 @@ def start_articulation_training(exercise_index=0, exercise_mode=None):
     if any(word in retry_response.lower().split() for word in yes_words):
         speak("Go ahead. Give your improved answer now.")
         improved_answer = listen_until_response(
-            "I did not hear your improved answer. Please try again."
+            "I did not hear your improved answer. Please try again, or say stop.",
+            max_attempts=3,
+            phrase_time_limit=45,
+            pause_threshold=1.5,
         )
+
+        if (
+            not improved_answer
+            or normalize_voice_command(improved_answer) in SESSION_STOP_PHRASES
+        ):
+            speak("Articulation training complete. Returning to standby.")
+            return True
 
         improved_feedback = evaluate_articulation_answer(improved_answer)
         print("Improved articulation feedback:", improved_feedback)

@@ -122,7 +122,7 @@ class ArticulationSessionTests(unittest.TestCase):
     )
     def test_session_gives_feedback_without_forcing_retry(
         self,
-        _listen,
+        listen_mock,
         evaluate,
         _speak,
     ):
@@ -130,6 +130,52 @@ class ArticulationSessionTests(unittest.TestCase):
 
         self.assertTrue(completed)
         evaluate.assert_called_once_with("My first answer")
+        first_listen = listen_mock.call_args_list[0]
+        self.assertEqual(45, first_listen.kwargs["phrase_time_limit"])
+        self.assertEqual(1.5, first_listen.kwargs["pause_threshold"])
+
+    @patch("articulation_coach.speak")
+    @patch("articulation_coach.evaluate_articulation_answer")
+    @patch(
+        "articulation_coach.listen_until_response",
+        return_value="stop",
+    )
+    def test_stop_cancels_without_scoring(
+        self,
+        _listen,
+        evaluate,
+        speak_mock,
+    ):
+        completed = articulation_coach.start_articulation_training()
+
+        self.assertTrue(completed)
+        evaluate.assert_not_called()
+        speak_mock.assert_called_with(
+            "Articulation training cancelled. Returning to standby."
+        )
+
+    @patch("articulation_coach.speak")
+    @patch(
+        "articulation_coach.evaluate_articulation_answer",
+        return_value="Scored feedback.",
+    )
+    @patch(
+        "articulation_coach.listen_until_response",
+        side_effect=["My answer", ""],
+    )
+    def test_missing_retry_decision_ends_session(
+        self,
+        _listen,
+        evaluate,
+        speak_mock,
+    ):
+        completed = articulation_coach.start_articulation_training()
+
+        self.assertTrue(completed)
+        evaluate.assert_called_once_with("My answer")
+        speak_mock.assert_called_with(
+            "Articulation training complete. Returning to standby."
+        )
 
     @patch("articulation_coach.speak")
     @patch(

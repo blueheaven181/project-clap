@@ -20,6 +20,9 @@ Train my communication
 
 CLAP presents one prompt, records the answer, and sends the transcript to the
 local Ollama model for coaching. A mode can be selected in the starting command.
+Training answers can run for up to 45 seconds. CLAP waits for a clear pause
+before treating the answer as complete, so normal sentence pauses do not end the
+exercise immediately.
 
 ## Exercise Modes
 
@@ -66,6 +69,11 @@ The scorecard is followed by four short spoken parts:
 CLAP then asks whether the answer should be attempted one more time. Saying
 `no` ends the session and returns to standby.
 
+If speech recognition misses the yes-or-no response three times, CLAP ends the
+session and returns to standby instead of retrying forever. Saying `stop`,
+`cancel`, `done`, or `stand by` while CLAP is waiting for a training answer also
+cancels the session without scoring that command as an answer.
+
 ## Initial Exercises
 
 - Give a work update using completed work, a problem, and the next action.
@@ -84,7 +92,16 @@ saved as progress data.
 Tests cover intent recognition and common speech-recognition variants, exclusion
 of unrelated practice requests, exercise selection, filler counting,
 feedback-prompt construction, trusted-command routing, and sessions with and
-without a selected mode.
+without a selected mode. Voice-listener tests cover bounded retry behavior and
+successful recovery after a missed response.
+
+## Live Speech-Control Check
+
+While CLAP is reading a prompt or feedback, double clap to pause speech. The
+speech-control detector uses a more sensitive clap threshold and a longer
+double-clap window while speech is active. Then say `continue`, `repeat`, or
+`stop`. This microphone-dependent behavior should be checked live after changes
+to microphone placement, speaker volume, or room acoustics.
 
 ## Privacy and Boundaries
 

@@ -233,13 +233,15 @@ CLAP provides a dedicated voice-guided articulation exercise. Each session:
 
 - Supports work-update, technical-explanation, and achievement-story modes
 - Gives one structured professional speaking prompt
-- Listens to the complete answer
+- Listens for answers up to 45 seconds and waits for a clear finishing pause
 - Scores clarity, conciseness, structure, filler words, and transcript-based
   confidence from 1 to 5
 - Identifies one strength
 - Focuses on one important improvement
 - Suggests a clearer version using only the speaker's facts
 - Offers an optional second attempt
+- Returns to standby after repeated missed yes-or-no responses
+- Accepts stop, cancel, done, or stand by while waiting for an answer
 - Does not save transcripts or scores
 
 Example commands:
