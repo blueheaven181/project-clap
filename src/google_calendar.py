@@ -317,6 +317,11 @@ def parse_calendar_event_request(command):
     """
 
     normalized_command = command.strip().lower()
+    normalized_command = re.sub(
+        r"\b([ap])\s*\.\s*m\s*\.",
+        r"\1m",
+        normalized_command,
+    )
 
     date_match = re.search(
         r"\b(today|tomorrow)\b",

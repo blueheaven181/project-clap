@@ -20,6 +20,8 @@
 - Calendar event payloads now reject timezone-less start times and explicitly
   normalize valid start times to `Asia/Dubai`
 - Duplicate Calendar imports and unreachable event-query code were removed
+- Calendar event requests now accept speech-recognition output using dotted
+  `a.m.` and `p.m.` notation
 
 ### Tested
 

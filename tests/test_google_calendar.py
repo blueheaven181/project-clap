@@ -26,6 +26,16 @@ class CalendarParsingTests(unittest.TestCase):
         self.assertEqual(request["start"].tzinfo, ABU_DHABI_TIMEZONE)
         self.assertEqual(request["duration_minutes"], 60)
 
+    def test_speech_recognizer_dotted_pm_is_parsed(self):
+        request = parse_calendar_event_request(
+            "schedule a test event tomorrow at 7:00 p.m."
+        )
+
+        self.assertIsNotNone(request)
+        self.assertEqual(request["title"], "A Test Event")
+        self.assertEqual(request["start"].hour, 19)
+        self.assertEqual(request["start"].minute, 0)
+
     def test_event_payload_preserves_seven_pm_abu_dhabi(self):
         start = datetime(2026, 8, 2, 15, 0, tzinfo=timezone.utc)
 
@@ -87,6 +97,23 @@ class CalendarRoutingTests(unittest.TestCase):
 
         self.assertTrue(recognized)
         create_event.assert_called_once()
+
+    @patch("command_router.speak")
+    @patch("command_router.create_calendar_event")
+    @patch("command_router.listen_until_response", return_value="no")
+    def test_dotted_pm_transcript_reaches_confirmation(
+        self,
+        listen,
+        create_event,
+        _speak,
+    ):
+        recognized = command_router.route_command(
+            "schedule a test event tomorrow at 7:00 p.m."
+        )
+
+        self.assertTrue(recognized)
+        listen.assert_called_once()
+        create_event.assert_not_called()
 
     @patch("command_router.speak")
     @patch("command_router.get_weather", return_value="Sunny")
