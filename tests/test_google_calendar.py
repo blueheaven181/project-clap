@@ -128,5 +128,22 @@ class CalendarRoutingTests(unittest.TestCase):
         get_weather.assert_called_once_with()
 
 
+class BriefingIntentTests(unittest.TestCase):
+    def test_daily_briefing_is_recognized_case_insensitively(self):
+        self.assertTrue(
+            command_router.is_daily_briefing_request("Daily Briefing")
+        )
+
+    def test_daily_breathing_speech_variant_is_recognized(self):
+        self.assertTrue(
+            command_router.is_daily_briefing_request("daily breathing")
+        )
+
+    def test_weather_is_not_a_daily_briefing(self):
+        self.assertFalse(
+            command_router.is_daily_briefing_request("weather")
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

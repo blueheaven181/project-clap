@@ -21,7 +21,7 @@ from google_calendar import get_todays_calendar
 from workspace import arrange_workspace
 from spotify import play_spotify
 from voice_commands import listen_for_response
-from command_router import route_command
+from command_router import is_daily_briefing_request, route_command
 from background_music import (
     pause_background_music,
     resume_background_music,
@@ -304,6 +304,9 @@ with sd.InputStream(
            }
 
            normalized_response = response.strip().lower()
+           briefing_requested = is_daily_briefing_request(
+               normalized_response
+           )
 
            if normalized_response in no_words:
                 speak("Okay Marc, standing by.")
@@ -378,7 +381,13 @@ with sd.InputStream(
             }
 
 
-           if any(word in response for word in direct_command_words):
+           if (
+               not briefing_requested
+               and any(
+                   word in normalized_response
+                   for word in direct_command_words
+               )
+           ):
                     route_command(response)
 
 
@@ -422,8 +431,11 @@ with sd.InputStream(
 
 
         is_briefing = (
-            any(word in response.split() for word in yes_words)
-            or "briefing" in response
+            any(
+                word in normalized_response.split()
+                for word in yes_words
+            )
+            or briefing_requested
             )
 
         if not is_briefing:

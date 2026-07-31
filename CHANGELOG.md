@@ -22,6 +22,9 @@
 - Duplicate Calendar imports and unreachable event-query code were removed
 - Calendar event requests now accept speech-recognition output using dotted
   `a.m.` and `p.m.` notation
+- Daily briefing intent is detected before direct-command routing, uses
+  case-insensitive transcripts, and accepts the common `daily breathing`
+  recognition variant
 
 ### Tested
 

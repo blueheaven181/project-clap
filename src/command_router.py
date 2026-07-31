@@ -42,6 +42,36 @@ from voice_commands import (
     listen_until_response,
 )
 
+
+def is_daily_briefing_request(command):
+    """Return True when a transcript requests the daily briefing."""
+
+    normalized_command = command.strip().lower()
+
+    briefing_phrases = {
+        "daily briefing",
+        "morning briefing",
+        "start the briefing",
+        "start my briefing",
+        "give me my briefing",
+        "brief me",
+    }
+
+    if "briefing" in normalized_command:
+        return True
+
+    if any(
+        phrase in normalized_command
+        for phrase in briefing_phrases
+    ):
+        return True
+
+    return (
+        "daily breathing" in normalized_command
+        or "morning breathing" in normalized_command
+    )
+
+
 def route_command(command):
     """
     Understand a spoken command and run the correct CLAP module.
