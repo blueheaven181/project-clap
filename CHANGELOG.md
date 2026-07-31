@@ -1,3 +1,30 @@
+## Unreleased — Google Calendar Checkpoint
+
+**Date:** 2026-08-01
+**Status:** Development Checkpoint
+
+### Added
+
+- Google Calendar schedule commands
+- Google Calendar availability and free-time commands
+- Simple event-request parsing for today and tomorrow
+- Spoken confirmation before Calendar event creation
+
+### Tested
+
+- Today's Calendar schedule can be read successfully
+- Today's availability and free-time commands work
+- Event creation asks for confirmation before writing to Google Calendar
+- Affected Python files compile successfully
+- `config/credentials.json` and `config/token.json` are ignored and untracked
+
+### Known Issues
+
+- An event requested for 7:00 PM may appear in Google Calendar at 3:00 PM.
+  The event-creation timezone issue is not fixed yet.
+
+---
+
 ## Version 0.7 — Intelligent Voice Assistant
 
 **Date:** 2026-07-31

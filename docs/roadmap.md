@@ -460,14 +460,17 @@ Status: Planned
 
 ## Sprint 5.2 — Google Productivity Integration
 
-Status: Planned
+Status: In Progress
 
-- [ ] Integrate Google Calendar
+- [x] Integrate Google Calendar schedule reading
 - [ ] Integrate Google Tasks
-- [ ] Use minimum required permissions
-- [ ] Store credentials outside GitHub
-- [ ] Read today’s calendar
-- [ ] Create calendar events with confirmation
+- [x] Use a Calendar event scope that supports reading and event creation
+- [x] Store credentials outside GitHub
+- [x] Read today’s calendar
+- [x] Report today's remaining schedule and availability
+- [x] Ask for confirmation before creating calendar events
+- [ ] Fix event-creation timezone handling; a 7:00 PM request may display at
+  3:00 PM in Google Calendar
 - [ ] Read pending tasks
 - [ ] Create tasks with confirmation
 - [ ] Add calendar information to the daily briefing

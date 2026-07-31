@@ -7,10 +7,12 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from datetime import datetime, time, timedelta
 
+import re
 
 SCOPES = [
-    "https://www.googleapis.com/auth/calendar.readonly",
+    "https://www.googleapis.com/auth/calendar.events",
 ]
 
 ABU_DHABI_TIMEZONE = ZoneInfo("Asia/Dubai")
@@ -323,6 +325,141 @@ def get_today_free_time():
     except Exception as error:
         print("Google Calendar error:", error)
         return "I could not calculate your available time."
+
+
+def parse_calendar_event_request(command):
+    """
+    Understand a simple calendar request such as:
+    "Add workout tomorrow at 7 PM"
+    """
+
+    normalized_command = command.strip().lower()
+
+    date_match = re.search(
+        r"\b(today|tomorrow)\b",
+        normalized_command,
+    )
+
+    time_match = re.search(
+        r"\bat\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b",
+        normalized_command,
+    )
+
+    if not date_match or not time_match:
+        return None
+
+    date_word = date_match.group(1)
+    hour = int(time_match.group(1))
+    minute = int(time_match.group(2) or 0)
+    meridiem = time_match.group(3)
+
+    if hour < 1 or hour > 12 or minute > 59:
+        return None
+
+    if meridiem == "pm" and hour != 12:
+        hour += 12
+    elif meridiem == "am" and hour == 12:
+        hour = 0
+
+    event_date = datetime.now(ABU_DHABI_TIMEZONE).date()
+
+    if date_word == "tomorrow":
+        event_date += timedelta(days=1)
+
+    event_start = datetime.combine(
+        event_date,
+        time(hour, minute),
+        tzinfo=ABU_DHABI_TIMEZONE,
+    )
+
+    title_text = re.sub(
+        r"^(?:please\s+)?(?:add|create|schedule)\s+",
+        "",
+        normalized_command,
+    )
+
+    title_text = re.split(
+        r"\b(?:today|tomorrow)\b",
+        title_text,
+        maxsplit=1,
+    )[0]
+
+    event_title = title_text.strip(" ,.-")
+
+    if not event_title:
+        return None
+
+    return {
+        "title": event_title.title(),
+        "start": event_start,
+        "duration_minutes": 60,
+    }
+
+
+def create_calendar_event(
+    event_title,
+    start_datetime,
+    duration_minutes=60,
+):
+    """
+    Create a Google Calendar event after CLAP receives confirmation.
+    """
+
+    if not CREDENTIALS_PATH.exists():
+        return (
+            "Google Calendar credentials were not found. "
+            "Please complete the Calendar setup."
+        )
+
+    try:
+        calendar_service = get_calendar_service()
+
+        event_end = start_datetime + timedelta(
+            minutes=duration_minutes
+        )
+
+        event_body = {
+            "summary": event_title,
+            "start": {
+                "dateTime": start_datetime.isoformat(),
+                "timeZone": "Asia/Dubai",
+            },
+            "end": {
+                "dateTime": event_end.isoformat(),
+                "timeZone": "Asia/Dubai",
+            },
+        }
+
+        created_event = (
+            calendar_service.events()
+            .insert(
+                calendarId="primary",
+                body=event_body,
+            )
+            .execute()
+        )
+
+        event_time = start_datetime.strftime(
+            "%A at %I:%M %p"
+        )
+
+        print(
+            "Created Google Calendar event:",
+            created_event.get("htmlLink", ""),
+        )
+
+        return (
+            "Calendar event created. "
+            f"{event_title}, {event_time}."
+        )
+
+    except HttpError as error:
+        print("Google Calendar API error:", error)
+        return "I could not create the Google Calendar event."
+
+    except Exception as error:
+        print("Google Calendar error:", error)
+        return "I could not connect to your Google Calendar."
 
 
 if __name__ == "__main__":

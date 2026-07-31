@@ -33,11 +33,16 @@ from news import (
     summarize_news_article,
 )
 from google_calendar import (
+    create_calendar_event,
     get_today_availability,
-    get_today_free_time,
     get_todays_calendar,
+    get_today_free_time,
+    parse_calendar_event_request,
 )
-
+from voice_commands import (
+    listen_for_response,
+    listen_until_response,
+)
 
 def route_command(command):
     """
@@ -48,6 +53,58 @@ def route_command(command):
     """
 
     command = command.strip().lower()
+
+    event_request = parse_calendar_event_request(command)
+
+    if event_request:
+        event_start = event_request["start"]
+        spoken_schedule = event_start.strftime(
+            "%A, %B %d at %I:%M %p"
+        )
+
+        speak(
+            f"You want me to add {event_request['title']} "
+            f"on {spoken_schedule} for one hour. "
+            "Shall I create it?"
+        )
+
+        confirmation = listen_until_response(
+            "I did not hear you. Please say yes or no."
+        )
+
+        yes_words = {
+            "yes",
+            "yeah",
+            "yep",
+            "sure",
+            "okay",
+            "ok",
+            "confirm",
+        }
+
+        confirmation_words = set(
+            confirmation.strip().lower().split()
+        )
+
+        confirmed = (
+            bool(confirmation_words.intersection(yes_words))
+            or "create it" in confirmation.lower()
+        )
+
+        if confirmed:
+            result = create_calendar_event(
+                event_request["title"],
+                event_request["start"],
+                event_request["duration_minutes"],
+            )
+        else:
+            result = (
+                "Okay. I did not create the calendar event."
+            )
+
+        print(result)
+        speak(result)
+        return True
 
 
     if (

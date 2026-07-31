@@ -127,6 +127,26 @@ Latest forex news
 Latest general news
 ```
 
+### Google Calendar
+
+- Read today's Google Calendar schedule
+- Report whether any events remain today
+- Report today's remaining free-time periods
+- Parse simple event requests for today or tomorrow
+- Ask for spoken confirmation before creating an event
+
+Example commands:
+
+```text
+What is on my schedule today?
+When am I free today?
+Add workout tomorrow at 7 PM
+```
+
+Calendar credentials and authorization tokens are stored locally in
+`config/credentials.json` and `config/token.json`. Both files are excluded
+from Git.
+
 ### Trading Workspace Automation
 
 - Opens EUR/USD TradingView chart
@@ -437,6 +457,8 @@ Project CLAP follows a local-first security approach.
 - Local AI quality and response speed depend on the selected model and computer hardware
 - Desktop window automation depends on the current monitor arrangement
 - Spotify control currently relies mainly on desktop and media-key automation
+- Google Calendar may display an event requested for 7:00 PM at 3:00 PM; this
+  timezone issue is under investigation and is not fixed yet
 
 ---
 
@@ -446,7 +468,7 @@ Project CLAP follows a local-first security approach.
 - Refine pause, continue, repeat, and stop behavior
 - Add news to the optional daily briefing
 - Improve command and conversation routing
-- Add Google Calendar integration
+- Diagnose and fix Google Calendar event-creation timezone handling
 - Add Google Tasks integration
 - Integrate SwitchBot Curtain 3
 - Add smart-lighting scenes

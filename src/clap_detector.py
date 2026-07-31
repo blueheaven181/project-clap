@@ -368,6 +368,11 @@ with sd.InputStream(
                 "schedule",
                 "free",
                 "availability",
+                "add",
+                "schedule",
+                "calendar",
+                "event",
+                "appointment",
 
             }
 
