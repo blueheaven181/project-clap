@@ -366,6 +366,8 @@ with sd.InputStream(
                 "cyber",
                 "calendar",
                 "schedule",
+                "free",
+                "availability",
 
             }
 

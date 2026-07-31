@@ -32,7 +32,11 @@ from news import (
     get_news_item,
     summarize_news_article,
 )
-from google_calendar import get_todays_calendar
+from google_calendar import (
+    get_today_availability,
+    get_today_free_time,
+    get_todays_calendar,
+)
 
 
 def route_command(command):
@@ -44,6 +48,20 @@ def route_command(command):
     """
 
     command = command.strip().lower()
+
+
+    if (
+        "what time am i free" in command
+        or "when am i free" in command
+        or "free time today" in command
+        or "available time today" in command
+    ):
+        free_time_report = get_today_free_time()
+
+        print(free_time_report)
+        speak(free_time_report)
+
+        return True
 
 
     if "calendar" in command or "schedule" in command:
