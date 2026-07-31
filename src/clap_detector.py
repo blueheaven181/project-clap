@@ -364,6 +364,8 @@ with sd.InputStream(
                 "tech",
                 "cybersecurity",
                 "cyber",
+                "calendar",
+                "schedule",
 
             }
 

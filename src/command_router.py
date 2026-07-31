@@ -32,6 +32,7 @@ from news import (
     get_news_item,
     summarize_news_article,
 )
+from google_calendar import get_todays_calendar
 
 
 def route_command(command):
@@ -43,6 +44,15 @@ def route_command(command):
     """
 
     command = command.strip().lower()
+
+
+    if "calendar" in command or "schedule" in command:
+        calendar_report = get_todays_calendar()
+
+        print(calendar_report)
+        speak(calendar_report)
+
+    return True
 
     headline_request = re.search(
         r"\b(?:headline|story)\s*(one|two|three|1|2|3)\b",
