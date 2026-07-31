@@ -28,12 +28,15 @@
 - Event creation asks for confirmation before writing to Google Calendar
 - Affected Python files compile successfully
 - `config/credentials.json` and `config/token.json` are ignored and untracked
+- Google Calendar's primary display timezone is verified as
+  `(GMT+04:00) Gulf Standard Time`
 
 ### Timezone Diagnosis
 
 - CLAP sends 7:00 PM Abu Dhabi as `19:00+04:00`, which Google correctly stores
   as the equivalent instant `15:00Z`. A 3:00 PM appearance means the Google
-  Calendar web display is using UTC and must be changed to `Asia/Dubai`.
+  Calendar web display is using UTC. The account display timezone is now
+  verified as Gulf Standard Time (`UTC+04:00`).
 
 ---
 

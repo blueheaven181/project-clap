@@ -470,7 +470,7 @@ Status: In Progress
 - [x] Report today's remaining schedule and availability
 - [x] Ask for confirmation before creating calendar events
 - [x] Preserve `Asia/Dubai` event times in Calendar event payloads
-- [ ] Verify the Google Calendar web display timezone is set to `Asia/Dubai`
+- [x] Verify the Google Calendar web display timezone is set to `Asia/Dubai`
 - [ ] Read pending tasks
 - [ ] Create tasks with confirmation
 - [x] Add calendar information to the daily briefing

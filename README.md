@@ -472,7 +472,6 @@ Project CLAP follows a local-first security approach.
 - Refine pause, continue, repeat, and stop behavior
 - Add news to the optional daily briefing
 - Improve command and conversation routing
-- Verify the Google Calendar web display timezone is set to `Asia/Dubai`
 - Add Google Tasks integration
 - Integrate SwitchBot Curtain 3
 - Add smart-lighting scenes
