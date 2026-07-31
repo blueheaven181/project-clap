@@ -21,6 +21,7 @@ confirmation.
 - Google Calendar schedule, availability, and confirmed event creation
 - Trading workspace, Spotify, and Windows volume automation
 - Local Ollama conversation and coaching
+- Structured articulation practice with optional retries
 - Security, documentation, testing, and reproducible setup
 
 ## Out of Scope for the Current Milestone

@@ -384,6 +384,9 @@ with sd.InputStream(
                 "calendar",
                 "event",
                 "appointment",
+                "articulation",
+                "communication",
+                "speaking",
 
             }
 

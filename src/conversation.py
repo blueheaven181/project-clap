@@ -3,8 +3,6 @@ from pathlib import Path
 
 import requests
 
-import requests
-
 from greeting import speak
 from voice_commands import listen_until_response
 
@@ -96,8 +94,6 @@ def load_marc_profile():
         print("Private profile contains invalid JSON:", error)
         return {}
 
-
-marc_profile = load_marc_profile()
 
 marc_profile = load_marc_profile()
 

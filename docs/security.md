@@ -41,6 +41,7 @@ Current approved commands include:
 - Retrieve categorized news
 - Read Google Calendar schedule and availability
 - Create Google Calendar events after confirmation
+- Run local articulation-training exercises
 
 Unknown commands must not be converted directly into PowerShell, Python, browser, or operating-system commands.
 
@@ -343,6 +344,7 @@ Project CLAP currently provides:
 - Git exclusions for Google OAuth credentials and tokens
 - Timezone-aware Calendar event payloads
 - A three-second guard between activation and speech-control arming
+- Local-AI articulation feedback that must not invent personal facts
 
 Planned security improvements:
 

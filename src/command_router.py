@@ -1,6 +1,10 @@
 import re
 import time
 
+from articulation_coach import (
+    is_articulation_training_request,
+    start_articulation_training,
+)
 from forex import (
     convert_aed_to_php,
     get_forex,
@@ -81,6 +85,9 @@ def route_command(command):
     """
 
     command = command.strip().lower()
+
+    if is_articulation_training_request(command):
+        return start_articulation_training()
 
     event_request = parse_calendar_event_request(command)
 

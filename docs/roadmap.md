@@ -484,9 +484,13 @@ Status: In Progress
 
 ## Sprint 5.3 — Communication and Career Coach
 
-Status: Planned Expansion
+Status: In Progress
 
-- [ ] Add dedicated articulation exercises
+- [x] Add an initial dedicated articulation exercise
+- [x] Add structured clarity, conciseness, and organization feedback
+- [x] Add an optional improved-answer retry
+- [x] Add automated articulation intent, routing, and session tests
+- [ ] Add selectable articulation exercise modes
 - [ ] Add structured mock interviews
 - [ ] Add NOC Engineer interview mode
 - [ ] Add Azure Administrator interview mode

@@ -45,6 +45,14 @@
 - The local AI shall not execute arbitrary operating-system commands.
 - Approved automation shall remain inside dedicated trusted modules.
 
+### Articulation Training
+
+- CLAP shall provide a dedicated articulation-training voice command.
+- Each session shall present one speaking exercise and listen for an answer.
+- Feedback shall identify one strength and one priority improvement.
+- A clearer example shall not invent personal or professional facts.
+- CLAP shall offer an optional retry after feedback.
+
 ## Non-Functional Requirements
 
 - CLAP shall run on Windows 11 with Python 3.13.

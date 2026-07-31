@@ -33,6 +33,8 @@ The command router sends approved requests to dedicated modules:
 - `spotify.py` controls playback and configured mood playlists.
 - `system_volume.py` controls Windows audio.
 - `workspace.py` arranges desktop windows.
+- `articulation_coach.py` runs structured speaking exercises and requests
+  constrained feedback from the local Ollama conversation engine.
 
 Unknown general requests may enter `conversation.py`. The local AI does not
 receive authority to execute arbitrary operating-system commands.
@@ -60,6 +62,16 @@ Calendar credentials are loaded from ignored local files. Event payloads are
 timezone-aware, use `Asia/Dubai`, and inherit the Google Calendar account's
 default reminder settings. The account display timezone is also configured for
 Gulf Standard Time (`UTC+04:00`).
+
+## Articulation Training Flow
+
+```text
+Training request -> Speaking prompt -> Spoken answer -> Local AI feedback
+                                                     -> Optional retry
+```
+
+The coach focuses on one strength and one improvement per exercise. Its clearer
+sample answer must use only information present in the user's response.
 
 ## Daily Briefing Flow
 

@@ -86,6 +86,7 @@ Examples of conversational requests:
 
 - Interview practice
 - Communication coaching
+- Structured articulation training through `articulation_coach.py`
 - Technical explanations
 - General conversation
 
@@ -95,4 +96,5 @@ Examples of conversational requests:
 - Current information should come from approved live-data modules.
 - The local model should not directly execute sensitive automation.
 - Conversation history currently lasts only for the running session.
+- Articulation progress is not persisted in the initial version.
 - Google speech recognition and Edge TTS still require internet access.

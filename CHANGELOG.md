@@ -5,6 +5,10 @@
 
 ### Added
 
+- Dedicated voice-guided articulation training
+- Structured professional speaking exercises with concise AI feedback
+- Optional retry after receiving an improved answer
+- Articulation intent, routing, feedback-prompt, and session tests
 - Google Calendar schedule commands
 - Google Calendar availability and free-time commands
 - Simple event-request parsing for today and tomorrow
@@ -16,6 +20,8 @@
 
 ### Fixed
 
+- Duplicate `requests` import and private-profile loading in the conversation
+  module were removed
 - Calendar routing no longer prevents weather, news, volume, Spotify, and
   other commands later in the command router from running
 - Calendar event payloads now reject timezone-less start times and explicitly

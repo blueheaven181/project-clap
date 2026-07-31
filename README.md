@@ -227,6 +227,26 @@ Conversation mode can support:
 
 General questions are sent to the local AI engine. Trusted commands such as weather, system health, currency conversion, Calendar, news, Spotify, and desktop automation remain handled by dedicated CLAP modules.
 
+### Articulation Training
+
+CLAP provides a dedicated voice-guided articulation exercise. Each session:
+
+- Gives one professional speaking prompt
+- Listens to the complete answer
+- Identifies one strength
+- Focuses on one important improvement
+- Suggests a clearer version using only the speaker's facts
+- Offers an optional second attempt
+
+Example commands:
+
+```text
+Start articulation training
+Help me improve my articulation
+Practice my speaking
+Train my communication
+```
+
 ### Private Local Profile
 
 CLAP can load Marc’s personal profile from:
@@ -349,6 +369,7 @@ project-clap
 |
 |-- docs
 |   |-- architecture.md
+|   |-- articulation_training.md
 |   |-- development_notes.md
 |   |-- dual_activation_test_checklist.md
 |   |-- google_calendar_setup.md
@@ -368,6 +389,7 @@ project-clap
 |
 |-- src
 |   |-- background_music.py
+|   |-- articulation_coach.py
 |   |-- clap_detector.py
 |   |-- command_router.py
 |   |-- conversation.py
@@ -384,6 +406,7 @@ project-clap
 |   `-- workspace.py
 |
 |-- tests
+|   |-- test_articulation_coach.py
 |   `-- test_google_calendar.py
 |-- .gitignore
 |-- CHANGELOG.md
@@ -481,6 +504,7 @@ Project CLAP follows a local-first security approach.
 
 ## Next Priorities
 
+- Expand articulation training with selectable exercise modes and progress tracking
 - Improve wake-word reliability
 - Refine pause, continue, repeat, and stop behavior
 - Add news to the optional daily briefing
