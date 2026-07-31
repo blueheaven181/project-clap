@@ -2,6 +2,7 @@ import re
 import time
 
 from articulation_coach import (
+    get_requested_exercise_mode,
     is_articulation_training_request,
     start_articulation_training,
 )
@@ -87,6 +88,9 @@ def route_command(command):
     command = command.strip().lower()
 
     if is_articulation_training_request(command):
+        exercise_mode = get_requested_exercise_mode(command)
+        if exercise_mode:
+            return start_articulation_training(exercise_mode=exercise_mode)
         return start_articulation_training()
 
     event_request = parse_calendar_event_request(command)

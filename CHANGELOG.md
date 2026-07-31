@@ -5,6 +5,14 @@
 
 ### Added
 
+- Selectable work-update, technical-explanation, and achievement-story
+  articulation modes
+- Explicit 1-to-5 articulation scores for clarity, conciseness, structure,
+  filler words, and transcript-based confidence
+- Deterministic filler-word counting and common speech-recognition variant
+  handling for articulation commands
+- Privacy-safe articulation logging that does not print answer transcripts
+- Expanded articulation intent, scoring, mode-routing, and session tests
 - Dedicated voice-guided articulation training
 - Structured professional speaking exercises with concise AI feedback
 - Optional retry after receiving an improved answer
@@ -40,6 +48,8 @@
 
 ### Tested
 
+- All affected articulation Python files compile successfully
+- The 13-test articulation suite and 24-test full regression suite pass
 - Today's Calendar schedule can be read successfully
 - Today's availability and free-time commands work
 - Event creation asks for confirmation before writing to Google Calendar

@@ -231,12 +231,16 @@ General questions are sent to the local AI engine. Trusted commands such as weat
 
 CLAP provides a dedicated voice-guided articulation exercise. Each session:
 
-- Gives one professional speaking prompt
+- Supports work-update, technical-explanation, and achievement-story modes
+- Gives one structured professional speaking prompt
 - Listens to the complete answer
+- Scores clarity, conciseness, structure, filler words, and transcript-based
+  confidence from 1 to 5
 - Identifies one strength
 - Focuses on one important improvement
 - Suggests a clearer version using only the speaker's facts
 - Offers an optional second attempt
+- Does not save transcripts or scores
 
 Example commands:
 
@@ -245,6 +249,9 @@ Start articulation training
 Help me improve my articulation
 Practice my speaking
 Train my communication
+Practice a work update
+Practice a technical explanation
+Practice an achievement story
 ```
 
 ### Private Local Profile
@@ -504,7 +511,7 @@ Project CLAP follows a local-first security approach.
 
 ## Next Priorities
 
-- Expand articulation training with selectable exercise modes and progress tracking
+- Test and refine articulation exercise quality and speech recognition
 - Improve wake-word reliability
 - Refine pause, continue, repeat, and stop behavior
 - Add news to the optional daily briefing
