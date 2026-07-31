@@ -134,6 +134,9 @@ Latest general news
 - Report today's remaining free-time periods
 - Parse simple event requests for today or tomorrow
 - Ask for spoken confirmation before creating an event
+- Preserve `Asia/Dubai` event times explicitly
+- Use the Google Calendar account's default event reminders
+- Include today's schedule in the daily briefing
 
 Example commands:
 
@@ -457,8 +460,9 @@ Project CLAP follows a local-first security approach.
 - Local AI quality and response speed depend on the selected model and computer hardware
 - Desktop window automation depends on the current monitor arrangement
 - Spotify control currently relies mainly on desktop and media-key automation
-- Google Calendar may display an event requested for 7:00 PM at 3:00 PM; this
-  timezone issue is under investigation and is not fixed yet
+- Google Calendar must use the `Asia/Dubai` display timezone. If its display
+  timezone is UTC, a correctly stored 7:00 PM Abu Dhabi event appears as
+  3:00 PM UTC
 
 ---
 
@@ -468,7 +472,7 @@ Project CLAP follows a local-first security approach.
 - Refine pause, continue, repeat, and stop behavior
 - Add news to the optional daily briefing
 - Improve command and conversation routing
-- Diagnose and fix Google Calendar event-creation timezone handling
+- Verify the Google Calendar web display timezone is set to `Asia/Dubai`
 - Add Google Tasks integration
 - Integrate SwitchBot Curtain 3
 - Add smart-lighting scenes

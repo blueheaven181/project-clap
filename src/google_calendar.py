@@ -1,5 +1,6 @@
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from pathlib import Path
+import re
 from zoneinfo import ZoneInfo
 
 from google.auth.transport.requests import Request
@@ -7,15 +8,13 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from datetime import datetime, time, timedelta
-
-import re
 
 SCOPES = [
     "https://www.googleapis.com/auth/calendar.events",
 ]
 
-ABU_DHABI_TIMEZONE = ZoneInfo("Asia/Dubai")
+CALENDAR_TIMEZONE_NAME = "Asia/Dubai"
+ABU_DHABI_TIMEZONE = ZoneInfo(CALENDAR_TIMEZONE_NAME)
 
 PROJECT_FOLDER = Path(__file__).resolve().parent.parent
 CREDENTIALS_PATH = PROJECT_FOLDER / "config" / "credentials.json"
@@ -24,7 +23,7 @@ TOKEN_PATH = PROJECT_FOLDER / "config" / "token.json"
 
 def get_calendar_credentials():
     """
-    Load or create Google's read-only Calendar authorization.
+    Load or create Google Calendar event authorization.
     """
 
     credentials = None
@@ -75,22 +74,6 @@ def get_calendar_events(start_datetime, end_datetime):
     """
 
     calendar_service = get_calendar_service()
-
-    result = (
-        calendar_service.events()
-        .list(
-            calendarId="primary",
-            timeMin=start_datetime.isoformat(),
-            timeMax=end_datetime.isoformat(),
-            singleEvents=True,
-            orderBy="startTime",
-        )
-        .execute()
-    )
-
-    return result.get("items", [])
-
-
 
     result = (
         calendar_service.events()
@@ -396,6 +379,38 @@ def parse_calendar_event_request(command):
     }
 
 
+def build_calendar_event_body(
+    event_title,
+    start_datetime,
+    duration_minutes=60,
+):
+    """Build an event payload using an explicit Abu Dhabi timezone."""
+
+    if start_datetime.tzinfo is None:
+        raise ValueError("Calendar event start time must include a timezone.")
+
+    if duration_minutes <= 0:
+        raise ValueError("Calendar event duration must be greater than zero.")
+
+    localized_start = start_datetime.astimezone(ABU_DHABI_TIMEZONE)
+    event_end = localized_start + timedelta(minutes=duration_minutes)
+
+    return {
+        "summary": event_title,
+        "start": {
+            "dateTime": localized_start.isoformat(),
+            "timeZone": CALENDAR_TIMEZONE_NAME,
+        },
+        "end": {
+            "dateTime": event_end.isoformat(),
+            "timeZone": CALENDAR_TIMEZONE_NAME,
+        },
+        "reminders": {
+            "useDefault": True,
+        },
+    }
+
+
 def create_calendar_event(
     event_title,
     start_datetime,
@@ -414,21 +429,11 @@ def create_calendar_event(
     try:
         calendar_service = get_calendar_service()
 
-        event_end = start_datetime + timedelta(
-            minutes=duration_minutes
+        event_body = build_calendar_event_body(
+            event_title,
+            start_datetime,
+            duration_minutes,
         )
-
-        event_body = {
-            "summary": event_title,
-            "start": {
-                "dateTime": start_datetime.isoformat(),
-                "timeZone": "Asia/Dubai",
-            },
-            "end": {
-                "dateTime": event_end.isoformat(),
-                "timeZone": "Asia/Dubai",
-            },
-        }
 
         created_event = (
             calendar_service.events()

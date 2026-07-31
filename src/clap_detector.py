@@ -17,6 +17,7 @@ from openwakeword.model import Model
 from weather import get_weather
 from system_health import get_system_health
 from forex import get_forex, open_forex_charts
+from google_calendar import get_todays_calendar
 from workspace import arrange_workspace
 from spotify import play_spotify
 from voice_commands import listen_for_response
@@ -447,11 +448,13 @@ with sd.InputStream(
                     weather_report = get_weather()
                     system_report = get_system_health()
                     forex_report = get_forex()
+                    calendar_report = get_todays_calendar()
 
                     print(greeting)
                     print(weather_report)
                     print(system_report)
                     print(forex_report)
+                    print(calendar_report)
 
 
                     briefing_completed = True
@@ -466,6 +469,9 @@ with sd.InputStream(
                             briefing_completed = False
 
                         elif not speak(forex_report):
+                            briefing_completed = False
+
+                        elif not speak(calendar_report):
                             briefing_completed = False
 
                     finally:

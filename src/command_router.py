@@ -8,9 +8,7 @@ from forex import (
 )
 from greeting import speak
 from weather import get_weather
-from voice_commands import listen_for_response
 from system_health import get_system_health
-from forex import get_forex
 from workspace import arrange_workspace
 from spotify import (
     next_spotify_track,
@@ -120,14 +118,24 @@ def route_command(command):
 
         return True
 
+    if (
+        "am i available" in command
+        or "anything scheduled today" in command
+        or "anything left today" in command
+    ):
+        availability_report = get_today_availability()
+
+        print(availability_report)
+        speak(availability_report)
+
+        return True
 
     if "calendar" in command or "schedule" in command:
         calendar_report = get_todays_calendar()
 
         print(calendar_report)
         speak(calendar_report)
-
-    return True
+        return True
 
     headline_request = re.search(
         r"\b(?:headline|story)\s*(one|two|three|1|2|3)\b",

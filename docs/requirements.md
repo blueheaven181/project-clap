@@ -66,6 +66,15 @@ System shall integrate with Microsoft To Do.
 
 System shall provide AI-powered daily briefings.
 
+Google Calendar requirements:
+
+- System shall read today's schedule and remaining availability.
+- System shall include today's Calendar schedule in the daily briefing.
+- System shall require confirmation before creating an event.
+- System shall create timed events using the `Asia/Dubai` timezone.
+- System shall use the Calendar account's default event reminders.
+- Credentials and authorization tokens shall remain outside Git.
+
 ### FFR-004
 
 System shall control smart curtains.

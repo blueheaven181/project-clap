@@ -9,6 +9,17 @@
 - Google Calendar availability and free-time commands
 - Simple event-request parsing for today and tomorrow
 - Spoken confirmation before Calendar event creation
+- Calendar schedule information in the daily briefing
+- Default Google Calendar reminders on created events
+- Automated Calendar parsing, payload, confirmation, and routing tests
+
+### Fixed
+
+- Calendar routing no longer prevents weather, news, volume, Spotify, and
+  other commands later in the command router from running
+- Calendar event payloads now reject timezone-less start times and explicitly
+  normalize valid start times to `Asia/Dubai`
+- Duplicate Calendar imports and unreachable event-query code were removed
 
 ### Tested
 
@@ -18,10 +29,11 @@
 - Affected Python files compile successfully
 - `config/credentials.json` and `config/token.json` are ignored and untracked
 
-### Known Issues
+### Timezone Diagnosis
 
-- An event requested for 7:00 PM may appear in Google Calendar at 3:00 PM.
-  The event-creation timezone issue is not fixed yet.
+- CLAP sends 7:00 PM Abu Dhabi as `19:00+04:00`, which Google correctly stores
+  as the equivalent instant `15:00Z`. A 3:00 PM appearance means the Google
+  Calendar web display is using UTC and must be changed to `Asia/Dubai`.
 
 ---
 

@@ -469,12 +469,12 @@ Status: In Progress
 - [x] Read today’s calendar
 - [x] Report today's remaining schedule and availability
 - [x] Ask for confirmation before creating calendar events
-- [ ] Fix event-creation timezone handling; a 7:00 PM request may display at
-  3:00 PM in Google Calendar
+- [x] Preserve `Asia/Dubai` event times in Calendar event payloads
+- [ ] Verify the Google Calendar web display timezone is set to `Asia/Dubai`
 - [ ] Read pending tasks
 - [ ] Create tasks with confirmation
-- [ ] Add calendar information to the daily briefing
-- [ ] Add reminder workflows
+- [x] Add calendar information to the daily briefing
+- [x] Use the account's default reminders for created Calendar events
 
 ---
 
