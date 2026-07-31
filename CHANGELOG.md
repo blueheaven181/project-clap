@@ -25,6 +25,9 @@
 - Daily briefing intent is detected before direct-command routing, uses
   case-insensitive transcripts, and accepts the common `daily breathing`
   recognition variant
+- Wake-word and double-clap activation now delay speech-control arming for
+  three seconds, preventing activation audio from immediately pausing CLAP's
+  greeting
 
 ### Tested
 

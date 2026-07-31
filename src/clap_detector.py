@@ -52,6 +52,7 @@ MICROPHONE_INDEX = 1
 
 WAKE_WORD_THRESHOLD = 0.30
 ACTIVATION_COOLDOWN = 3.0
+SPEECH_CONTROL_ARM_DELAY = 3.0
 ignore_activation_until = 0.0
 
 
@@ -192,6 +193,9 @@ def detect_activation(indata, frames, time_info, status):
 
                 clap_times.clear()
                 wake_word_detected = True
+                ignore_activation_until = (
+                    current_time + SPEECH_CONTROL_ARM_DELAY
+                )
                 return
 
         # Do not interpret speech resembling "Hey CLAP" as claps.
@@ -240,6 +244,9 @@ def detect_activation(indata, frames, time_info, status):
 
         print("DOUBLE CLAP DETECTED")
         double_clap_detected = True
+        ignore_activation_until = (
+            current_time + SPEECH_CONTROL_ARM_DELAY
+        )
 
 
 
