@@ -36,6 +36,11 @@ Current approved commands include:
 - AED-to-PHP conversion
 - Open TradingView charts
 - Launch Spotify
+- Control Spotify playback
+- Control Windows system volume
+- Retrieve categorized news
+- Read Google Calendar schedule and availability
+- Create Google Calendar events after confirmation
 
 Unknown commands must not be converted directly into PowerShell, Python, browser, or operating-system commands.
 
@@ -334,11 +339,14 @@ Project CLAP currently provides:
 - Rejection of unknown commands
 - Manual `Ctrl + C` interruption
 - Incremental testing before commits
+- Explicit confirmation before Google Calendar event creation
+- Git exclusions for Google OAuth credentials and tokens
+- Timezone-aware Calendar event payloads
+- A three-second guard between activation and speech-control arming
 
 Planned security improvements:
 
 - Global “CLAP, stop” command
-- Central command allowlist
 - Action risk classification
 - Confirmation helper for sensitive actions
 - Secure configuration loader

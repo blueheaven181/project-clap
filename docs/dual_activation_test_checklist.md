@@ -1,4 +1,4 @@
-CLAP Dual-Activation Stability Checklist
+# CLAP Dual-Activation Stability Checklist
 
 ## Test Legend
 
@@ -8,7 +8,7 @@ CLAP Dual-Activation Stability Checklist
 
 
 
-Preparation
+## Preparation
 [✅] Start CLAP:
     .\.venv\Scripts\python.exe .\src\clap_detector.py
 
@@ -16,7 +16,7 @@ Preparation
     Listening for double clap or Hey CLAP...
 
 
-Double-Clap Tests
+## Double-Clap Tests
 [✅] Double hand clap activates CLAP
 [✅] Terminal shows: DOUBLE CLAP DETECTED
 [✅ ] CLAP gives only one greeting
@@ -25,16 +25,18 @@ Double-Clap Tests
 [✅] Table/keyboard sounds do not cause unwanted activation
 
 
-Wake-Word Tests
+## Wake-Word Tests
 [✅] Say “Hey CLAP”
 [✅] Terminal shows: HEY CLAP DETECTED
 [✅] It does not incorrectly show: DOUBLE CLAP DETECTED
 [✅] CLAP gives only one greeting
 [✅] Normal conversation without “Hey CLAP” does not activate it
 [✅] Test “Hey CLAP” three to five times
+[ ] Confirm “Hey CLAP” does not immediately trigger speech-control pause
+[ ] Confirm the greeting reaches “How can I help?” normally
 
 
-Command Tests
+## Command Tests
 [✅] Activate with double clap, then say “weather”
 [✅] Weather report is spoken correctly
 [✅] CLAP asks: “Is there anything else I can help you with?”
@@ -45,7 +47,7 @@ Command Tests
 [✅] CLAP returns to listening mode without immediately reactivating
 
 
-Second Activation Method
+## Second Activation Method
 [✅] Activate with “Hey CLAP”
 [✅] Request an AED-to-PHP conversion
 [✅] Conversion is spoken correctly
@@ -54,17 +56,18 @@ Second Activation Method
 [✅] CLAP returns to listening mode without immediately reactivating
 
 
-Daily Briefing
+## Daily Briefing
 [✅] Activate CLAP
 [✅] Say “daily briefing”
 [✅] Weather, system health, and forex are spoken
+[ ] Today's Google Calendar schedule is spoken
 [✅] Background music starts and stops correctly
 [✅] Trading charts open and arrange correctly
 [✅] Spotify question is asked
 [✅] Both “yes” and “no” Spotify responses work
 
 
-Longer Stability Test
+## Longer Stability Test
 [✅] Leave CLAP listening for 5–10 minutes
 [✅] No false double-clap activations
 [✅] No false wake-word activations
@@ -72,7 +75,7 @@ Longer Stability Test
 [✅] Ctrl+C stops CLAP cleanly
 
 
-Result
+## Result
 Double clap: PASS
 Hey CLAP: PASS
 Direct commands: PASS
@@ -80,3 +83,12 @@ Follow-up commands: PASS
 Daily briefing: PASS
 False activations: NONE
 Errors encountered:
+
+
+## Calendar Command Tests
+[ ] Say “What is on my schedule today?”
+[ ] Say “When am I free today?”
+[ ] Say “Schedule a test event tomorrow at 7:00 p.m.”
+[ ] Confirm CLAP asks before creating the event
+[ ] Say “no” and verify no event is created
+[ ] Repeat, say “yes,” and verify the event appears at 7:00 PM

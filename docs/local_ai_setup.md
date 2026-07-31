@@ -79,6 +79,8 @@ Examples of known commands:
 - AED-to-PHP conversion
 - TradingView charts
 - Daily briefing
+- Google Calendar schedule and availability
+- Confirmed Google Calendar event creation
 
 Examples of conversational requests:
 

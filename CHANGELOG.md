@@ -12,6 +12,7 @@
 - Calendar schedule information in the daily briefing
 - Default Google Calendar reminders on created events
 - Automated Calendar parsing, payload, confirmation, and routing tests
+- Dedicated Google Calendar setup, testing, and troubleshooting guide
 
 ### Fixed
 
@@ -28,6 +29,8 @@
 - Wake-word and double-clap activation now delay speech-control arming for
   three seconds, preventing activation audio from immediately pausing CLAP's
   greeting
+- Active project documentation now reflects the Calendar integration,
+  briefing routing, security boundary, architecture, and current roadmap
 
 ### Tested
 

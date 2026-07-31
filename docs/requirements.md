@@ -1,84 +1,65 @@
-# Requirements
+# Project CLAP Requirements
 
 ## Functional Requirements
 
-### FR-001
+### Activation and Voice
 
-System shall detect a double clap.
+- CLAP shall activate through a physical double clap or the local “Hey CLAP”
+  wake word.
+- CLAP shall provide a time-based spoken greeting after activation.
+- CLAP shall accept natural spoken commands and follow-up commands.
+- CLAP shall delay speech-control arming after activation to prevent the
+  activation sound from pausing its own greeting.
+- CLAP shall support pause, continue, repeat, and stop during speech.
 
-### FR-002
+### Information and Automation
 
-System shall provide an audio greeting after successful clap detection.
+- CLAP shall retrieve and speak Abu Dhabi weather.
+- CLAP shall report CPU, memory, and disk utilization.
+- CLAP shall retrieve forex rates and convert spoken AED amounts to PHP.
+- CLAP shall retrieve categorized live news.
+- CLAP shall open and arrange the configured trading workspace.
+- CLAP shall control Spotify and Windows system volume through approved
+  commands.
 
-### FR-003
+### Daily Briefing
 
-System shall retrieve and speak current weather information.
+- CLAP shall provide a daily briefing containing weather, system health,
+  forex, and today's Google Calendar schedule.
+- CLAP shall coordinate briefing speech with background music.
+- Stopping the briefing shall prevent subsequent workspace and Spotify actions.
 
-### FR-004
+### Google Calendar
 
-System shall report CPU utilization.
+- CLAP shall read today's schedule and remaining availability.
+- CLAP shall understand simple event requests for today and tomorrow.
+- CLAP shall accept both `PM` and speech-recognition forms such as `p.m.`.
+- CLAP shall require explicit confirmation before creating an event.
+- CLAP shall create timed events using `Asia/Dubai`.
+- CLAP shall inherit the Calendar account's default event reminders.
+- OAuth credentials and tokens shall remain outside Git.
 
-### FR-005
+### Local AI
 
-System shall report memory utilization.
-
-### FR-006
-
-System shall play a predefined morning playlist.
-
-### FR-007
-
-System shall log all startup activities.
-
----
+- CLAP shall route unknown conversational requests to a local Ollama model.
+- The local AI shall not execute arbitrary operating-system commands.
+- Approved automation shall remain inside dedicated trusted modules.
 
 ## Non-Functional Requirements
 
-### NFR-001
+- CLAP shall run on Windows 11 with Python 3.13.
+- CLAP shall recover gracefully from network and API failures.
+- Secrets and private local configuration shall not be committed.
+- New functionality shall preserve existing trusted commands.
+- Sensitive or externally mutating actions shall require confirmation.
+- Changed Python files shall compile before a checkpoint.
+- Automated tests shall cover testable parsing and routing behavior.
 
-System shall respond within 5 seconds after clap detection.
+## Planned Requirements
 
-### NFR-002
-
-System shall run continuously while the laptop is powered on.
-
-### NFR-003
-
-System shall operate on Windows 11.
-
-### NFR-004
-
-System shall recover gracefully from API failures.
-
----
-
-## Future Requirements
-
-### FFR-001
-
-System shall integrate with Microsoft Outlook.
-
-### FFR-002
-
-System shall integrate with Microsoft To Do.
-
-### FFR-003
-
-System shall provide AI-powered daily briefings.
-
-Google Calendar requirements:
-
-- System shall read today's schedule and remaining availability.
-- System shall include today's Calendar schedule in the daily briefing.
-- System shall require confirmation before creating an event.
-- System shall create timed events using the `Asia/Dubai` timezone.
-- System shall use the Calendar account's default event reminders.
-- Credentials and authorization tokens shall remain outside Git.
-
-### FFR-004
-
-System shall control smart curtains.
-
-### FFR-005
-
-System shall support voice commands.
+- Integrate Google Tasks with confirmation before task creation.
+- Improve wake-word reliability at longer distances.
+- Replace fixed-duration voice recording with smarter listening.
+- Add SwitchBot Curtain 3 and smart-lighting controls.
+- Package CLAP as a Windows application.
+- Evaluate a secure mobile companion.

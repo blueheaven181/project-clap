@@ -212,6 +212,72 @@ Gitignored files can still be required locally. Documentation should explain whe
 
 ---
 
+## Calendar Event Displayed Four Hours Early
+
+**Status:** 🟢 Resolved
+
+**Problem:**
+
+An event requested for 7:00 PM appeared as 3:00 PM in Google Calendar.
+
+**Cause:**
+
+CLAP correctly sent `19:00+04:00`, which Google stores as the equivalent UTC
+instant `15:00Z`. Google Calendar's web display timezone needed to use Gulf
+Standard Time instead of UTC.
+
+**Solution:**
+
+Calendar event payloads explicitly use `Asia/Dubai`, timezone-less event writes
+are rejected, and the Google Calendar display timezone was verified as
+`(GMT+04:00) Gulf Standard Time`.
+
+**Lesson:**
+
+An API timestamp and a user interface display can show different wall-clock
+times for the same instant. Diagnose storage timezone and display timezone
+separately instead of applying a compensating offset.
+
+---
+
+## Speech Recognition Returned Dotted PM
+
+**Status:** 🟢 Resolved
+
+**Problem:**
+
+“Schedule a test event tomorrow at 7:00 PM” was transcribed with `p.m.` and
+fell through to the general schedule-reading command.
+
+**Solution:**
+
+Calendar parsing now normalizes dotted `a.m.` and `p.m.` forms before matching.
+Regression tests cover the exact speech-recognition transcript.
+
+---
+
+## Wake Word Immediately Paused the Greeting
+
+**Status:** 🟢 Resolved
+
+**Problem:**
+
+Trailing “Hey CLAP” audio was interpreted as a speech-control double clap while
+the greeting started. The next user command was then incorrectly handled as a
+continue/repeat/stop response.
+
+**Solution:**
+
+Speech-control clap detection is armed three seconds after wake-word or
+double-clap activation.
+
+**Lesson:**
+
+Activation detection and in-session control may share audio signals, so their
+state transition needs an explicit guard period.
+
+---
+
 # Lessons Learned
 
 ## Python
@@ -388,9 +454,11 @@ The following features work or have temporary solutions but should be improved l
 - [ ] Replace the fixed five-second voice window with smarter listening
 - [ ] Prevent CLAP from hearing and recognizing its own speech
 - [ ] Add a reusable Yes/No response parser
-- [ ] Add automated tests for voice-command parsing
+- [x] Add automated tests for Calendar and briefing-intent parsing
 - [ ] Gracefully handle a missing background-music file
 - [ ] Review and simplify `requirements.txt`
-- [ ] Add a central voice-command router
+- [x] Add a central voice-command router
 - [ ] Add a global “CLAP, stop” command
-- [ ] Add “Hey CLAP” voice activation
+- [x] Add “Hey CLAP” voice activation
+- [ ] Add automated audio-signal tests for clap and wake-word handoff
+- [ ] Refactor the main activation loop into smaller testable functions

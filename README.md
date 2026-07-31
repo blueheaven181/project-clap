@@ -12,7 +12,7 @@ CLAP is also a practical learning project for Python, software engineering, auto
 
 ## Current Status
 
-### Version 0.7 — Intelligent Voice Assistant
+### Version 0.7 — Intelligent Voice Assistant with Google Calendar
 
 CLAP currently supports two activation methods:
 
@@ -33,6 +33,7 @@ Double-clap activation is currently the more reliable method. Wake-word detectio
 - Clap cooldown protection
 - Activation cooldown protection
 - Protection against interpreting “Hey CLAP” as a physical clap
+- Three-second speech-control arming delay after activation
 
 ### Voice Interaction
 
@@ -69,6 +70,7 @@ The complete daily briefing includes:
 - Abu Dhabi weather
 - Laptop system health
 - Forex information
+- Today's Google Calendar schedule
 - Background briefing music
 - Trading workspace automation
 - Optional Spotify playback
@@ -223,7 +225,7 @@ Conversation mode can support:
 - Fitness coaching
 - Clear explanations for Python and technical concepts
 
-General questions are sent to the local AI engine. Trusted commands such as weather, system health, currency conversion, news, Spotify, and desktop automation remain handled by dedicated CLAP modules.
+General questions are sent to the local AI engine. Trusted commands such as weather, system health, currency conversion, Calendar, news, Spotify, and desktop automation remain handled by dedicated CLAP modules.
 
 ### Private Local Profile
 
@@ -268,6 +270,7 @@ Examples of trusted commands:
 - Spotify
 - Windows system volume
 - Daily briefing
+- Google Calendar schedule, availability, and confirmed event creation
 
 Requests that are not recognized as trusted commands can enter local conversation mode.
 
@@ -315,6 +318,9 @@ System-health briefing
 Forex briefing
     |
     v
+Calendar schedule
+    |
+    v
 Background music stops
     |
     v
@@ -345,10 +351,14 @@ project-clap
 |   |-- architecture.md
 |   |-- development_notes.md
 |   |-- dual_activation_test_checklist.md
+|   |-- google_calendar_setup.md
 |   |-- local_ai_setup.md
 |   |-- project_charter.md
 |   |-- requirements.md
 |   |-- retrospective_2026-07-27.md
+|   |-- retrospective_2026-07-31.md
+|   |-- retrospective_2026-08-01.md
+|   |-- security.md
 |   `-- roadmap.md
 |
 |-- models
@@ -362,6 +372,7 @@ project-clap
 |   |-- command_router.py
 |   |-- conversation.py
 |   |-- forex.py
+|   |-- google_calendar.py
 |   |-- greeting.py
 |   |-- news.py
 |   |-- spotify.py
@@ -373,6 +384,7 @@ project-clap
 |   `-- workspace.py
 |
 |-- tests
+|   `-- test_google_calendar.py
 |-- .gitignore
 |-- CHANGELOG.md
 |-- LICENSE
@@ -423,6 +435,7 @@ The following features currently require an internet connection:
 - Weather information
 - Forex information
 - Live news feeds
+- Google Calendar schedule and event operations
 
 The following feature runs locally after its model has been downloaded:
 

@@ -227,7 +227,7 @@ Status: Completed
 
 ## Sprint 3.2 — Documentation and Reproducibility
 
-Status: In Progress
+Status: Completed
 
 - [x] Create `requirements.txt`
 - [x] Document the Python 3.13 environment
@@ -237,12 +237,12 @@ Status: In Progress
 - [x] Create the Version 0.6 retrospective
 - [x] Update the README for Version 0.7
 - [x] Update the roadmap for Version 0.7
-- [ ] Update the changelog for Version 0.7
-- [ ] Create the Version 0.7 sprint retrospective
-- [ ] Review project architecture documentation
-- [ ] Review requirements documentation
-- [ ] Decide whether experimental test files should be retained
-- [ ] Confirm a clean Git working tree
+- [x] Update the changelog for Version 0.7
+- [x] Create the Version 0.7 sprint retrospective
+- [x] Review project architecture documentation
+- [x] Review requirements documentation
+- [x] Retain experimental interruption files as manual diagnostic tests
+- [x] Confirm a clean Git working tree at the documentation checkpoint
 
 ---
 
@@ -283,6 +283,7 @@ Objective: Support both physical and spoken activation.
 - [x] Integrate wake-word detection with CLAP
 - [x] Prevent wake-word speech from being interpreted as claps
 - [x] Add activation cooldown protection
+- [x] Prevent activation audio from immediately triggering speech control
 - [x] Create a dual-activation test checklist
 - [x] Test normal speech against false clap activation
 - [x] Keep double clap as the reliable primary method
@@ -410,7 +411,7 @@ Future improvements:
 
 ## Sprint 5.0 — Smart Curtain Integration
 
-Status: Next Hardware Sprint
+Status: Planned Hardware Sprint
 
 Objective: Control SwitchBot Curtain 3 through CLAP.
 
@@ -475,6 +476,9 @@ Status: In Progress
 - [ ] Create tasks with confirmation
 - [x] Add calendar information to the daily briefing
 - [x] Use the account's default reminders for created Calendar events
+- [x] Accept dotted `a.m.` and `p.m.` speech-recognition output
+- [x] Add automated Calendar and briefing-intent regression tests
+- [x] Protect activation from immediate speech-control interruption
 
 ---
 
@@ -603,3 +607,14 @@ Current development milestone:
 - Controllable speech interruption
 - Live categorized news
 - Expanded security boundaries
+
+### 2026-08-01 — Google Calendar Integration
+
+- Calendar schedule and availability commands
+- Confirmed Calendar event creation
+- `Asia/Dubai` event timestamps and verified Gulf Standard Time display
+- Calendar schedule in the daily briefing
+- Default event reminders
+- Automated parsing, payload, confirmation, and routing tests
+- Improved daily-briefing intent recognition
+- Activation-to-speech-control guard period
