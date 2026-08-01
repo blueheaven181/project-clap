@@ -142,6 +142,14 @@ class CurtainIntentTests(unittest.TestCase):
             self.assertIsNone(parse_curtain_intent(phrase))
             self.assertFalse(command_router.is_switchbot_curtain_request(phrase))
 
+    def test_curtain_command_does_not_open_general_follow_up_listening(self):
+        self.assertFalse(
+            command_router.should_offer_command_follow_up(
+                "Set the curtain to 90 percent"
+            )
+        )
+        self.assertTrue(command_router.should_offer_command_follow_up("weather"))
+
     def test_position_validation(self):
         self.assertEqual(validate_position(0), 0)
         self.assertEqual(validate_position(100), 100)

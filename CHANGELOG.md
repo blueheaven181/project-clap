@@ -35,6 +35,8 @@
   without sending a movement command
 - Curtain BLE work runs on a dedicated Windows worker thread so Bleak's WinRT
   callbacks do not conflict with the COM mode required by system audio control
+- Curtain commands return directly to wake-word standby after their result,
+  instead of opening the general follow-up conversation loop
 
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date

@@ -130,6 +130,12 @@ def is_switchbot_curtain_request(command):
     return parse_curtain_intent(command) is not None
 
 
+def should_offer_command_follow_up(command):
+    """Keep safety-sensitive Curtain commands to one wake interaction."""
+
+    return not is_switchbot_curtain_request(command)
+
+
 def route_command(command):
     """
     Understand a spoken command and run the correct CLAP module.

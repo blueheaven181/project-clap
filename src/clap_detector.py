@@ -26,6 +26,7 @@ from command_router import (
     is_google_tasks_request,
     is_switchbot_curtain_request,
     route_command,
+    should_offer_command_follow_up,
 )
 from background_music import (
     pause_background_music,
@@ -440,8 +441,7 @@ with sd.InputStream(
            ):
                     route_command(response)
 
-
-                    while True:
+                    while should_offer_command_follow_up(response):
                         speak(
                         "Is there anything else I can help you with? "
                           "Say your next command, or say no."
