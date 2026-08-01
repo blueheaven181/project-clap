@@ -46,6 +46,12 @@ from voice_commands import (
     listen_for_response,
     listen_until_response,
 )
+from google_tasks import (
+    create_task,
+    get_pending_tasks,
+    is_task_read_request,
+    parse_task_creation_request,
+)
 
 
 def is_daily_briefing_request(command):
@@ -85,13 +91,49 @@ def route_command(command):
     Returns False when the command is unknown.
     """
 
-    command = command.strip().lower()
+    raw_command = command.strip()
+    command = raw_command.lower()
 
     if is_articulation_training_request(command):
         exercise_mode = get_requested_exercise_mode(command)
         if exercise_mode:
             return start_articulation_training(exercise_mode=exercise_mode)
         return start_articulation_training()
+
+    task_request = parse_task_creation_request(raw_command)
+
+    if task_request:
+        due_date = task_request["due_date"]
+        due_phrase = (
+            f", due {due_date.strftime('%A, %B %d')}" if due_date else ""
+        )
+        speak(
+            f"You want me to add {task_request['title']} to your tasks"
+            f"{due_phrase}. Shall I create it?"
+        )
+        confirmation = listen_until_response(
+            "I did not hear you. Please say yes or no."
+        )
+        confirmation_words = set(confirmation.strip().lower().split())
+        confirmed = bool(
+            confirmation_words.intersection(
+                {"yes", "yeah", "yep", "sure", "okay", "ok", "confirm"}
+            )
+        ) or "create it" in confirmation.lower()
+
+        if confirmed:
+            result = create_task(task_request["title"], due_date)
+        else:
+            result = "Okay. I did not create the task."
+        print(result)
+        speak(result)
+        return True
+
+    if is_task_read_request(command):
+        tasks_report = get_pending_tasks(due_today="due today" in command)
+        print(tasks_report)
+        speak(tasks_report)
+        return True
 
     event_request = parse_calendar_event_request(command)
 

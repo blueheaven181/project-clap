@@ -1,4 +1,4 @@
-# Google Calendar Setup and Testing
+# Google Calendar and Tasks Setup and Testing
 
 ## Current Capabilities
 
@@ -11,6 +11,9 @@ CLAP can:
 - Create an event only after spoken confirmation.
 - Preserve Abu Dhabi time with `Asia/Dubai` timestamps.
 - Use the Google Calendar account's default reminders.
+- Read pending tasks from the default Google Tasks list.
+- Read pending tasks due today in `Asia/Dubai`.
+- Create a task only after spoken confirmation.
 
 ## Local Credential Files
 
@@ -24,14 +27,20 @@ config/token.json
 Both paths are excluded by `.gitignore`. Never add their contents to source,
 documentation, screenshots, logs, or commits.
 
-The configured OAuth scope is:
+The configured OAuth scopes are:
 
 ```text
 https://www.googleapis.com/auth/calendar.events
+https://www.googleapis.com/auth/tasks
 ```
 
-If the scope changes, the local token may need to be regenerated through the
-Google authorization flow.
+The Tasks scope is the minimum scope that supports both reading and creating
+tasks; the read-only scope cannot create. CLAP detects an existing
+Calendar-only token and opens a fresh consent flow. It does not overwrite the
+working local token unless the new authorization succeeds.
+
+Enable both the Google Calendar API and Google Tasks API for the Google Cloud
+project associated with `credentials.json`.
 
 ## Timezone Configuration
 
@@ -55,6 +64,9 @@ Test read commands:
 What is on my schedule today?
 When am I free today?
 Am I available today?
+What tasks do I have?
+What tasks are due today?
+Read my pending tasks.
 ```
 
 Test confirmed creation:
@@ -67,14 +79,28 @@ First say `no` and verify nothing is created. Repeat the request, say `yes`,
 then verify that Google Calendar shows a one-hour event at 7:00 PM with the
 account's default reminder.
 
+Test task creation the same way:
+
+```text
+Add buy groceries to my tasks.
+Add submit report to my tasks due tomorrow.
+```
+
+First say `no` and verify no task is created. Repeat and say `yes`, then verify
+the exact title and optional due date in the default Tasks list. Existing tasks
+must remain unchanged.
+
 ## Automated Tests
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest tests.test_google_calendar -v
+.\.venv\Scripts\python.exe -m unittest tests.test_google_tasks -v
 ```
 
 The suite covers Calendar parsing, dotted `a.m.`/`p.m.` recognition, timezone
 payloads, confirmation behavior, command routing, and daily-briefing intent.
+The Tasks suite covers intents, parsing, authorization migration, title and due
+date payloads, confirmation, routing, empty results, and failure handling.
 
 ## Troubleshooting
 
@@ -83,8 +109,11 @@ payloads, confirmation behavior, command routing, and daily-briefing intent.
   time.
 - If an event appears four hours early, verify the Google Calendar display
   timezone rather than adding a manual offset to CLAP.
-- If authorization fails after changing scopes, remove only the local ignored
-  token and complete authorization again. Never commit the replacement token.
+- If the browser requests authorization after this upgrade, approve the listed
+  Calendar and Tasks permissions. If reauthorization fails, the prior local
+  token remains in place; retry without deleting or committing it.
+- If Tasks reports that the API is unavailable, confirm the Google Tasks API is
+  enabled for the same Google Cloud project.
 - If “daily briefing” is transcribed as “daily breathing,” CLAP recognizes the
   common variant.
 - If activation immediately enters pause control, restart on the latest code;

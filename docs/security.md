@@ -41,6 +41,8 @@ Current approved commands include:
 - Retrieve categorized news
 - Read Google Calendar schedule and availability
 - Create Google Calendar events after confirmation
+- Read pending Google Tasks
+- Create Google Tasks only after confirmation
 - Run local articulation-training exercises
 
 Unknown commands must not be converted directly into PowerShell, Python, browser, or operating-system commands.
@@ -65,6 +67,7 @@ May run without additional confirmation:
 - Calculate currency conversions
 - Play a briefing
 - Read calendar information
+- Read pending task information
 
 ### Medium Risk
 
@@ -341,8 +344,11 @@ Project CLAP currently provides:
 - Manual `Ctrl + C` interruption
 - Incremental testing before commits
 - Explicit confirmation before Google Calendar event creation
+- Explicit confirmation before Google Tasks creation
 - Git exclusions for Google OAuth credentials and tokens
 - Timezone-aware Calendar event payloads
+- Shared Google OAuth authorization limited to Calendar events and Tasks
+- No permission in the Tasks command surface to alter or delete existing tasks
 - A three-second guard between activation and speech-control arming
 - Local-AI articulation feedback that must not invent personal facts
 

@@ -461,10 +461,10 @@ Status: Planned
 
 ## Sprint 5.2 — Google Productivity Integration
 
-Status: In Progress
+Status: Completed
 
 - [x] Integrate Google Calendar schedule reading
-- [ ] Integrate Google Tasks
+- [x] Integrate Google Tasks
 - [x] Use a Calendar event scope that supports reading and event creation
 - [x] Store credentials outside GitHub
 - [x] Read today’s calendar
@@ -472,8 +472,13 @@ Status: In Progress
 - [x] Ask for confirmation before creating calendar events
 - [x] Preserve `Asia/Dubai` event times in Calendar event payloads
 - [x] Verify the Google Calendar web display timezone is set to `Asia/Dubai`
-- [ ] Read pending tasks
-- [ ] Create tasks with confirmation
+- [x] Read pending tasks from the default task list
+- [x] Read pending tasks due today using `Asia/Dubai`
+- [x] Create tasks with spoken confirmation
+- [x] Preserve task titles and optional due dates
+- [x] Reauthorize safely when the local token lacks the Tasks scope
+- [x] Handle missing credentials, empty results, API errors, and failed speech
+- [x] Add automated Tasks intent, parsing, payload, routing, and failure tests
 - [x] Add calendar information to the daily briefing
 - [x] Use the account's default reminders for created Calendar events
 - [x] Accept dotted `a.m.` and `p.m.` speech-recognition output

@@ -29,6 +29,10 @@ The command router sends approved requests to dedicated modules:
 - `system_health.py` reports laptop health.
 - `forex.py` retrieves exchange rates and opens trading charts.
 - `google_calendar.py` reads schedules and creates confirmed events.
+- `google_auth.py` manages the shared least-privilege Calendar and Tasks OAuth
+  token, including consent when a local token lacks the Tasks scope.
+- `google_tasks.py` reads pending tasks and creates new confirmed tasks in the
+  default task list.
 - `news.py` retrieves and summarizes categorized news.
 - `spotify.py` controls playback and configured mood playlists.
 - `system_volume.py` controls Windows audio.
@@ -63,6 +67,33 @@ timezone-aware, use `Asia/Dubai`, and inherit the Google Calendar account's
 default reminder settings. The account display timezone is also configured for
 Gulf Standard Time (`UTC+04:00`).
 
+## Google Tasks Flow
+
+```text
+Spoken Tasks request
+        |
+   +----+----+
+   |         |
+  Read      Create request
+   |         |
+   v         v
+Pending   Parse title and optional Dubai date
+tasks             |
+                  v
+           Speak details and confirm
+               +--+--+
+               |     |
+              Yes    No or failed speech
+               |     |
+               v     v
+          Insert new  Cancel safely
+             task
+```
+
+Tasks uses `@default`, excludes completed and deleted tasks, and never calls
+update, delete, or completion methods. Task due dates are date-only Google
+Tasks values; spoken `today` and `tomorrow` are resolved in `Asia/Dubai`.
+
 ## Articulation Training Flow
 
 ```text
@@ -93,6 +124,6 @@ double-clap pause, CLAP listens for `continue`, `repeat`, or `stop`.
 ## External Boundaries
 
 Internet access is required for Google speech recognition, Edge TTS, weather,
-forex, news, and Google Calendar. Wake-word detection, local AI generation,
+forex, news, Google Calendar, and Google Tasks. Wake-word detection, local AI generation,
 system health, Windows volume control, and desktop automation run locally after
 their dependencies are installed.

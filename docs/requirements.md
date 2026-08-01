@@ -43,6 +43,18 @@
 - CLAP shall inherit the Calendar account's default event reminders.
 - OAuth credentials and tokens shall remain outside Git.
 
+### Google Tasks
+
+- CLAP shall read incomplete tasks from the user's default task list.
+- CLAP shall report all pending tasks or only pending tasks due today.
+- CLAP shall preserve task titles and optional due dates in API payloads.
+- Spoken task dates shall be interpreted using `Asia/Dubai`.
+- CLAP shall require explicit spoken confirmation before creating a task.
+- A failed or unrecognized confirmation shall not create a task.
+- CLAP shall not delete, complete, rename, or otherwise modify existing tasks.
+- CLAP shall request only the Google Tasks scope needed for reading and
+  creating tasks, and shall safely reauthorize Calendar-only local tokens.
+
 ### Local AI
 
 - CLAP shall route unknown conversational requests to a local Ollama model.
@@ -69,7 +81,6 @@
 
 ## Planned Requirements
 
-- Integrate Google Tasks with confirmation before task creation.
 - Improve wake-word reliability at longer distances.
 - Replace fixed-duration voice recording with smarter listening.
 - Add SwitchBot Curtain 3 and smart-lighting controls.

@@ -1,10 +1,16 @@
-## Unreleased — Google Calendar Checkpoint
+## Unreleased — Google Tasks Checkpoint
 
 **Date:** 2026-08-01
 **Status:** Development Checkpoint
 
 ### Added
 
+- Google Tasks pending-task reading from the default task list
+- Due-today task filtering using the `Asia/Dubai` date
+- Confirmed task creation with exact titles and optional due dates
+- Shared Calendar and Tasks OAuth authorization with safe scope migration
+- Focused Tasks intent, parsing, payload, API, routing, empty-result, and
+  failure-handling tests
 - Selectable work-update, technical-explanation, and achievement-story
   articulation modes
 - Explicit 1-to-5 articulation scores for clarity, conciseness, structure,
@@ -28,6 +34,9 @@
 
 ### Fixed
 
+- Existing Calendar-only tokens now request fresh consent when the Tasks scope
+  is missing instead of attempting a refresh that cannot add permissions
+- Failed or unrecognized task confirmations cancel creation safely
 - The speech layer now accepts pause requests only from the validated physical
   double-clap trigger; speech and voice-command triggers are explicitly rejected
 - Speech-control pause now requires two sharper, distinctly timed clap
@@ -62,6 +71,9 @@
 
 ### Tested
 
+- The focused Google Tasks and Calendar suites pass all 26 tests
+- The complete automated regression suite passes all 48 tests; interactive
+  microphone diagnostics remain separate manual tests
 - Double-clap-only pause policy passes three focused authorization tests
 - The focused voice and articulation suites pass all 17 tests
 - The full regression suite passes all 31 tests

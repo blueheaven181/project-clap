@@ -12,7 +12,7 @@ CLAP is also a practical learning project for Python, software engineering, auto
 
 ## Current Status
 
-### Version 0.7 — Intelligent Voice Assistant with Google Calendar
+### Version 0.7 — Intelligent Voice Assistant with Google Productivity
 
 CLAP currently supports two activation methods:
 
@@ -153,6 +153,29 @@ Add workout tomorrow at 7 PM
 Calendar credentials and authorization tokens are stored locally in
 `config/credentials.json` and `config/token.json`. Both files are excluded
 from Git.
+
+### Google Tasks
+
+- Read pending tasks from the default Google Tasks list
+- Read only pending tasks due today
+- Preserve task titles and optional due dates
+- Ask for clear spoken confirmation before creating a task
+- Never alter, complete, rename, or delete existing tasks
+- Interpret spoken task dates using `Asia/Dubai`
+
+Example commands:
+
+```text
+What tasks do I have?
+What tasks are due today?
+Read my pending tasks.
+Add buy groceries to my tasks.
+Add submit report to my tasks due tomorrow.
+```
+
+Calendar and Tasks share the same ignored local Google credential and token
+files. An existing Calendar-only token starts a one-time authorization flow to
+add the minimum Tasks scope required for reading and creating tasks.
 
 ### Trading Workspace Automation
 
@@ -302,6 +325,7 @@ Examples of trusted commands:
 - Windows system volume
 - Daily briefing
 - Google Calendar schedule, availability, and confirmed event creation
+- Google Tasks reading and confirmed task creation
 
 Requests that are not recognized as trusted commands can enter local conversation mode.
 
@@ -406,6 +430,8 @@ project-clap
 |   |-- conversation.py
 |   |-- forex.py
 |   |-- google_calendar.py
+|   |-- google_auth.py
+|   |-- google_tasks.py
 |   |-- greeting.py
 |   |-- news.py
 |   |-- spotify.py
@@ -418,7 +444,8 @@ project-clap
 |
 |-- tests
 |   |-- test_articulation_coach.py
-|   `-- test_google_calendar.py
+|   |-- test_google_calendar.py
+|   `-- test_google_tasks.py
 |-- .gitignore
 |-- CHANGELOG.md
 |-- LICENSE
@@ -470,6 +497,7 @@ The following features currently require an internet connection:
 - Forex information
 - Live news feeds
 - Google Calendar schedule and event operations
+- Google Tasks reading and confirmed task creation
 
 The following feature runs locally after its model has been downloaded:
 
@@ -520,7 +548,7 @@ Project CLAP follows a local-first security approach.
 - Refine pause, continue, repeat, and stop behavior
 - Add news to the optional daily briefing
 - Improve command and conversation routing
-- Add Google Tasks integration
+- Validate Google Tasks with end-to-end voice testing
 - Integrate SwitchBot Curtain 3
 - Add smart-lighting scenes
 - Build morning, gym, relaxation, and party modes

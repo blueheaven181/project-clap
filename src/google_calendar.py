@@ -1,59 +1,28 @@
 from datetime import datetime, time, timedelta
-from pathlib import Path
 import re
 from zoneinfo import ZoneInfo
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-SCOPES = [
-    "https://www.googleapis.com/auth/calendar.events",
-]
+from google_auth import (
+    CREDENTIALS_PATH,
+    GOOGLE_SCOPES,
+    TOKEN_PATH,
+    get_google_credentials,
+)
+
+SCOPES = GOOGLE_SCOPES
 
 CALENDAR_TIMEZONE_NAME = "Asia/Dubai"
 ABU_DHABI_TIMEZONE = ZoneInfo(CALENDAR_TIMEZONE_NAME)
-
-PROJECT_FOLDER = Path(__file__).resolve().parent.parent
-CREDENTIALS_PATH = PROJECT_FOLDER / "config" / "credentials.json"
-TOKEN_PATH = PROJECT_FOLDER / "config" / "token.json"
-
 
 def get_calendar_credentials():
     """
     Load or create Google Calendar event authorization.
     """
 
-    credentials = None
-
-    if TOKEN_PATH.exists():
-        credentials = Credentials.from_authorized_user_file(
-            str(TOKEN_PATH),
-            SCOPES,
-        )
-
-    if not credentials or not credentials.valid:
-        if (
-            credentials
-            and credentials.expired
-            and credentials.refresh_token
-        ):
-            credentials.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                str(CREDENTIALS_PATH),
-                SCOPES,
-            )
-            credentials = flow.run_local_server(port=0)
-
-        TOKEN_PATH.write_text(
-            credentials.to_json(),
-            encoding="utf-8",
-        )
-
-    return credentials
+    return get_google_credentials()
 
 def get_calendar_service():
     """
