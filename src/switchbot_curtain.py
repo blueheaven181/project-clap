@@ -87,7 +87,7 @@ def build_position_payload(position, speed=0xFF):
     position = validate_position(position)
     if speed not in (0x00, 0x01, 0xFF):
         raise ValueError("Unsupported Curtain 3 movement speed.")
-    return bytes((0x57, 0x0F, 0x45, 0x01, 0x05, speed, position))
+    return bytes((0x57, 0x0F, 0x45, 0x05, speed, position))
 
 
 def parse_status_response(response):

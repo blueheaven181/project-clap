@@ -69,9 +69,10 @@ Run the read-only GATT diagnostic before retrying a failed movement:
 .\.venv\Scripts\python.exe .\src\switchbot_curtain_diagnostic.py
 ```
 
-It scans for only the configured Curtain, connects without sending any command,
-checks the required characteristics and notification subscription, and redacts
-the private address from errors.
+It scans for only the configured Curtain, connects, checks the required
+characteristics and notification subscription, sends only the official
+read-only status request, and redacts the private address from errors. It never
+sends a movement packet.
 
 - Missing configuration: confirm the exact ignored filename and JSON key.
 - Bluetooth unavailable: enable the Windows adapter and confirm OS permission.

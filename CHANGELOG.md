@@ -26,8 +26,11 @@
   for calibration, battery, movement, and raw 0-open to 100-closed position
 - Windows BLE disconnect cleanup is bounded and cannot replace a successful
   Curtain response with a cleanup error
+- Curtain 3 position packets use the maintained six-byte action form, removing
+  an extra function byte that caused the device to reject movement writes
 - Read-only GATT diagnostic verifies scan, connection, required characteristics,
-  notification subscription, and bounded disconnect without sending a command
+  notification subscription, status-request response, and bounded disconnect
+  without sending a movement command
 
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date

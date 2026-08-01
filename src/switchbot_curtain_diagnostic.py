@@ -6,7 +6,9 @@ from bleak import BleakClient, BleakScanner
 
 from switchbot_curtain import (
     CONNECT_TIMEOUT_SECONDS,
+    GET_STATUS_PAYLOAD,
     NOTIFY_CHARACTERISTIC,
+    RESPONSE_TIMEOUT_SECONDS,
     WRITE_CHARACTERISTIC,
     load_local_config,
 )
@@ -45,16 +47,34 @@ async def diagnose(address):
         if notify_characteristic:
             print("notify_properties=", sorted(notify_characteristic.properties))
             print("4. Testing notification subscription without sending data...")
-            await client.start_notify(notify_characteristic, lambda *_args: None)
-            await client.stop_notify(notify_characteristic)
+            response = asyncio.get_running_loop().create_future()
+
+            def receive_response(_sender, data):
+                if not response.done():
+                    response.set_result(bytes(data))
+
+            await client.start_notify(notify_characteristic, receive_response)
             print("notification_subscription= successful")
+            if write_characteristic:
+                print("5. Sending read-only status request...")
+                await client.write_gatt_char(
+                    write_characteristic,
+                    GET_STATUS_PAYLOAD,
+                    response=False,
+                )
+                status_response = await asyncio.wait_for(
+                    response,
+                    RESPONSE_TIMEOUT_SECONDS,
+                )
+                print("status_notification_received=", bool(status_response))
+            await client.stop_notify(notify_characteristic)
     finally:
         if client.is_connected:
             try:
                 await asyncio.wait_for(client.disconnect(), 3)
-                print("5. Disconnect completed.")
+                print("6. Disconnect completed.")
             except Exception as error:
-                print("5. Disconnect cleanup:", type(error).__name__)
+                print("6. Disconnect cleanup:", type(error).__name__)
 
 
 def main():

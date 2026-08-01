@@ -180,9 +180,9 @@ class CurtainDiscoveryTests(unittest.TestCase):
 class CurtainProtocolTests(unittest.TestCase):
     def test_official_ble_payloads(self):
         self.assertEqual(GET_STATUS_PAYLOAD, bytes.fromhex("5702"))
-        self.assertEqual(build_position_payload(0), bytes.fromhex("570f450105ff00"))
-        self.assertEqual(build_position_payload(50), bytes.fromhex("570f450105ff32"))
-        self.assertEqual(build_position_payload(100), bytes.fromhex("570f450105ff64"))
+        self.assertEqual(build_position_payload(0), bytes.fromhex("570f4505ff00"))
+        self.assertEqual(build_position_payload(50), bytes.fromhex("570f4505ff32"))
+        self.assertEqual(build_position_payload(100), bytes.fromhex("570f4505ff64"))
         self.assertEqual(STOP_PAYLOAD, bytes.fromhex("570f4500ff"))
 
     def test_status_response(self):
