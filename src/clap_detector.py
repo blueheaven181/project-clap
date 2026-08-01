@@ -21,7 +21,11 @@ from google_calendar import get_todays_calendar
 from workspace import arrange_workspace
 from spotify import play_spotify
 from voice_commands import listen_for_response
-from command_router import is_daily_briefing_request, route_command
+from command_router import (
+    is_daily_briefing_request,
+    is_google_tasks_request,
+    route_command,
+)
 from background_music import (
     pause_background_music,
     resume_background_music,
@@ -424,9 +428,12 @@ with sd.InputStream(
 
            if (
                not briefing_requested
-               and any(
-                   word in normalized_response
-                   for word in direct_command_words
+               and (
+                   is_google_tasks_request(response)
+                   or any(
+                       word in normalized_response
+                       for word in direct_command_words
+                   )
                )
            ):
                     route_command(response)

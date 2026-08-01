@@ -83,6 +83,15 @@ def is_daily_briefing_request(command):
     )
 
 
+def is_google_tasks_request(command):
+    """Return True when a transcript belongs to the trusted Tasks module."""
+
+    return bool(
+        is_task_read_request(command)
+        or parse_task_creation_request(command)
+    )
+
+
 def route_command(command):
     """
     Understand a spoken command and run the correct CLAP module.

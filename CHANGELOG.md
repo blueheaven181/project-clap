@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- Google Tasks read requests now pass the activation loop's trusted-command
+  gate instead of incorrectly starting local conversation mode
 - Existing Calendar-only tokens now request fresh consent when the Tasks scope
   is missing instead of attempting a refresh that cannot add permissions
 - Failed or unrecognized task confirmations cancel creation safely
