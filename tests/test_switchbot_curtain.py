@@ -14,6 +14,7 @@ import command_router
 import switchbot_curtain
 from switchbot_curtain import (
     CurtainBluetoothError,
+    CurtainResponseError,
     GET_STATUS_PAYLOAD,
     STOP_PAYLOAD,
     SwitchBotCurtain,
@@ -237,6 +238,14 @@ class CurtainProtocolTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             parse_status_response(bytes((3, 0, 0, 0, 0, 0, 0, 0)))
 
+    def test_device_rejection_preserves_safe_response_code(self):
+        with self.assertRaises(CurtainResponseError) as raised:
+            parse_status_response(bytes((3, 0, 0, 0, 0, 0, 0, 0)))
+        self.assertEqual(
+            str(raised.exception),
+            "The curtain is busy. Please try again shortly. (response code 0x03)",
+        )
+
     def test_ble_client_sends_only_prebuilt_payload(self):
         curtain = SwitchBotCurtain(
             "private-address",
@@ -261,6 +270,24 @@ class CurtainProtocolTests(unittest.TestCase):
             worker_thread = switchbot_curtain._run(operation)
 
         self.assertNotEqual(worker_thread, calling_thread)
+
+    def test_public_wrapper_reports_device_rejection(self):
+        async def operation(_curtain):
+            raise CurtainResponseError(
+                "The curtain is busy. Please try again shortly. (response code 0x03)"
+            )
+
+        with patch.object(
+            switchbot_curtain,
+            "load_local_config",
+            return_value={"bluetooth_address": "private-address"},
+        ):
+            result = switchbot_curtain._run(operation)
+
+        self.assertEqual(
+            result,
+            "The curtain is busy. Please try again shortly. (response code 0x03)",
+        )
 
     def test_ble_client_connects_with_freshly_resolved_device(self):
         curtain = SwitchBotCurtain(

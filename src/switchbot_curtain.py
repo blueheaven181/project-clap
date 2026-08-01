@@ -37,6 +37,15 @@ class CurtainBluetoothError(RuntimeError):
     """A redacted BLE failure annotated with its pre/post-command phase."""
 
 
+class CurtainResponseError(RuntimeError):
+    """A safe Curtain protocol rejection that may be shown to the user."""
+
+
+def _response_error(code):
+    message = RESPONSE_ERRORS.get(code, "The curtain returned an unknown error.")
+    return CurtainResponseError(f"{message} (response code 0x{code:02X})")
+
+
 def _redact_private_value(message, private_value):
     return str(message).replace(private_value, "[private device]")
 
@@ -105,7 +114,7 @@ def parse_status_response(response):
     if not isinstance(response, (bytes, bytearray)) or len(response) < 8:
         raise ValueError("The curtain returned a malformed status response.")
     if response[0] != 0x01:
-        raise RuntimeError(RESPONSE_ERRORS.get(response[0], "The curtain returned an unknown error."))
+        raise _response_error(response[0])
     position = response[6]
     if position > 100:
         raise ValueError("The curtain returned an invalid position.")
@@ -263,7 +272,7 @@ class SwitchBotCurtain:
         if not response:
             raise ValueError("The curtain returned a malformed response.")
         if response[0] != 0x01:
-            raise RuntimeError(RESPONSE_ERRORS.get(response[0], "The curtain returned an unknown error."))
+            raise _response_error(response[0])
 
 
 def _run(operation):
@@ -297,6 +306,9 @@ def _run(operation):
     except CurtainBluetoothError as error:
         print("SwitchBot Curtain diagnostic:", error)
         return "I could not connect to the curtain over Bluetooth."
+    except CurtainResponseError as error:
+        print("SwitchBot Curtain diagnostic:", error)
+        return str(error)
     except Exception as error:
         print("SwitchBot Curtain error:", type(error).__name__)
         return "I could not connect to the curtain over Bluetooth."

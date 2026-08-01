@@ -37,6 +37,8 @@
   callbacks do not conflict with the COM mode required by system audio control
 - Curtain commands return directly to wake-word standby after their result,
   instead of opening the general follow-up conversation loop
+- Safe Curtain protocol rejection messages and response codes are preserved,
+  instead of being collapsed into a generic Bluetooth connection error
 
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date
