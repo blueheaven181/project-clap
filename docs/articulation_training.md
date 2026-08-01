@@ -105,6 +105,11 @@ CLAP resumes speaking automatically. This microphone-dependent behavior should
 be checked live after changes to microphone placement, speaker volume, or room
 acoustics.
 
+The speech layer also enforces this boundary: only a validated `double_clap`
+trigger may request a pause. Spoken commands, recognized speech, and other
+trigger labels are rejected. The words `continue`, `repeat`, and `stop` are
+listened for only after a physical double clap has already paused speech.
+
 ## Privacy and Boundaries
 
 - Speech recognition still uses Google's online recognition service.

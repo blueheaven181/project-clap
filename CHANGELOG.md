@@ -28,6 +28,8 @@
 
 ### Fixed
 
+- The speech layer now accepts pause requests only from the validated physical
+  double-clap trigger; speech and voice-command triggers are explicitly rejected
 - Speech-control pause now requires two sharper, distinctly timed clap
   transients so CLAP's voice and the user's speech do not activate pause
 - A paused message automatically continues after three unrecognized
@@ -60,8 +62,9 @@
 
 ### Tested
 
+- Double-clap-only pause policy passes three focused authorization tests
 - The focused voice and articulation suites pass all 17 tests
-- The full regression suite passes all 28 tests
+- The full regression suite passes all 31 tests
 - All affected articulation Python files compile successfully
 - The 13-test articulation suite and 24-test full regression suite pass
 - Today's Calendar schedule can be read successfully

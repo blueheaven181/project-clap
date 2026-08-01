@@ -92,10 +92,13 @@ def set_speech_control_handler(handler):
     _speech_control_handler = handler
 
 
-def request_speech_control():
+def request_speech_control(trigger):
     """
-    Pause CLAP and request a control decision.
+    Pause CLAP only for a verified physical double-clap trigger.
     """
+
+    if trigger != "double_clap":
+        return False
 
     if _speech_control_event.is_set() or _speech_paused:
         return False
@@ -103,7 +106,7 @@ def request_speech_control():
     if not is_speaking():
         return False
 
-    pause_speaking()
+    _pause_speaking()
     _speech_control_event.set()
 
     return True
@@ -124,9 +127,9 @@ def stop_speaking():
     speech_channel.stop()
 
 
-def pause_speaking():
+def _pause_speaking():
     """
-    Pause CLAP's current spoken message.
+    Pause CLAP's current spoken message after trigger validation.
     """
 
     global _speech_paused

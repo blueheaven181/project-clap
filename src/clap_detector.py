@@ -268,7 +268,7 @@ def detect_activation(indata, frames, time_info, status):
         clap_times.clear()
 
         if currently_speaking:
-            if request_speech_control():
+            if request_speech_control(trigger="double_clap"):
                 print("SPEECH CONTROL DOUBLE CLAP DETECTED")
 
             return
