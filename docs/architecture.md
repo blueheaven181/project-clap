@@ -128,6 +128,11 @@ automatically. The ignored `config/switchbot.local.json` contains the private
 Windows Bluetooth address. General Ollama conversation has no path to this BLE
 client or its raw packets.
 
+On Windows, the primary CLAP entry point selects the multithreaded COM apartment
+before importing desktop/audio dependencies. This preserves the WinRT callback
+loop required by Bleak instead of allowing `pythoncom` to initialize the console
+thread as a GUI single-threaded apartment.
+
 ## Articulation Training Flow
 
 ```text

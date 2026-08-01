@@ -63,6 +63,10 @@
 
 ### Fixed
 
+- CLAP selects the Windows MTA COM threading model before desktop/audio imports,
+  preventing `pythoncom` GUI/STA initialization from disabling Bleak callbacks
+  during trusted Curtain commands
+
 - Conversation mode now exits immediately for natural or repeated stop phrases
   such as "stop now" and "stop stop stop" instead of continuing to listen
 - Mixed task-creation responses such as "yes yes no" now cancel safely instead
