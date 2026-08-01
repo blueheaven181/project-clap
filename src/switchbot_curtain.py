@@ -121,19 +121,33 @@ def load_local_config(path=CONFIG_PATH):
 class SwitchBotCurtain:
     """Small BLE client restricted to official Curtain 3 packets."""
 
-    def __init__(self, address, client_factory=None):
+    def __init__(self, address, client_factory=None, device_resolver=None):
         self.address = address
         self.client_factory = client_factory
+        self.device_resolver = device_resolver
 
     async def _send(self, payload):
         if self.client_factory is None:
             try:
-                from bleak import BleakClient
+                from bleak import BleakClient, BleakScanner
             except ImportError as error:
                 raise RuntimeError("Bluetooth support is not installed.") from error
             client_factory = BleakClient
+            device_resolver = BleakScanner.find_device_by_address
         else:
             client_factory = self.client_factory
+            device_resolver = self.device_resolver
+
+        device = self.address
+        if device_resolver is not None:
+            device = await device_resolver(
+                self.address,
+                timeout=CONNECT_TIMEOUT_SECONDS,
+            )
+            if device is None:
+                raise TimeoutError(
+                    "The configured curtain was not found during Bluetooth discovery."
+                )
 
         response_future = asyncio.get_running_loop().create_future()
 
@@ -142,7 +156,7 @@ class SwitchBotCurtain:
                 response_future.set_result(bytes(data))
 
         try:
-            async with client_factory(self.address, timeout=CONNECT_TIMEOUT_SECONDS) as client:
+            async with client_factory(device, timeout=CONNECT_TIMEOUT_SECONDS) as client:
                 await client.start_notify(NOTIFY_CHARACTERISTIC, receive_response)
                 await client.write_gatt_char(WRITE_CHARACTERISTIC, payload, response=True)
                 return await asyncio.wait_for(response_future, RESPONSE_TIMEOUT_SECONDS)

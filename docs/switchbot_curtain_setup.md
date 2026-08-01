@@ -69,6 +69,9 @@ read local configuration and must never connect to the installed curtain.
   iPhone Bluetooth off temporarily if necessary, and scan again near the motor.
 - Timeout: close the SwitchBot app's device screen, wait briefly, and retry a
   read-only status request once.
+- Windows device-not-found error: CLAP resolves the saved address through a
+  fresh local scan before every connection. Close the iPhone device screen and
+  keep the Windows computer near the motor during that scan.
 - Not calibrated: recalibrate only through the SwitchBot app before movement.
 - Busy or low battery: do not loop commands; fix the state and issue a new
   spoken request.

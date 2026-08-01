@@ -38,11 +38,13 @@ class FakeAdvertisement:
 class FakeBleakClient:
     response = bytes((1, 80, 42, 1, 0, 4, 50, 0))
     last_payload = None
+    last_target = None
 
     def __init__(self, address, timeout):
         self.address = address
         self.timeout = timeout
         self.callback = None
+        self.__class__.last_target = address
 
     async def __aenter__(self):
         return self
@@ -61,6 +63,18 @@ class FakeBleakClient:
 class SilentBleakClient(FakeBleakClient):
     async def write_gatt_char(self, _characteristic, payload, response):
         self.__class__.last_payload = payload
+
+
+class FakeResolvedDevice:
+    pass
+
+
+async def resolve_device(_address, timeout):
+    return FakeResolvedDevice()
+
+
+async def resolve_no_device(_address, timeout):
+    return None
 
 
 class CurtainIntentTests(unittest.TestCase):
@@ -151,9 +165,31 @@ class CurtainProtocolTests(unittest.TestCase):
             parse_status_response(bytes((3, 0, 0, 0, 0, 0, 0, 0)))
 
     def test_ble_client_sends_only_prebuilt_payload(self):
-        curtain = SwitchBotCurtain("private-address", client_factory=FakeBleakClient)
+        curtain = SwitchBotCurtain(
+            "private-address",
+            client_factory=FakeBleakClient,
+            device_resolver=resolve_device,
+        )
         asyncio.run(curtain.set_position(50))
         self.assertEqual(FakeBleakClient.last_payload, build_position_payload(50))
+
+    def test_ble_client_connects_with_freshly_resolved_device(self):
+        curtain = SwitchBotCurtain(
+            "private-address",
+            client_factory=FakeBleakClient,
+            device_resolver=resolve_device,
+        )
+        asyncio.run(curtain.get_status())
+        self.assertIsInstance(FakeBleakClient.last_target, FakeResolvedDevice)
+
+    def test_configured_device_not_found_fails_before_connection(self):
+        curtain = SwitchBotCurtain(
+            "private-address",
+            client_factory=FakeBleakClient,
+            device_resolver=resolve_no_device,
+        )
+        with self.assertRaises(TimeoutError):
+            asyncio.run(curtain.get_status())
 
     @patch("switchbot_curtain.RESPONSE_TIMEOUT_SECONDS", 0.001)
     def test_ble_timeout(self):
