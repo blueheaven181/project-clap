@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- Due-today Tasks routing now recognizes natural speech variants including
+  "do I have task today" and "what are my task today"
 - Google Tasks read intent now accepts singular speech transcripts such as
   "what task do I have" as well as plural variants
 - Local conversation responses now address Marc directly as "you" instead of

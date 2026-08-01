@@ -20,10 +20,20 @@ def is_task_read_request(command):
         for pattern in (
             r"\bwhat (?:pending )?tasks? do i have\b",
             r"\bwhat tasks? (?:is|are) due today\b",
-            r"\bdo i have any (?:pending )?tasks?\b",
+            r"\bdo i have (?:any )?(?:pending )?tasks?(?: (?:due )?today)?\b",
+            r"\bwhat (?:is|are) my (?:pending )?tasks?(?: (?:due )?today)?\b",
             r"\bread my pending tasks?\b",
             r"\bpending tasks?\b",
         )
+    )
+
+
+def is_task_due_today_request(command):
+    """Return True when a Tasks read request asks for today's due tasks."""
+
+    normalized = command.strip().lower()
+    return is_task_read_request(normalized) and bool(
+        re.search(r"\b(?:due\s+)?today\b", normalized)
     )
 
 

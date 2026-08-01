@@ -15,6 +15,7 @@ from google_tasks import (
     DEFAULT_TASK_LIST,
     build_task_body,
     get_pending_tasks,
+    is_task_due_today_request,
     is_task_read_request,
     parse_task_creation_request,
 )
@@ -42,10 +43,22 @@ class TaskIntentAndParsingTests(unittest.TestCase):
             "What tasks are due today?",
             "What task is due today?",
             "Do I have any tasks?",
+            "Do I have task today?",
+            "What are my task today?",
             "Read my pending tasks.",
         ):
             with self.subTest(command=command):
                 self.assertTrue(is_task_read_request(command))
+
+    def test_spoken_today_variants_request_due_today_filter(self):
+        for command in (
+            "What tasks are due today?",
+            "What task is due today?",
+            "Do I have task today?",
+            "What are my task today?",
+        ):
+            with self.subTest(command=command):
+                self.assertTrue(is_task_due_today_request(command))
 
     def test_task_title_is_preserved(self):
         request = parse_task_creation_request(
@@ -237,8 +250,16 @@ class TaskRoutingTests(unittest.TestCase):
     @patch("command_router.speak")
     @patch("command_router.get_pending_tasks", return_value="No tasks.")
     def test_due_today_routes_with_filter(self, get_tasks, _speak):
-        self.assertTrue(command_router.route_command("What tasks are due today?"))
-        get_tasks.assert_called_once_with(due_today=True)
+        for command in (
+            "What tasks are due today?",
+            "Do I have task today?",
+            "What are my task today?",
+            "What task is due today?",
+        ):
+            with self.subTest(command=command):
+                get_tasks.reset_mock()
+                self.assertTrue(command_router.route_command(command))
+                get_tasks.assert_called_once_with(due_today=True)
 
 
 if __name__ == "__main__":

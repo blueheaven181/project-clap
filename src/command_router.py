@@ -49,6 +49,7 @@ from voice_commands import (
 from google_tasks import (
     create_task,
     get_pending_tasks,
+    is_task_due_today_request,
     is_task_read_request,
     parse_task_creation_request,
 )
@@ -139,7 +140,9 @@ def route_command(command):
         return True
 
     if is_task_read_request(command):
-        tasks_report = get_pending_tasks(due_today="due today" in command)
+        tasks_report = get_pending_tasks(
+            due_today=is_task_due_today_request(command)
+        )
         print(tasks_report)
         speak(tasks_report)
         return True
