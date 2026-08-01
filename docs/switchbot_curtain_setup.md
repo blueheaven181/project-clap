@@ -90,6 +90,8 @@ sends a movement packet.
   notification response.
 - Windows disconnect cleanup is limited to three seconds and cannot override a
   successful Curtain response.
+- BLE failures report a safe transport phase and redact the configured address,
+  allowing diagnosis without logging private device identity.
 - Status reads do not require a connection. If status is unavailable while the
   discovery helper sees the Curtain, confirm the saved address exactly matches
   the displayed candidate and retry near the motor.

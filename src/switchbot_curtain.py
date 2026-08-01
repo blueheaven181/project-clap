@@ -32,6 +32,14 @@ RESPONSE_ERRORS = {
 }
 
 
+class CurtainBluetoothError(RuntimeError):
+    """A redacted BLE failure annotated with its pre/post-command phase."""
+
+
+def _redact_private_value(message, private_value):
+    return str(message).replace(private_value, "[private device]")
+
+
 def parse_curtain_intent(command):
     """Return an explicitly supported Curtain command or None."""
 
@@ -173,6 +181,7 @@ class SwitchBotCurtain:
         self.device_resolver = device_resolver
 
     async def _send(self, payload):
+        phase = "loading Bluetooth support"
         if self.client_factory is None:
             try:
                 from bleak import BleakClient, BleakScanner
@@ -184,18 +193,27 @@ class SwitchBotCurtain:
             client_factory = self.client_factory
             device_resolver = self.device_resolver
 
-        device = self.address
-        if device_resolver is not None:
-            device = await device_resolver(
-                self.address,
-                timeout=CONNECT_TIMEOUT_SECONDS,
-            )
-            if device is None:
-                raise TimeoutError(
-                    "The configured curtain was not found during Bluetooth discovery."
+        try:
+            phase = "resolving the configured device"
+            device = self.address
+            if device_resolver is not None:
+                device = await device_resolver(
+                    self.address,
+                    timeout=CONNECT_TIMEOUT_SECONDS,
                 )
+                if device is None:
+                    raise TimeoutError(
+                        "The configured curtain was not found during Bluetooth discovery."
+                    )
 
-        response_future = asyncio.get_running_loop().create_future()
+            response_future = asyncio.get_running_loop().create_future()
+        except TimeoutError:
+            raise
+        except Exception as error:
+            detail = _redact_private_value(error, self.address)
+            raise CurtainBluetoothError(
+                f"Bluetooth failed while {phase}: {type(error).__name__}: {detail}"
+            ) from error
 
         def receive_response(_sender, data):
             if not response_future.done():
@@ -203,12 +221,21 @@ class SwitchBotCurtain:
 
         client = client_factory(device, timeout=CONNECT_TIMEOUT_SECONDS)
         try:
+            phase = "connecting"
             await client.connect()
+            phase = "subscribing for the device response"
             await client.start_notify(NOTIFY_CHARACTERISTIC, receive_response)
+            phase = "writing the trusted command"
             await client.write_gatt_char(WRITE_CHARACTERISTIC, payload, response=False)
+            phase = "waiting for the device response"
             return await asyncio.wait_for(response_future, RESPONSE_TIMEOUT_SECONDS)
         except asyncio.TimeoutError as error:
             raise TimeoutError("The curtain did not respond before the Bluetooth timeout.") from error
+        except Exception as error:
+            detail = _redact_private_value(error, self.address)
+            raise CurtainBluetoothError(
+                f"Bluetooth failed while {phase}: {type(error).__name__}: {detail}"
+            ) from error
         finally:
             if client.is_connected:
                 try:
@@ -249,6 +276,9 @@ def _run(operation):
         return str(error)
     except TimeoutError:
         return "The curtain did not respond. Check Bluetooth, range, and whether the device is offline."
+    except CurtainBluetoothError as error:
+        print("SwitchBot Curtain diagnostic:", error)
+        return "I could not connect to the curtain over Bluetooth."
     except Exception as error:
         print("SwitchBot Curtain error:", type(error).__name__)
         return "I could not connect to the curtain over Bluetooth."

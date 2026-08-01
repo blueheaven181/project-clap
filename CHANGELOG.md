@@ -28,6 +28,8 @@
   Curtain response with a cleanup error
 - Curtain 3 position packets use the maintained six-byte action form, removing
   an extra function byte that caused the device to reject movement writes
+- BLE failures identify the safe transport phase while redacting the configured
+  device address from diagnostic output
 - Read-only GATT diagnostic verifies scan, connection, required characteristics,
   notification subscription, status-request response, and bounded disconnect
   without sending a movement command
@@ -112,9 +114,9 @@
 
 ### Tested
 
-- The focused Curtain suite passes all 25 simulated-hardware tests without
+- The focused Curtain suite passes all 26 simulated-hardware tests without
   connecting to or moving a real device
-- Python compilation and all 85 non-interactive automated regression tests pass;
+- Python compilation and all 86 non-interactive automated regression tests pass;
   manual microphone and Curtain hardware checks remain separate
 
 - The focused Google Tasks and Calendar suites pass all 26 tests

@@ -12,6 +12,7 @@ sys.path.insert(0, str(SRC_DIR))
 import command_router
 import switchbot_curtain
 from switchbot_curtain import (
+    CurtainBluetoothError,
     GET_STATUS_PAYLOAD,
     STOP_PAYLOAD,
     SwitchBotCurtain,
@@ -96,6 +97,11 @@ class CleanupErrorBleakClient(FakeBleakClient):
     async def disconnect(self):
         self.is_connected = False
         raise RuntimeError("cleanup failed")
+
+
+class WriteErrorBleakClient(FakeBleakClient):
+    async def write_gatt_char(self, _characteristic, payload, response):
+        raise RuntimeError("failure for private-address")
 
 
 class FakeResolvedDevice:
@@ -258,6 +264,18 @@ class CurtainProtocolTests(unittest.TestCase):
         )
         status = asyncio.run(curtain.get_status())
         self.assertEqual(status["position"], 50)
+
+    def test_transport_error_reports_phase_and_redacts_address(self):
+        curtain = SwitchBotCurtain(
+            "private-address",
+            client_factory=WriteErrorBleakClient,
+            device_resolver=resolve_device,
+        )
+        with self.assertRaises(CurtainBluetoothError) as raised:
+            asyncio.run(curtain.set_position(50))
+        self.assertIn("writing the trusted command", str(raised.exception))
+        self.assertIn("[private device]", str(raised.exception))
+        self.assertNotIn("private-address", str(raised.exception))
 
     @patch("switchbot_curtain.RESPONSE_TIMEOUT_SECONDS", 0.001)
     def test_ble_timeout(self):
