@@ -3,6 +3,7 @@
 import asyncio
 import json
 import re
+import threading
 from pathlib import Path
 
 
@@ -266,10 +267,27 @@ class SwitchBotCurtain:
 
 
 def _run(operation):
+    outcome = {}
+
+    def run_bluetooth_operation():
+        try:
+            outcome["result"] = asyncio.run(operation)
+        except BaseException as error:
+            outcome["error"] = error
+
     try:
         config = load_local_config()
         curtain = SwitchBotCurtain(config["bluetooth_address"])
-        return asyncio.run(operation(curtain))
+        operation = operation(curtain)
+        worker = threading.Thread(
+            target=run_bluetooth_operation,
+            name="switchbot-curtain-bluetooth",
+        )
+        worker.start()
+        worker.join()
+        if "error" in outcome:
+            raise outcome["error"]
+        return outcome["result"]
     except FileNotFoundError:
         return "SwitchBot is not configured. Please complete the local Bluetooth setup."
     except ValueError as error:

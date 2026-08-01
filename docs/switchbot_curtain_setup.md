@@ -92,9 +92,9 @@ sends a movement packet.
   successful Curtain response.
 - BLE failures report a safe transport phase and redact the configured address,
   allowing diagnosis without logging private device identity.
-- CLAP configures its Windows console thread for MTA before importing desktop
-  and audio modules, preventing GUI/STA initialization from blocking Bleak
-  callbacks.
+- CLAP runs Curtain Bluetooth operations on a dedicated Windows worker thread,
+  preventing Bleak callbacks from conflicting with the COM mode used by system
+  audio control.
 - Status reads do not require a connection. If status is unavailable while the
   discovery helper sees the Curtain, confirm the saved address exactly matches
   the displayed candidate and retry near the motor.

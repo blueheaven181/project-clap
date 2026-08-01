@@ -1,10 +1,3 @@
-import sys
-
-# Bleak requires MTA callbacks in this console application. This must be set
-# before desktop/audio dependencies can import pythoncom and initialize STA.
-if sys.platform == "win32":
-    sys.coinit_flags = 0
-
 import sounddevice as sd
 import numpy as np
 import time

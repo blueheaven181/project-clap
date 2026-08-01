@@ -419,7 +419,7 @@ Planned work:
 
 - [x] Install and calibrate SwitchBot Curtain 3
 - [x] Test control through the SwitchBot mobile application
-- [ ] Confirm the available Bluetooth interface
+- [x] Confirm the available Bluetooth interface
 - [x] Research the supported local Bluetooth protocol
 - [x] Create separate curtain-control and automated-test modules
 - [x] Add open-curtain command

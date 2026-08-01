@@ -1,5 +1,6 @@
 import asyncio
 import sys
+import threading
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -237,6 +238,21 @@ class CurtainProtocolTests(unittest.TestCase):
         asyncio.run(curtain.set_position(50))
         self.assertEqual(FakeBleakClient.last_payload, build_position_payload(50))
         self.assertFalse(FakeBleakClient.last_write_response)
+
+    def test_public_wrapper_runs_bluetooth_away_from_calling_thread(self):
+        calling_thread = threading.get_ident()
+
+        async def operation(_curtain):
+            return threading.get_ident()
+
+        with patch.object(
+            switchbot_curtain,
+            "load_local_config",
+            return_value={"bluetooth_address": "private-address"},
+        ):
+            worker_thread = switchbot_curtain._run(operation)
+
+        self.assertNotEqual(worker_thread, calling_thread)
 
     def test_ble_client_connects_with_freshly_resolved_device(self):
         curtain = SwitchBotCurtain(

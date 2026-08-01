@@ -33,6 +33,8 @@
 - Read-only GATT diagnostic verifies scan, connection, required characteristics,
   notification subscription, status-request response, and bounded disconnect
   without sending a movement command
+- Curtain BLE work runs on a dedicated Windows worker thread so Bleak's WinRT
+  callbacks do not conflict with the COM mode required by system audio control
 
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date
