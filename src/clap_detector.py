@@ -1,6 +1,14 @@
 import sounddevice as sd
 import numpy as np
 import time
+from single_instance import acquire_clap_instance
+
+
+if not acquire_clap_instance():
+    print("Project CLAP is already running. Close the existing listener first.")
+    raise SystemExit(1)
+
+
 from conversation import start_voice_conversation
 
 

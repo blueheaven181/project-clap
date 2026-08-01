@@ -43,6 +43,8 @@
   objects exactly as the successful read-only diagnostic does
 - CLAP speech playback is serialized, and the activation greeting is generated
   as one continuous clip to prevent doubled or overlapping voice output
+- A Windows named-mutex guard prevents multiple CLAP voice listeners from
+  running simultaneously and creating duplicated speech or microphone prompts
 
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date
