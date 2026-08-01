@@ -18,7 +18,9 @@ from switchbot_curtain import (
     build_position_payload,
     load_local_config,
     parse_curtain_intent,
+    parse_advertisement_status,
     parse_status_response,
+    read_advertised_status,
     validate_position,
 )
 from switchbot_curtain_discovery import is_curtain_3_advertisement
@@ -33,6 +35,28 @@ class FakeAdvertisement:
     def __init__(self, local_name=None, service_data=None):
         self.local_name = local_name
         self.service_data = service_data or {}
+
+
+class FakeAddressDevice:
+    def __init__(self, address):
+        self.address = address
+
+
+async def discover_advertised_curtain(timeout, return_adv):
+    return {
+        "private-address": (
+            FakeAddressDevice("private-address"),
+            FakeAdvertisement(
+                service_data={
+                    "0000fd3d-0000-1000-8000-00805f9b34fb": b"\x7b\xc0\x49\x00\x11\x04"
+                }
+            ),
+        )
+    }
+
+
+async def discover_no_curtain(timeout, return_adv):
+    return {}
 
 
 class FakeBleakClient:
@@ -159,6 +183,31 @@ class CurtainProtocolTests(unittest.TestCase):
         self.assertEqual(status["position"], 50)
         self.assertTrue(status["calibrated"])
         self.assertTrue(status["moving"])
+
+    def test_connection_free_advertisement_status(self):
+        status = parse_advertisement_status(b"\x7b\xc0\x49\x00\x11\x04")
+        self.assertEqual(
+            status,
+            {"battery": 73, "calibrated": True, "moving": False, "position": 0},
+        )
+
+    def test_advertised_status_matches_configured_address(self):
+        status = asyncio.run(
+            read_advertised_status(
+                "PRIVATE-ADDRESS",
+                discover=discover_advertised_curtain,
+            )
+        )
+        self.assertEqual(status["position"], 0)
+
+    def test_advertised_status_missing_device_times_out(self):
+        with self.assertRaises(TimeoutError):
+            asyncio.run(
+                read_advertised_status(
+                    "private-address",
+                    discover=discover_no_curtain,
+                )
+            )
 
     def test_malformed_and_offline_responses_fail_safely(self):
         with self.assertRaises(ValueError):

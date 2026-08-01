@@ -51,6 +51,8 @@ git check-ignore -v config/switchbot.local.json
    Windows this identifier may look like a UUID instead of a traditional MAC
    address; preserve it exactly and do not share it.
 7. Run the status command first; it cannot intentionally move the curtain.
+   Status is read directly from the Curtain 3 advertisement and does not open a
+   GATT connection or send a command packet.
 
 The iPhone app remains the manual fallback if Windows Bluetooth is unavailable.
 
@@ -75,6 +77,9 @@ read local configuration and must never connect to the installed curtain.
 - Connected but no response: Curtain 3 commands use the protocol's write-without-
   response characteristic mode, then wait up to five seconds for the separate
   notification response.
+- Status reads do not require a connection. If status is unavailable while the
+  discovery helper sees the Curtain, confirm the saved address exactly matches
+  the displayed candidate and retry near the motor.
 - Not calibrated: recalibrate only through the SwitchBot app before movement.
 - Busy or low battery: do not loop commands; fix the state and issue a new
   spoken request.

@@ -11,6 +11,11 @@ WRITE_CHARACTERISTIC = "cba20002-224d-11e6-9fb8-0002a5d5c51b"
 NOTIFY_CHARACTERISTIC = "cba20003-224d-11e6-9fb8-0002a5d5c51b"
 CONNECT_TIMEOUT_SECONDS = 8
 RESPONSE_TIMEOUT_SECONDS = 5
+SWITCHBOT_SERVICE_UUIDS = {
+    "0000fd3d-0000-1000-8000-00805f9b34fb",
+    "fd3d",
+}
+CURTAIN_3_DEVICE_TYPE = 0x7B
 
 GET_STATUS_PAYLOAD = bytes.fromhex("5702")
 STOP_PAYLOAD = bytes.fromhex("570f4500ff")
@@ -101,6 +106,46 @@ def parse_status_response(response):
         "moving": bool(state & 0b00000011),
         "position": position,
     }
+
+
+def parse_advertisement_status(service_data):
+    """Parse Curtain 3 status from its official connection-free broadcast."""
+
+    if not isinstance(service_data, (bytes, bytearray)) or len(service_data) < 4:
+        raise ValueError("The curtain returned malformed Bluetooth status data.")
+    if service_data[0] & 0x7F != CURTAIN_3_DEVICE_TYPE:
+        raise ValueError("The Bluetooth status data is not from a Curtain 3.")
+    position_byte = service_data[3]
+    position = position_byte & 0x7F
+    if position > 100:
+        raise ValueError("The curtain returned an invalid position.")
+    return {
+        "battery": service_data[2] & 0x7F,
+        "calibrated": bool(service_data[1] & 0x40),
+        "moving": bool(position_byte & 0x80),
+        "position": position,
+    }
+
+
+async def read_advertised_status(address, discover=None):
+    """Read status from the configured Curtain's BLE advertisement."""
+
+    if discover is None:
+        try:
+            from bleak import BleakScanner
+        except ImportError as error:
+            raise RuntimeError("Bluetooth support is not installed.") from error
+        discover = BleakScanner.discover
+
+    discovered = await discover(timeout=CONNECT_TIMEOUT_SECONDS, return_adv=True)
+    for device, advertisement in discovered.values():
+        if device.address.casefold() != address.casefold():
+            continue
+        for service_uuid, service_data in advertisement.service_data.items():
+            if service_uuid.lower() in SWITCHBOT_SERVICE_UUIDS:
+                return parse_advertisement_status(service_data)
+        raise ValueError("The curtain advertisement did not contain status data.")
+    raise TimeoutError("The configured curtain was not found during Bluetooth discovery.")
 
 
 def load_local_config(path=CONFIG_PATH):
@@ -200,7 +245,7 @@ def _run(operation):
 
 def get_curtain_status():
     async def operation(curtain):
-        status = await curtain.get_status()
+        status = await read_advertised_status(curtain.address)
         if not status["calibrated"]:
             return "The curtain is connected but is not calibrated."
         movement = " and is moving" if status["moving"] else ""

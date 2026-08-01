@@ -121,7 +121,8 @@ BLE read   Speak exact action and confirm
 ```
 
 The router passes only status, open, close, set-position, and stop operations
-to the dedicated module. The module uses the official Curtain 3 BLE service,
+to the dedicated module. Status comes from the connection-free official BLE
+advertisement. Movement uses the official Curtain 3 GATT service,
 waits briefly for an explicit response, and never retries movement
 automatically. The ignored `config/switchbot.local.json` contains the private
 Windows Bluetooth address. General Ollama conversation has no path to this BLE
