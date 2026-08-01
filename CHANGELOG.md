@@ -20,6 +20,8 @@
   official SwitchBot service-data device type
 - Windows BLE connections resolve the configured address to a freshly scanned
   device object before connecting, avoiding stale-cache device-not-found errors
+- Curtain BLE packets use write-without-response mode before waiting for the
+  device's separate notification, preventing GATT acknowledgement stalls
 
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date

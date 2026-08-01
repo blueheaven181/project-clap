@@ -39,6 +39,7 @@ class FakeBleakClient:
     response = bytes((1, 80, 42, 1, 0, 4, 50, 0))
     last_payload = None
     last_target = None
+    last_write_response = None
 
     def __init__(self, address, timeout):
         self.address = address
@@ -57,6 +58,7 @@ class FakeBleakClient:
 
     async def write_gatt_char(self, _characteristic, payload, response):
         self.__class__.last_payload = payload
+        self.__class__.last_write_response = response
         self.callback(None, self.__class__.response)
 
 
@@ -172,6 +174,7 @@ class CurtainProtocolTests(unittest.TestCase):
         )
         asyncio.run(curtain.set_position(50))
         self.assertEqual(FakeBleakClient.last_payload, build_position_payload(50))
+        self.assertFalse(FakeBleakClient.last_write_response)
 
     def test_ble_client_connects_with_freshly_resolved_device(self):
         curtain = SwitchBotCurtain(

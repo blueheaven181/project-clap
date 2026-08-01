@@ -72,6 +72,9 @@ read local configuration and must never connect to the installed curtain.
 - Windows device-not-found error: CLAP resolves the saved address through a
   fresh local scan before every connection. Close the iPhone device screen and
   keep the Windows computer near the motor during that scan.
+- Connected but no response: Curtain 3 commands use the protocol's write-without-
+  response characteristic mode, then wait up to five seconds for the separate
+  notification response.
 - Not calibrated: recalibrate only through the SwitchBot app before movement.
 - Busy or low battery: do not loop commands; fix the state and issue a new
   spoken request.

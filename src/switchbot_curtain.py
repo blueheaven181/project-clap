@@ -158,7 +158,7 @@ class SwitchBotCurtain:
         try:
             async with client_factory(device, timeout=CONNECT_TIMEOUT_SECONDS) as client:
                 await client.start_notify(NOTIFY_CHARACTERISTIC, receive_response)
-                await client.write_gatt_char(WRITE_CHARACTERISTIC, payload, response=True)
+                await client.write_gatt_char(WRITE_CHARACTERISTIC, payload, response=False)
                 return await asyncio.wait_for(response_future, RESPONSE_TIMEOUT_SECONDS)
         except asyncio.TimeoutError as error:
             raise TimeoutError("The curtain did not respond before the Bluetooth timeout.") from error
