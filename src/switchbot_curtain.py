@@ -233,10 +233,21 @@ class SwitchBotCurtain:
         try:
             phase = "connecting"
             await client.connect()
+            phase = "resolving required GATT characteristics"
+            write_characteristic = client.services.get_characteristic(
+                WRITE_CHARACTERISTIC
+            )
+            notify_characteristic = client.services.get_characteristic(
+                NOTIFY_CHARACTERISTIC
+            )
+            if write_characteristic is None or notify_characteristic is None:
+                raise CurtainBluetoothError(
+                    "The connected curtain did not expose the required GATT characteristics."
+                )
             phase = "subscribing for the device response"
-            await client.start_notify(NOTIFY_CHARACTERISTIC, receive_response)
+            await client.start_notify(notify_characteristic, receive_response)
             phase = "writing the trusted command"
-            await client.write_gatt_char(WRITE_CHARACTERISTIC, payload, response=False)
+            await client.write_gatt_char(write_characteristic, payload, response=False)
             phase = "waiting for the device response"
             return await asyncio.wait_for(response_future, RESPONSE_TIMEOUT_SECONDS)
         except asyncio.TimeoutError as error:

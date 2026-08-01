@@ -308,17 +308,10 @@ with sd.InputStream(
 
         if double_clap_detected or wake_word_detected:
 
-           greeting = (
-               f"{get_greeting()}. "
-               f"CLAP is online "
-
-)
-
-           speak(greeting)
-
-           speak("How can I help. ? "
-                 "Say a command, or ask me anything"
-                  )
+           speak(
+               f"{get_greeting()}. CLAP is online. "
+               "How can I help? Say a command, or ask me anything."
+           )
 
 
 

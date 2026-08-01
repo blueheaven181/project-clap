@@ -1,4 +1,5 @@
 import sys
+import threading
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -11,6 +12,30 @@ import greeting
 
 
 class SpeechPausePolicyTests(unittest.TestCase):
+    def test_speech_playback_is_serialized(self):
+        first_started = threading.Event()
+        release_first = threading.Event()
+        calls = []
+
+        def fake_speak_locked(message):
+            calls.append(message)
+            if message == "first":
+                first_started.set()
+                release_first.wait(timeout=1)
+
+        with patch("greeting._speak_locked", side_effect=fake_speak_locked):
+            first = threading.Thread(target=greeting.speak, args=("first",))
+            second = threading.Thread(target=greeting.speak, args=("second",))
+            first.start()
+            self.assertTrue(first_started.wait(timeout=1))
+            second.start()
+            self.assertEqual(calls, ["first"])
+            release_first.set()
+            first.join(timeout=1)
+            second.join(timeout=1)
+
+        self.assertEqual(calls, ["first", "second"])
+
     @patch("greeting._pause_speaking")
     def test_voice_command_cannot_pause_speech(self, pause_mock):
         paused = greeting.request_speech_control(trigger="voice_command")

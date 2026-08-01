@@ -39,6 +39,10 @@
   instead of opening the general follow-up conversation loop
 - Safe Curtain protocol rejection messages and response codes are preserved,
   instead of being collapsed into a generic Bluetooth connection error
+- Live Curtain control resolves and passes the required GATT characteristic
+  objects exactly as the successful read-only diagnostic does
+- CLAP speech playback is serialized, and the activation greeting is generated
+  as one continuous clip to prevent doubled or overlapping voice output
 
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date

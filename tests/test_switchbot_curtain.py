@@ -45,6 +45,11 @@ class FakeAddressDevice:
         self.address = address
 
 
+class FakeServices:
+    def get_characteristic(self, characteristic):
+        return f"resolved:{characteristic}"
+
+
 async def discover_advertised_curtain(timeout, return_adv):
     return {
         "private-address": (
@@ -73,6 +78,7 @@ class FakeBleakClient:
         self.address = address
         self.timeout = timeout
         self.callback = None
+        self.services = FakeServices()
         self.__class__.last_target = address
 
     async def connect(self):
@@ -82,9 +88,11 @@ class FakeBleakClient:
         self.is_connected = False
 
     async def start_notify(self, _characteristic, callback):
+        self.__class__.last_notify_characteristic = _characteristic
         self.callback = callback
 
     async def write_gatt_char(self, _characteristic, payload, response):
+        self.__class__.last_write_characteristic = _characteristic
         self.__class__.last_payload = payload
         self.__class__.last_write_response = response
         self.callback(None, self.__class__.response)
@@ -255,6 +263,14 @@ class CurtainProtocolTests(unittest.TestCase):
         asyncio.run(curtain.set_position(50))
         self.assertEqual(FakeBleakClient.last_payload, build_position_payload(50))
         self.assertFalse(FakeBleakClient.last_write_response)
+        self.assertEqual(
+            FakeBleakClient.last_notify_characteristic,
+            f"resolved:{switchbot_curtain.NOTIFY_CHARACTERISTIC}",
+        )
+        self.assertEqual(
+            FakeBleakClient.last_write_characteristic,
+            f"resolved:{switchbot_curtain.WRITE_CHARACTERISTIC}",
+        )
 
     def test_public_wrapper_runs_bluetooth_away_from_calling_thread(self):
         calling_thread = threading.get_ident()

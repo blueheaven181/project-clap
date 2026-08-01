@@ -21,6 +21,7 @@ _speech_stopped = False
 
 _speech_control_event = threading.Event()
 _speech_control_handler = None
+_speech_playback_lock = threading.Lock()
 
 
 def cleanup_old_speech_files():
@@ -169,6 +170,13 @@ def speak(message):
     """
     Generate and play controllable CLAP speech.
     """
+
+    with _speech_playback_lock:
+        return _speak_locked(message)
+
+
+def _speak_locked(message):
+    """Generate and play one speech clip while holding the playback lock."""
 
     global _last_spoken_message
     global _speech_paused
