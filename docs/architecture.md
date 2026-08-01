@@ -86,8 +86,9 @@ most reliable activation method. After either activation method, speech-control
 claps are ignored for three seconds so activation audio cannot immediately
 pause the greeting.
 
-While later speech is playing, a physical double clap can request `continue`,
-`repeat`, or `stop`.
+While later speech is playing, only a validated physical double clap may pause
+the message. Voice activity and spoken commands cannot request pause. After the
+double-clap pause, CLAP listens for `continue`, `repeat`, or `stop`.
 
 ## External Boundaries
 

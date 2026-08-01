@@ -319,8 +319,8 @@ Objective: Let Marc pause and control CLAP while it is speaking.
 
 Future improvements:
 
-- [ ] Improve direct voice barge-in without requiring a double clap
-- [ ] Add reliable hands-free pause detection
+- [ ] Continue rejecting speech and speaker output as false double claps
+- [ ] Add automated transient-classification tests using recorded clap samples
 - [ ] Prevent speaker echo from reaching the speech recognizer
 - [ ] Evaluate microphone echo cancellation
 - [ ] Add interruption tests for conversation and news modes
@@ -490,12 +490,12 @@ Status: In Progress
 - [x] Add structured clarity, conciseness, and organization feedback
 - [x] Add an optional improved-answer retry
 - [x] Add automated articulation intent, routing, and session tests
-- [ ] Add selectable articulation exercise modes
+- [x] Add selectable articulation exercise modes
 - [ ] Add structured mock interviews
 - [ ] Add NOC Engineer interview mode
 - [ ] Add Azure Administrator interview mode
-- [ ] Score clarity, structure, and confidence
-- [ ] Suggest improved answers
+- [x] Score clarity, conciseness, structure, filler words, and confidence
+- [x] Suggest improved answers using only facts from the speaker's transcript
 - [ ] Track recurring communication improvements locally
 - [ ] Keep personal coaching records private
 

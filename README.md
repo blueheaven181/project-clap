@@ -47,9 +47,11 @@ Double-clap activation is currently the more reliable method. Wake-word detectio
 
 ### Speech and Briefing Control
 
-While CLAP is speaking, a double clap can pause the current message.
+While CLAP is speaking, only a physical double clap can pause the current
+message. Spoken words, including "pause," cannot activate speech pause.
 
-After pausing, the following commands are supported:
+After a physical double clap has paused speech, the following commands are
+supported:
 
 - “Continue”
 - “Repeat”

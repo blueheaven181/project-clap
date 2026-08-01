@@ -10,7 +10,11 @@
 - CLAP shall accept natural spoken commands and follow-up commands.
 - CLAP shall delay speech-control arming after activation to prevent the
   activation sound from pausing its own greeting.
-- CLAP shall support pause, continue, repeat, and stop during speech.
+- CLAP shall allow active speech to be paused only by a validated physical
+  double clap.
+- CLAP shall reject spoken commands and ordinary voice activity as pause
+  triggers.
+- After a double-clap pause, CLAP shall accept continue, repeat, and stop.
 
 ### Information and Automation
 
