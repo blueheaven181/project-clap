@@ -64,6 +64,9 @@ read local configuration and must never connect to the installed curtain.
 - Missing configuration: confirm the exact ignored filename and JSON key.
 - Bluetooth unavailable: enable the Windows adapter and confirm OS permission.
 - Curtain offline: charge it and move the computer closer.
+- No candidate found: the helper recognizes both advertised Curtain names and
+  unnamed Curtain 3 service data. Close the app's active Curtain screen, turn
+  iPhone Bluetooth off temporarily if necessary, and scan again near the motor.
 - Timeout: close the SwitchBot app's device screen, wait briefly, and retry a
   read-only status request once.
 - Not calibrated: recalibrate only through the SwitchBot app before movement.

@@ -16,6 +16,8 @@
   hardware checklist, and focused automated tests
 - Read-only local Curtain discovery helper that keeps the Windows BLE address
   in the user's terminal and ignored configuration
+- Curtain discovery recognizes unnamed Curtain 3 advertisements through the
+  official SwitchBot service-data device type
 
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date
@@ -97,9 +99,9 @@
 
 ### Tested
 
-- The focused Curtain suite passes all 16 simulated-hardware tests without
+- The focused Curtain suite passes all 19 simulated-hardware tests without
   connecting to or moving a real device
-- Python compilation and all 76 non-interactive automated regression tests pass;
+- Python compilation and all 79 non-interactive automated regression tests pass;
   manual microphone and Curtain hardware checks remain separate
 
 - The focused Google Tasks and Calendar suites pass all 26 tests

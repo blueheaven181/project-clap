@@ -21,6 +21,18 @@ from switchbot_curtain import (
     parse_status_response,
     validate_position,
 )
+from switchbot_curtain_discovery import is_curtain_3_advertisement
+
+
+class FakeDevice:
+    def __init__(self, name=None):
+        self.name = name
+
+
+class FakeAdvertisement:
+    def __init__(self, local_name=None, service_data=None):
+        self.local_name = local_name
+        self.service_data = service_data or {}
 
 
 class FakeBleakClient:
@@ -87,6 +99,35 @@ class CurtainIntentTests(unittest.TestCase):
         request = parse_curtain_intent("Set the curtain to 101 percent")
         self.assertEqual(request, {"action": "set_position", "position": 101})
         self.assertTrue(command_router.is_switchbot_curtain_request("Set the curtain to -1 percent"))
+
+
+class CurtainDiscoveryTests(unittest.TestCase):
+    def test_named_curtain_is_recognized(self):
+        self.assertTrue(
+            is_curtain_3_advertisement(
+                FakeDevice("WoCurtain3"), FakeAdvertisement()
+            )
+        )
+
+    def test_unnamed_curtain_3_service_data_is_recognized(self):
+        self.assertTrue(
+            is_curtain_3_advertisement(
+                FakeDevice(),
+                FakeAdvertisement(
+                    service_data={
+                        "0000fd3d-0000-1000-8000-00805f9b34fb": b"\x7b\x40"
+                    }
+                ),
+            )
+        )
+
+    def test_other_switchbot_device_is_rejected(self):
+        self.assertFalse(
+            is_curtain_3_advertisement(
+                FakeDevice(),
+                FakeAdvertisement(service_data={"fd3d": b"\x48\x40"}),
+            )
+        )
 
 
 class CurtainProtocolTests(unittest.TestCase):
