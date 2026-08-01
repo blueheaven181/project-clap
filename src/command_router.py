@@ -93,6 +93,19 @@ def is_google_tasks_request(command):
     )
 
 
+def is_clear_task_creation_confirmation(response):
+    """Accept only an unambiguous spoken yes for task creation."""
+
+    normalized = response.strip().lower().replace("’", "'")
+    response_words = set(re.findall(r"[a-z']+", normalized))
+    denial_words = {"no", "nope", "cancel", "stop", "not", "don't"}
+    if response_words.intersection(denial_words):
+        return False
+
+    yes_words = {"yes", "yeah", "yep", "sure", "okay", "ok", "confirm"}
+    return bool(response_words.intersection(yes_words)) or normalized == "create it"
+
+
 def route_command(command):
     """
     Understand a spoken command and run the correct CLAP module.
@@ -124,12 +137,7 @@ def route_command(command):
         confirmation = listen_until_response(
             "I did not hear you. Please say yes or no."
         )
-        confirmation_words = set(confirmation.strip().lower().split())
-        confirmed = bool(
-            confirmation_words.intersection(
-                {"yes", "yeah", "yep", "sure", "okay", "ok", "confirm"}
-            )
-        ) or "create it" in confirmation.lower()
+        confirmed = is_clear_task_creation_confirmation(confirmation)
 
         if confirmed:
             result = create_task(task_request["title"], due_date)

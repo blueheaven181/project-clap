@@ -261,6 +261,18 @@ class TaskAuthorizationTests(unittest.TestCase):
 
 
 class TaskRoutingTests(unittest.TestCase):
+    def test_mixed_yes_and_no_is_not_clear_confirmation(self):
+        self.assertFalse(
+            command_router.is_clear_task_creation_confirmation("yes yes no")
+        )
+
+    def test_do_not_create_is_not_confirmation(self):
+        self.assertFalse(
+            command_router.is_clear_task_creation_confirmation(
+                "do not create it"
+            )
+        )
+
     @patch("command_router.speak")
     @patch("command_router.create_task")
     @patch("command_router.listen_until_response", return_value="no")
@@ -281,6 +293,13 @@ class TaskRoutingTests(unittest.TestCase):
     @patch("command_router.create_task")
     @patch("command_router.listen_until_response", return_value="")
     def test_failed_confirmation_does_not_create(self, _listen, create, _speak):
+        command_router.route_command("Add buy groceries to my tasks")
+        create.assert_not_called()
+
+    @patch("command_router.speak")
+    @patch("command_router.create_task")
+    @patch("command_router.listen_until_response", return_value="yes yes no")
+    def test_mixed_confirmation_does_not_create(self, _listen, create, _speak):
         command_router.route_command("Add buy groceries to my tasks")
         create.assert_not_called()
 

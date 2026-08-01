@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- Mixed task-creation responses such as "yes yes no" now cancel safely instead
+  of being treated as confirmation
 - Tomorrow Tasks requests now filter to tomorrow's Dubai due date instead of
   returning every pending task
 - Due-today Tasks routing now recognizes natural speech variants including
