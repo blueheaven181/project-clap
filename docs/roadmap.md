@@ -411,24 +411,32 @@ Future improvements:
 
 ## Sprint 5.0 — Smart Curtain Integration
 
-Status: Planned Hardware Sprint
+Status: Software Complete; Hardware Validation Pending
 
 Objective: Control SwitchBot Curtain 3 through CLAP.
 
 Planned work:
 
-- [ ] Install and configure SwitchBot Curtain 3
-- [ ] Test control through the SwitchBot mobile application
+- [x] Install and calibrate SwitchBot Curtain 3
+- [x] Test control through the SwitchBot mobile application
 - [ ] Confirm the available Bluetooth interface
-- [ ] Research the supported local Bluetooth protocol
-- [ ] Create a separate curtain-control test module
-- [ ] Add open-curtain command
-- [ ] Add close-curtain command
-- [ ] Add curtain-position command
-- [ ] Add timeout and connection error handling
-- [ ] Add confirmation before risky movement if required
-- [ ] Integrate curtain commands with `command_router.py`
-- [ ] Test without breaking existing CLAP modules
+- [x] Research the supported local Bluetooth protocol
+- [x] Create separate curtain-control and automated-test modules
+- [x] Add open-curtain command
+- [x] Add close-curtain command
+- [x] Add curtain-position and status commands
+- [x] Add stop-curtain command
+- [x] Add timeout and connection error handling
+- [x] Require confirmation immediately before every curtain movement
+- [x] Integrate trusted curtain commands with `command_router.py`
+- [x] Use the official local BLE protocol because no Hub is installed
+- [x] Read Curtain 3 position and movement state
+- [x] Support open, close, whole-number position, and stop commands
+- [x] Keep the Bluetooth address in ignored local configuration
+- [x] Add automated intent, confirmation, BLE payload, timeout, and regression tests
+- [x] Document a separate interactive hardware checklist
+- [ ] Complete the real-device checklist on the installed Curtain 3
+- [x] Test without breaking existing CLAP modules
 
 Example commands:
 
@@ -436,6 +444,8 @@ Example commands:
 Open the curtain
 Close the curtain
 Set the curtain to 50 percent
+Stop the curtain
+What position is the curtain
 ```
 
 ---

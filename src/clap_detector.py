@@ -24,6 +24,7 @@ from voice_commands import listen_for_response
 from command_router import (
     is_daily_briefing_request,
     is_google_tasks_request,
+    is_switchbot_curtain_request,
     route_command,
 )
 from background_music import (
@@ -430,6 +431,7 @@ with sd.InputStream(
                not briefing_requested
                and (
                    is_google_tasks_request(response)
+                   or is_switchbot_curtain_request(response)
                    or any(
                        word in normalized_response
                        for word in direct_command_words

@@ -345,6 +345,10 @@ Project CLAP currently provides:
 - Incremental testing before commits
 - Explicit confirmation before Google Calendar event creation
 - Explicit confirmation before Google Tasks creation
+- Immediate explicit confirmation before every Curtain 3 movement
+- Strict Curtain intent parsing and 0-to-100 position validation
+- Ignored local-only storage for the Curtain Bluetooth address
+- Fixed official BLE packets in a dedicated module with no local-AI authority
 - Git exclusions for Google OAuth credentials and tokens
 - Timezone-aware Calendar event payloads
 - Shared Google OAuth authorization limited to Calendar events and Tasks
@@ -361,7 +365,7 @@ Planned security improvements:
 - Minimal structured logging
 - Dependency review
 - Mobile authentication design
-- Smart-home network isolation
+- Smart-home network isolation for future networked devices
 - Privacy controls for conversational memory
 
 ---

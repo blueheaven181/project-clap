@@ -178,6 +178,28 @@ Calendar and Tasks share the same ignored local Google credential and token
 files. An existing Calendar-only token starts a one-time authorization flow to
 add the minimum Tasks scope required for reading and creating tasks.
 
+### SwitchBot Curtain 3
+
+CLAP controls the calibrated Curtain 3 directly over local Bluetooth because
+no Hub is installed. It can read position and movement state, then open, close,
+stop, or move to a whole-number position from 0% to 100%. Every movement
+requires a clear spoken confirmation immediately before execution. Repeated
+“yes” is accepted; silence, failed speech, extra wording, or mixed responses
+such as “yes yes no” cancel safely.
+
+```text
+Open the curtain.
+Close the curtains.
+What position is the curtain?
+Set the curtain to 50 percent.
+Stop the curtain.
+```
+
+The private Windows Bluetooth address belongs only in the ignored
+`config/switchbot.local.json`. Start with `config/switchbot.example.json` and
+follow `docs/switchbot_curtain_setup.md`. Never put a real address in source,
+tests, documentation, chat, or Git.
+
 ### Trading Workspace Automation
 
 - Opens EUR/USD TradingView chart
@@ -327,6 +349,7 @@ Examples of trusted commands:
 - Daily briefing
 - Google Calendar schedule, availability, and confirmed event creation
 - Google Tasks reading and confirmed task creation
+- SwitchBot Curtain 3 status and confirmed local-Bluetooth movement
 
 Requests that are not recognized as trusted commands can enter local conversation mode.
 
@@ -416,6 +439,8 @@ project-clap
 |   |-- retrospective_2026-07-31.md
 |   |-- retrospective_2026-08-01.md
 |   |-- security.md
+|   |-- switchbot_curtain_manual_test_checklist.md
+|   |-- switchbot_curtain_setup.md
 |   `-- roadmap.md
 |
 |-- models
@@ -433,6 +458,8 @@ project-clap
 |   |-- google_calendar.py
 |   |-- google_auth.py
 |   |-- google_tasks.py
+|   |-- switchbot_curtain.py
+|   |-- switchbot_curtain_discovery.py
 |   |-- greeting.py
 |   |-- news.py
 |   |-- spotify.py
@@ -504,6 +531,10 @@ The following feature runs locally after its model has been downloaded:
 
 - Ollama conversation engine
 
+SwitchBot Curtain 3 control also runs locally. It requires Windows Bluetooth,
+the pinned `bleak` dependency, proximity to the device, and the ignored local
+Bluetooth configuration; it does not require internet access.
+
 Desktop automation, local wake-word detection, system health, Windows volume control, and double-clap detection run locally.
 
 ---
@@ -521,6 +552,7 @@ Project CLAP follows a local-first security approach.
 - Local AI does not receive authority to execute arbitrary commands
 - External integrations should use minimum required permissions
 - Destructive or sensitive actions should require confirmation
+- Curtain movements require immediate, unambiguous spoken confirmation
 
 ---
 
@@ -550,7 +582,7 @@ Project CLAP follows a local-first security approach.
 - Add news to the optional daily briefing
 - Improve command and conversation routing
 - Validate Google Tasks with end-to-end voice testing
-- Integrate SwitchBot Curtain 3
+- Validate SwitchBot Curtain 3 using the separate manual hardware checklist
 - Add smart-lighting scenes
 - Build morning, gym, relaxation, and party modes
 - Package CLAP as a Windows application

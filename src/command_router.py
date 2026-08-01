@@ -53,6 +53,12 @@ from google_tasks import (
     is_task_read_request,
     parse_task_creation_request,
 )
+from switchbot_curtain import (
+    get_curtain_status,
+    parse_curtain_intent,
+    set_curtain_position,
+    stop_curtain,
+)
 
 
 def is_daily_briefing_request(command):
@@ -106,6 +112,24 @@ def is_clear_task_creation_confirmation(response):
     return bool(response_words.intersection(yes_words)) or normalized == "create it"
 
 
+def is_clear_movement_confirmation(response):
+    """Accept repeated affirmative words, but reject any denial or extra wording."""
+
+    words = re.findall(r"[a-z']+", response.strip().lower().replace("’", "'"))
+    if not words:
+        return False
+    denial_words = {"no", "nope", "cancel", "stop", "not", "don't"}
+    if denial_words.intersection(words):
+        return False
+    return all(word in {"yes", "yeah", "yep", "confirm"} for word in words)
+
+
+def is_switchbot_curtain_request(command):
+    """Return True only for an explicitly supported trusted Curtain intent."""
+
+    return parse_curtain_intent(command) is not None
+
+
 def route_command(command):
     """
     Understand a spoken command and run the correct CLAP module.
@@ -116,6 +140,47 @@ def route_command(command):
 
     raw_command = command.strip()
     command = raw_command.lower()
+
+    curtain_request = parse_curtain_intent(raw_command)
+    if curtain_request:
+        action = curtain_request["action"]
+        if action == "invalid_position" or (
+            action == "set_position" and not 0 <= curtain_request["position"] <= 100
+        ):
+            speak("Curtain position must be a whole number from 0 to 100.")
+            return True
+        if action == "status":
+            result = get_curtain_status()
+            print(result)
+            speak(result)
+            return True
+
+        descriptions = {
+            "open": "open the curtain",
+            "close": "close the curtain",
+            "stop": "stop the curtain",
+            "set_position": f"move the curtain to {curtain_request.get('position')} percent closed",
+        }
+        speak(f"You want me to {descriptions[action]}. Shall I move it?")
+        confirmation = listen_until_response(
+            "I did not hear a clear yes. Curtain movement is cancelled.",
+            max_attempts=1,
+            phrase_time_limit=5,
+        )
+        if not is_clear_movement_confirmation(confirmation):
+            speak("Okay. I did not move the curtain.")
+            return True
+
+        if action == "stop":
+            result = stop_curtain()
+        else:
+            position = {"open": 0, "close": 100}.get(
+                action, curtain_request.get("position")
+            )
+            result = set_curtain_position(position)
+        print(result)
+        speak(result)
+        return True
 
     if is_articulation_training_request(command):
         exercise_mode = get_requested_exercise_mode(command)

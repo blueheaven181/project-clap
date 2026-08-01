@@ -5,6 +5,18 @@
 
 ### Added
 
+- Initial SwitchBot Curtain 3 integration using the official local Bluetooth
+  protocol, with no Hub or cloud credentials required
+- Dedicated Curtain module for status, open, close, position, and stop commands
+- Strict trusted Curtain intents, position validation, bounded BLE timeouts, and
+  graceful configuration, offline, device, and malformed-response failures
+- Immediate movement confirmation that accepts repeated yes responses and
+  cancels mixed, contradictory, failed, or unrecognized speech
+- Ignored local Bluetooth configuration, sanitized example, setup guide,
+  hardware checklist, and focused automated tests
+- Read-only local Curtain discovery helper that keeps the Windows BLE address
+  in the user's terminal and ignored configuration
+
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date
 - Confirmed task creation with exact titles and optional due dates
@@ -84,6 +96,11 @@
   briefing routing, security boundary, architecture, and current roadmap
 
 ### Tested
+
+- The focused Curtain suite passes all 16 simulated-hardware tests without
+  connecting to or moving a real device
+- Python compilation and all 76 non-interactive automated regression tests pass;
+  manual microphone and Curtain hardware checks remain separate
 
 - The focused Google Tasks and Calendar suites pass all 26 tests
 - The complete automated regression suite passes all 48 tests; interactive

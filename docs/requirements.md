@@ -56,6 +56,24 @@
 - CLAP shall request only the Google Tasks scope needed for reading and
   creating tasks, and shall safely reauthorize Calendar-only local tokens.
 
+### SwitchBot Curtain 3
+
+- CLAP shall control only the explicitly configured Curtain 3 over local BLE.
+- CLAP shall read position and movement state without moving the curtain.
+- CLAP shall support open, close, stop, and whole-number positions from 0 to
+  100, where 0 is open and 100 is closed.
+- Values outside 0 through 100 shall be rejected before Bluetooth access.
+- Every movement, including stop, shall require clear spoken confirmation
+  immediately before execution.
+- Repeated affirmative words may confirm. Denial, contradictory wording,
+  silence, extra wording, or failed recognition shall cancel without connecting.
+- Only strict trusted intents may reach the dedicated Curtain module. Local AI
+  output shall never become raw BLE commands.
+- Missing configuration, unavailable Bluetooth, offline devices, malformed
+  responses, device errors, and timeouts shall fail safely without auto-retry.
+- Bluetooth addresses and private device information shall remain in ignored
+  local configuration.
+
 ### Local AI
 
 - CLAP shall route unknown conversational requests to a local Ollama model.
@@ -84,6 +102,6 @@
 
 - Improve wake-word reliability at longer distances.
 - Replace fixed-duration voice recording with smarter listening.
-- Add SwitchBot Curtain 3 and smart-lighting controls.
+- Validate the initial SwitchBot Curtain 3 integration with real hardware.
 - Package CLAP as a Windows application.
 - Evaluate a secure mobile companion.

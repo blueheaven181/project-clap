@@ -33,6 +33,8 @@ The command router sends approved requests to dedicated modules:
   token, including consent when a local token lacks the Tasks scope.
 - `google_tasks.py` reads pending tasks and creates new confirmed tasks in the
   default task list.
+- `switchbot_curtain.py` validates and executes a fixed set of official Curtain
+  3 BLE packets. It cannot execute arbitrary device data.
 - `news.py` retrieves and summarizes categorized news.
 - `spotify.py` controls playback and configured mood playlists.
 - `system_volume.py` controls Windows audio.
@@ -95,6 +97,36 @@ update, delete, or completion methods. Task due dates are date-only Google
 Tasks values; spoken `today` and `tomorrow` read filters and creation dates are
 resolved in `Asia/Dubai`.
 
+## SwitchBot Curtain Flow
+
+```text
+Spoken curtain request
+        |
+        v
+Strict intent parsing and position validation
+        |
+   +----+----+
+   |         |
+ Status    Movement
+   |         |
+   v         v
+BLE read   Speak exact action and confirm
+                  |
+             +----+----+
+             |         |
+         Clear yes   Anything else
+             |         |
+             v         v
+       Fixed BLE packet  Cancel without connecting
+```
+
+The router passes only status, open, close, set-position, and stop operations
+to the dedicated module. The module uses the official Curtain 3 BLE service,
+waits briefly for an explicit response, and never retries movement
+automatically. The ignored `config/switchbot.local.json` contains the private
+Windows Bluetooth address. General Ollama conversation has no path to this BLE
+client or its raw packets.
+
 ## Articulation Training Flow
 
 ```text
@@ -126,5 +158,5 @@ double-clap pause, CLAP listens for `continue`, `repeat`, or `stop`.
 
 Internet access is required for Google speech recognition, Edge TTS, weather,
 forex, news, Google Calendar, and Google Tasks. Wake-word detection, local AI generation,
-system health, Windows volume control, and desktop automation run locally after
-their dependencies are installed.
+system health, Windows volume control, desktop automation, and SwitchBot Curtain
+3 BLE control run locally after their dependencies are installed.
