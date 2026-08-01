@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- Google Tasks read intent now accepts singular speech transcripts such as
+  "what task do I have" as well as plural variants
 - Local conversation responses now address Marc directly as "you" instead of
   describing him in the third person
 - Google Tasks read requests now pass the activation loop's trusted-command

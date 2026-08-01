@@ -22,9 +22,11 @@ from google_tasks import (
 
 class TaskIntentAndParsingTests(unittest.TestCase):
     def test_read_request_reaches_trusted_command_gate(self):
-        self.assertTrue(
-            command_router.is_google_tasks_request("What tasks do I have?")
-        )
+        for command in ("What tasks do I have?", "What task do I have?"):
+            with self.subTest(command=command):
+                self.assertTrue(
+                    command_router.is_google_tasks_request(command)
+                )
 
     def test_create_request_reaches_trusted_command_gate(self):
         self.assertTrue(
@@ -36,7 +38,10 @@ class TaskIntentAndParsingTests(unittest.TestCase):
     def test_supported_read_intents_are_recognized(self):
         for command in (
             "What tasks do I have?",
+            "What task do I have?",
             "What tasks are due today?",
+            "What task is due today?",
+            "Do I have any tasks?",
             "Read my pending tasks.",
         ):
             with self.subTest(command=command):

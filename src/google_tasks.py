@@ -15,15 +15,15 @@ def is_task_read_request(command):
     """Return True for supported requests to read pending Google Tasks."""
 
     normalized = command.strip().lower()
-    return "task" in normalized and any(
-        phrase in normalized
-        for phrase in {
-            "what tasks",
-            "tasks do i have",
-            "tasks are due today",
-            "read my pending tasks",
-            "pending tasks",
-        }
+    return any(
+        re.search(pattern, normalized)
+        for pattern in (
+            r"\bwhat (?:pending )?tasks? do i have\b",
+            r"\bwhat tasks? (?:is|are) due today\b",
+            r"\bdo i have any (?:pending )?tasks?\b",
+            r"\bread my pending tasks?\b",
+            r"\bpending tasks?\b",
+        )
     )
 
 
