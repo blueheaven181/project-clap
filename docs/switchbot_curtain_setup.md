@@ -63,6 +63,16 @@ read local configuration and must never connect to the installed curtain.
 
 ## Troubleshooting
 
+Run the read-only GATT diagnostic before retrying a failed movement:
+
+```powershell
+.\.venv\Scripts\python.exe .\src\switchbot_curtain_diagnostic.py
+```
+
+It scans for only the configured Curtain, connects without sending any command,
+checks the required characteristics and notification subscription, and redacts
+the private address from errors.
+
 - Missing configuration: confirm the exact ignored filename and JSON key.
 - Bluetooth unavailable: enable the Windows adapter and confirm OS permission.
 - Curtain offline: charge it and move the computer closer.
@@ -77,6 +87,8 @@ read local configuration and must never connect to the installed curtain.
 - Connected but no response: Curtain 3 commands use the protocol's write-without-
   response characteristic mode, then wait up to five seconds for the separate
   notification response.
+- Windows disconnect cleanup is limited to three seconds and cannot override a
+  successful Curtain response.
 - Status reads do not require a connection. If status is unavailable while the
   discovery helper sees the Curtain, confirm the saved address exactly matches
   the displayed candidate and retry near the motor.

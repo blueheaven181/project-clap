@@ -24,6 +24,10 @@
   device's separate notification, preventing GATT acknowledgement stalls
 - Curtain status reads use the official connection-free advertisement fields
   for calibration, battery, movement, and raw 0-open to 100-closed position
+- Windows BLE disconnect cleanup is bounded and cannot replace a successful
+  Curtain response with a cleanup error
+- Read-only GATT diagnostic verifies scan, connection, required characteristics,
+  notification subscription, and bounded disconnect without sending a command
 
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date
@@ -105,9 +109,9 @@
 
 ### Tested
 
-- The focused Curtain suite passes all 24 simulated-hardware tests without
+- The focused Curtain suite passes all 25 simulated-hardware tests without
   connecting to or moving a real device
-- Python compilation and all 84 non-interactive automated regression tests pass;
+- Python compilation and all 85 non-interactive automated regression tests pass;
   manual microphone and Curtain hardware checks remain separate
 
 - The focused Google Tasks and Calendar suites pass all 26 tests

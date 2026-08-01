@@ -11,6 +11,7 @@ WRITE_CHARACTERISTIC = "cba20002-224d-11e6-9fb8-0002a5d5c51b"
 NOTIFY_CHARACTERISTIC = "cba20003-224d-11e6-9fb8-0002a5d5c51b"
 CONNECT_TIMEOUT_SECONDS = 8
 RESPONSE_TIMEOUT_SECONDS = 5
+DISCONNECT_TIMEOUT_SECONDS = 3
 SWITCHBOT_SERVICE_UUIDS = {
     "0000fd3d-0000-1000-8000-00805f9b34fb",
     "fd3d",
@@ -200,13 +201,23 @@ class SwitchBotCurtain:
             if not response_future.done():
                 response_future.set_result(bytes(data))
 
+        client = client_factory(device, timeout=CONNECT_TIMEOUT_SECONDS)
         try:
-            async with client_factory(device, timeout=CONNECT_TIMEOUT_SECONDS) as client:
-                await client.start_notify(NOTIFY_CHARACTERISTIC, receive_response)
-                await client.write_gatt_char(WRITE_CHARACTERISTIC, payload, response=False)
-                return await asyncio.wait_for(response_future, RESPONSE_TIMEOUT_SECONDS)
+            await client.connect()
+            await client.start_notify(NOTIFY_CHARACTERISTIC, receive_response)
+            await client.write_gatt_char(WRITE_CHARACTERISTIC, payload, response=False)
+            return await asyncio.wait_for(response_future, RESPONSE_TIMEOUT_SECONDS)
         except asyncio.TimeoutError as error:
             raise TimeoutError("The curtain did not respond before the Bluetooth timeout.") from error
+        finally:
+            if client.is_connected:
+                try:
+                    await asyncio.wait_for(
+                        client.disconnect(),
+                        DISCONNECT_TIMEOUT_SECONDS,
+                    )
+                except Exception as error:
+                    print("SwitchBot Curtain cleanup:", type(error).__name__)
 
     async def get_status(self):
         return parse_status_response(await self._send(GET_STATUS_PAYLOAD))

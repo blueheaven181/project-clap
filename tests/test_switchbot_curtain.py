@@ -64,6 +64,7 @@ class FakeBleakClient:
     last_payload = None
     last_target = None
     last_write_response = None
+    is_connected = False
 
     def __init__(self, address, timeout):
         self.address = address
@@ -71,11 +72,11 @@ class FakeBleakClient:
         self.callback = None
         self.__class__.last_target = address
 
-    async def __aenter__(self):
-        return self
+    async def connect(self):
+        self.is_connected = True
 
-    async def __aexit__(self, *_args):
-        return None
+    async def disconnect(self):
+        self.is_connected = False
 
     async def start_notify(self, _characteristic, callback):
         self.callback = callback
@@ -89,6 +90,12 @@ class FakeBleakClient:
 class SilentBleakClient(FakeBleakClient):
     async def write_gatt_char(self, _characteristic, payload, response):
         self.__class__.last_payload = payload
+
+
+class CleanupErrorBleakClient(FakeBleakClient):
+    async def disconnect(self):
+        self.is_connected = False
+        raise RuntimeError("cleanup failed")
 
 
 class FakeResolvedDevice:
@@ -242,6 +249,15 @@ class CurtainProtocolTests(unittest.TestCase):
         )
         with self.assertRaises(TimeoutError):
             asyncio.run(curtain.get_status())
+
+    def test_cleanup_error_does_not_override_successful_response(self):
+        curtain = SwitchBotCurtain(
+            "private-address",
+            client_factory=CleanupErrorBleakClient,
+            device_resolver=resolve_device,
+        )
+        status = asyncio.run(curtain.get_status())
+        self.assertEqual(status["position"], 50)
 
     @patch("switchbot_curtain.RESPONSE_TIMEOUT_SECONDS", 0.001)
     def test_ble_timeout(self):

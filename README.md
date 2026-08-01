@@ -460,6 +460,7 @@ project-clap
 |   |-- google_tasks.py
 |   |-- switchbot_curtain.py
 |   |-- switchbot_curtain_discovery.py
+|   |-- switchbot_curtain_diagnostic.py
 |   |-- greeting.py
 |   |-- news.py
 |   |-- spotify.py
