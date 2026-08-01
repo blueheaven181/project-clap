@@ -40,9 +40,11 @@ CLAP_THRESHOLD = 12
 CLAP_SHARPNESS_THRESHOLD = 6.0
 DOUBLE_CLAP_WINDOW = 1.0
 CLAP_COOLDOWN = 0.3
-SPEECH_CONTROL_CLAP_THRESHOLD = 8
-SPEECH_CONTROL_SHARPNESS_THRESHOLD = 4.5
-SPEECH_CONTROL_DOUBLE_CLAP_WINDOW = 1.5
+SPEECH_CONTROL_CLAP_THRESHOLD = 12
+SPEECH_CONTROL_SHARPNESS_THRESHOLD = 8.0
+SPEECH_CONTROL_DOUBLE_CLAP_WINDOW = 0.8
+SPEECH_CONTROL_MIN_CLAP_GAP = 0.18
+SPEECH_CONTROL_PEAK_THRESHOLD = 0.55
 
 clap_times = []
 double_clap_detected = False
@@ -118,8 +120,8 @@ def handle_speech_control():
 
 
 
-    while True:
-        response = listen_for_response()
+    for _attempt in range(3):
+        response = listen_for_response(phrase_time_limit=4)
 
         if not response:
             print("Please say continue, repeat, or stop.")
@@ -140,6 +142,10 @@ def handle_speech_control():
             return "stop"
 
         print("Please say continue, repeat, or stop.")
+
+    print("No speech-control command understood. Continuing speech.")
+    resume_background_music()
+    return "continue"
 
 
 set_speech_control_handler(handle_speech_control)
@@ -233,6 +239,10 @@ def detect_activation(indata, frames, time_info, status):
     if (
         volume <= active_volume_threshold
         or sharpness < active_sharpness_threshold
+        or (
+            currently_speaking
+            and peak < SPEECH_CONTROL_PEAK_THRESHOLD
+        )
     ):
         return
 
@@ -250,6 +260,8 @@ def detect_activation(indata, frames, time_info, status):
 
     if (
         len(clap_times) >= 2
+        and clap_times[-1] - clap_times[-2]
+        >= SPEECH_CONTROL_MIN_CLAP_GAP
         and clap_times[-1] - clap_times[-2]
         <= active_double_clap_window
     ):

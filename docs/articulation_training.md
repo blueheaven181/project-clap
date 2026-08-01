@@ -98,10 +98,12 @@ successful recovery after a missed response.
 ## Live Speech-Control Check
 
 While CLAP is reading a prompt or feedback, double clap to pause speech. The
-speech-control detector uses a more sensitive clap threshold and a longer
-double-clap window while speech is active. Then say `continue`, `repeat`, or
-`stop`. This microphone-dependent behavior should be checked live after changes
-to microphone placement, speaker volume, or room acoustics.
+speech-control detector requires two sharp, high-peak clap transients within a
+short timing window. Voice activity alone must not activate pause. Then say `continue`,
+`repeat`, or `stop`. If no control command is understood after three attempts,
+CLAP resumes speaking automatically. This microphone-dependent behavior should
+be checked live after changes to microphone placement, speaker volume, or room
+acoustics.
 
 ## Privacy and Boundaries
 

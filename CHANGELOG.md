@@ -28,6 +28,10 @@
 
 ### Fixed
 
+- Speech-control pause now requires two sharper, distinctly timed clap
+  transients so CLAP's voice and the user's speech do not activate pause
+- A paused message automatically continues after three unrecognized
+  speech-control responses instead of remaining in a listening loop
 - Articulation answers now use silence-ended listening with a 45-second limit
   instead of being cut off after a fixed five-second recording
 - Voice sensitivity now adapts after ambient-noise calibration rather than
@@ -36,8 +40,6 @@
   after three missed responses instead of retrying indefinitely
 - Stop and standby phrases cancel articulation training without being scored as
   an exercise answer
-- Double-clap speech control now uses a more sensitive threshold and longer
-  timing window while CLAP is speaking
 - Duplicate `requests` import and private-profile loading in the conversation
   module were removed
 - Calendar routing no longer prevents weather, news, volume, Spotify, and
