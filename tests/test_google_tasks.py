@@ -1,6 +1,6 @@
 import sys
 import unittest
-from datetime import date
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -14,8 +14,8 @@ import google_tasks
 from google_tasks import (
     DEFAULT_TASK_LIST,
     build_task_body,
+    get_requested_task_due_day,
     get_pending_tasks,
-    is_task_due_today_request,
     is_task_read_request,
     parse_task_creation_request,
 )
@@ -45,20 +45,26 @@ class TaskIntentAndParsingTests(unittest.TestCase):
             "Do I have any tasks?",
             "Do I have task today?",
             "What are my task today?",
+            "What are my task tomorrow?",
             "Read my pending tasks.",
         ):
             with self.subTest(command=command):
                 self.assertTrue(is_task_read_request(command))
 
-    def test_spoken_today_variants_request_due_today_filter(self):
-        for command in (
-            "What tasks are due today?",
-            "What task is due today?",
-            "Do I have task today?",
-            "What are my task today?",
-        ):
+    def test_spoken_date_variants_request_correct_due_day(self):
+        commands = {
+            "What tasks are due today?": "today",
+            "What task is due today?": "today",
+            "Do I have task today?": "today",
+            "What are my task today?": "today",
+            "What are my task tomorrow?": "tomorrow",
+            "Do I have tasks due tomorrow?": "tomorrow",
+        }
+        for command, expected_day in commands.items():
             with self.subTest(command=command):
-                self.assertTrue(is_task_due_today_request(command))
+                self.assertEqual(
+                    get_requested_task_due_day(command), expected_day
+                )
 
     def test_task_title_is_preserved(self):
         request = parse_task_creation_request(
@@ -92,6 +98,37 @@ class TaskIntentAndParsingTests(unittest.TestCase):
 
 
 class TaskApiTests(unittest.TestCase):
+    @patch("google_tasks.CREDENTIALS_PATH")
+    @patch("google_tasks.get_tasks_service")
+    def test_tomorrow_filter_excludes_other_pending_tasks(
+        self, get_service, path
+    ):
+        path.exists.return_value = True
+        today = datetime.now(google_tasks.ABU_DHABI_TIMEZONE).date()
+        tomorrow = today + timedelta(days=1)
+        service = get_service.return_value
+        service.tasks.return_value.list.return_value.execute.return_value = {
+            "items": [
+                {
+                    "title": "Tomorrow task",
+                    "status": "needsAction",
+                    "due": f"{tomorrow.isoformat()}T00:00:00.000Z",
+                },
+                {
+                    "title": "Today task",
+                    "status": "needsAction",
+                    "due": f"{today.isoformat()}T00:00:00.000Z",
+                },
+                {"title": "Undated task", "status": "needsAction"},
+            ]
+        }
+
+        report = get_pending_tasks(due_day="tomorrow")
+
+        self.assertIn("Tomorrow task", report)
+        self.assertNotIn("Today task", report)
+        self.assertNotIn("Undated task", report)
+
     @patch("google_tasks.CREDENTIALS_PATH")
     @patch("google_tasks.get_tasks_service")
     def test_reads_pending_tasks_from_default_list(self, get_service, path):
@@ -259,7 +296,15 @@ class TaskRoutingTests(unittest.TestCase):
             with self.subTest(command=command):
                 get_tasks.reset_mock()
                 self.assertTrue(command_router.route_command(command))
-                get_tasks.assert_called_once_with(due_today=True)
+                get_tasks.assert_called_once_with(due_day="today")
+
+    @patch("command_router.speak")
+    @patch("command_router.get_pending_tasks", return_value="No tasks.")
+    def test_tomorrow_routes_with_filter(self, get_tasks, _speak):
+        self.assertTrue(
+            command_router.route_command("What are my task tomorrow?")
+        )
+        get_tasks.assert_called_once_with(due_day="tomorrow")
 
 
 if __name__ == "__main__":

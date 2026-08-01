@@ -157,7 +157,7 @@ from Git.
 ### Google Tasks
 
 - Read pending tasks from the default Google Tasks list
-- Read only pending tasks due today
+- Read only pending tasks due today or tomorrow
 - Preserve task titles and optional due dates
 - Ask for clear spoken confirmation before creating a task
 - Never alter, complete, rename, or delete existing tasks
@@ -168,6 +168,7 @@ Example commands:
 ```text
 What tasks do I have?
 What tasks are due today?
+What are my tasks tomorrow?
 Read my pending tasks.
 Add buy groceries to my tasks.
 Add submit report to my tasks due tomorrow.

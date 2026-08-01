@@ -46,7 +46,8 @@
 ### Google Tasks
 
 - CLAP shall read incomplete tasks from the user's default task list.
-- CLAP shall report all pending tasks or only pending tasks due today.
+- CLAP shall report all pending tasks or only pending tasks due today or
+  tomorrow.
 - CLAP shall preserve task titles and optional due dates in API payloads.
 - Spoken task dates shall be interpreted using `Asia/Dubai`.
 - CLAP shall require explicit spoken confirmation before creating a task.

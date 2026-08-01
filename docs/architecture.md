@@ -92,7 +92,8 @@ tasks             |
 
 Tasks uses `@default`, excludes completed and deleted tasks, and never calls
 update, delete, or completion methods. Task due dates are date-only Google
-Tasks values; spoken `today` and `tomorrow` are resolved in `Asia/Dubai`.
+Tasks values; spoken `today` and `tomorrow` read filters and creation dates are
+resolved in `Asia/Dubai`.
 
 ## Articulation Training Flow
 

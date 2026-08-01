@@ -19,22 +19,26 @@ def is_task_read_request(command):
         re.search(pattern, normalized)
         for pattern in (
             r"\bwhat (?:pending )?tasks? do i have\b",
-            r"\bwhat tasks? (?:is|are) due today\b",
-            r"\bdo i have (?:any )?(?:pending )?tasks?(?: (?:due )?today)?\b",
-            r"\bwhat (?:is|are) my (?:pending )?tasks?(?: (?:due )?today)?\b",
+            r"\bwhat tasks? (?:is|are) due (?:today|tomorrow)\b",
+            r"\bdo i have (?:any )?(?:pending )?tasks?"
+            r"(?: (?:due )?(?:today|tomorrow))?\b",
+            r"\bwhat (?:is|are) my (?:pending )?tasks?"
+            r"(?: (?:due )?(?:today|tomorrow))?\b",
             r"\bread my pending tasks?\b",
             r"\bpending tasks?\b",
         )
     )
 
 
-def is_task_due_today_request(command):
-    """Return True when a Tasks read request asks for today's due tasks."""
+def get_requested_task_due_day(command):
+    """Return today or tomorrow when a Tasks read requests that due day."""
 
     normalized = command.strip().lower()
-    return is_task_read_request(normalized) and bool(
-        re.search(r"\b(?:due\s+)?today\b", normalized)
-    )
+    if not is_task_read_request(normalized):
+        return None
+
+    day_match = re.search(r"\b(?:due\s+)?(today|tomorrow)\b", normalized)
+    return day_match.group(1) if day_match else None
 
 
 def get_tasks_service():
@@ -88,7 +92,7 @@ def _parse_task_due_date(task):
     return datetime.fromisoformat(due_value.replace("Z", "+00:00")).date()
 
 
-def get_pending_tasks(due_today=False):
+def get_pending_tasks(due_day=None):
     """Read incomplete tasks from the user's default task list."""
 
     if not CREDENTIALS_PATH.exists():
@@ -117,13 +121,19 @@ def get_pending_tasks(due_today=False):
                 break
 
         tasks = [task for task in tasks if task.get("status") != "completed"]
-        if due_today:
-            today = datetime.now(ABU_DHABI_TIMEZONE).date()
-            tasks = [task for task in tasks if _parse_task_due_date(task) == today]
+        if due_day:
+            requested_date = datetime.now(ABU_DHABI_TIMEZONE).date()
+            if due_day == "tomorrow":
+                requested_date += timedelta(days=1)
+            tasks = [
+                task
+                for task in tasks
+                if _parse_task_due_date(task) == requested_date
+            ]
 
         if not tasks:
-            if due_today:
-                return "You have no pending tasks due today."
+            if due_day:
+                return f"You have no pending tasks due {due_day}."
             return "You have no pending tasks."
 
         spoken_tasks = []
@@ -138,8 +148,8 @@ def get_pending_tasks(due_today=False):
                 spoken_tasks.append(title)
 
         introduction = (
-            "Your pending tasks due today are "
-            if due_today
+            f"Your pending tasks due {due_day} are "
+            if due_day
             else "Your pending tasks are "
         )
         return introduction + ". ".join(spoken_tasks) + "."

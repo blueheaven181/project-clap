@@ -474,6 +474,7 @@ Status: Completed
 - [x] Verify the Google Calendar web display timezone is set to `Asia/Dubai`
 - [x] Read pending tasks from the default task list
 - [x] Read pending tasks due today using `Asia/Dubai`
+- [x] Read pending tasks due tomorrow using `Asia/Dubai`
 - [x] Create tasks with spoken confirmation
 - [x] Preserve task titles and optional due dates
 - [x] Reauthorize safely when the local token lacks the Tasks scope

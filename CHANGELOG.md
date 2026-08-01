@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- Tomorrow Tasks requests now filter to tomorrow's Dubai due date instead of
+  returning every pending task
 - Due-today Tasks routing now recognizes natural speech variants including
   "do I have task today" and "what are my task today"
 - Google Tasks read intent now accepts singular speech transcripts such as

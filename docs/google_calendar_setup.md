@@ -13,6 +13,7 @@ CLAP can:
 - Use the Google Calendar account's default reminders.
 - Read pending tasks from the default Google Tasks list.
 - Read pending tasks due today in `Asia/Dubai`.
+- Read pending tasks due tomorrow in `Asia/Dubai`.
 - Create a task only after spoken confirmation.
 
 ## Local Credential Files
@@ -66,6 +67,7 @@ When am I free today?
 Am I available today?
 What tasks do I have?
 What tasks are due today?
+What are my tasks tomorrow?
 Read my pending tasks.
 ```
 
