@@ -26,8 +26,8 @@
   for calibration, battery, movement, and raw 0-open to 100-closed position
 - Windows BLE disconnect cleanup is bounded and cannot replace a successful
   Curtain response with a cleanup error
-- Curtain 3 position packets use the maintained six-byte action form, removing
-  an extra function byte that caused the device to reject movement writes
+- Curtain 3 movement packets include the maintained Curtain command-family byte;
+  omitting it caused the real device to return unsupported-command code `0x05`
 - BLE failures identify the safe transport phase while redacting the configured
   device address from diagnostic output
 - Read-only GATT diagnostic verifies scan, connection, required characteristics,
