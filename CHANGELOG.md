@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- Conversation mode now exits immediately for natural or repeated stop phrases
+  such as "stop now" and "stop stop stop" instead of continuing to listen
 - Mixed task-creation responses such as "yes yes no" now cancel safely instead
   of being treated as confirmation
 - Tomorrow Tasks requests now filter to tomorrow's Dubai due date instead of

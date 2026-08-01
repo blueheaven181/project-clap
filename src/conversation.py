@@ -125,6 +125,42 @@ conversation_history = [
     }
 ]
 
+CONVERSATION_EXIT_PHRASES = {
+    "stop",
+    "stop talking",
+    "stand by",
+    "standby",
+    "stand bye",
+    "stan by",
+    "stan bhai",
+    "exit",
+    "exit conversation",
+    "end conversation",
+    "goodbye",
+    "that is all",
+    "that's all",
+    "that is enough",
+    "that's enough",
+    "full stop",
+}
+
+
+def is_conversation_exit_request(message):
+    """Recognize exact and naturally repeated conversation exit commands."""
+
+    normalized = " ".join(
+        re.findall(r"[a-z']+", message.lower().replace("’", "'"))
+    )
+    if normalized in CONVERSATION_EXIT_PHRASES:
+        return True
+
+    words = normalized.split()
+    if "stop" not in words or "not" in words or "don't" in words:
+        return False
+
+    stop_fillers = {"stop", "please", "now", "talking", "conversation"}
+    return all(word in stop_fillers for word in words)
+
 
 def use_direct_personal_address(message):
     """Prevent local-model replies from referring to Marc in third person."""
@@ -200,25 +236,6 @@ def start_voice_conversation(initial_message=None):
     Start a hands-free conversation with CLAP's local AI.
     """
 
-    exit_phrases = {
-        "stop",
-        "stop talking",
-        "stand by",
-        "standby",
-        "stand bye",
-        "stan by",
-        "stan bhai",
-        "exit",
-        "exit conversation",
-        "end conversation",
-        "goodbye",
-        "that is all",
-        "that's all",
-        "that is enough",
-        "that's enough",
-        "full stop",
-    }
-
     speak("Conversation mode started.")
 
     next_message = initial_message
@@ -279,7 +296,7 @@ def start_voice_conversation(initial_message=None):
 
         normalized_message = user_message.strip().lower()
 
-        if normalized_message in exit_phrases:
+        if is_conversation_exit_request(normalized_message):
             speak("Conversation mode ended. Standing by.")
             return
 
