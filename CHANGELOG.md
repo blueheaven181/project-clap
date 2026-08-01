@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- Local conversation responses now address Marc directly as "you" instead of
+  describing him in the third person
 - Google Tasks read requests now pass the activation loop's trusted-command
   gate instead of incorrectly starting local conversation mode
 - Existing Calendar-only tokens now request fresh consent when the Tasks scope
