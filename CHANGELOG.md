@@ -48,6 +48,8 @@
 - A separate one-shot Curtain hardware utility proves status and position
   control before the full voice workflow, with exact typed confirmation and no
   automatic movement retry
+- The isolated utility includes a bounded Stop test: one accepted position
+  command followed by one Stop command, with no retry of either operation
 
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date

@@ -7,7 +7,7 @@ from unittest.mock import Mock
 SRC_DIR = Path(__file__).resolve().parent.parent / "src"
 sys.path.insert(0, str(SRC_DIR))
 
-from switchbot_curtain_manual_test import run_position_test
+from switchbot_curtain_manual_test import run_position_test, run_stop_test
 
 
 class CurtainManualHardwareUtilityTests(unittest.TestCase):
@@ -44,6 +44,59 @@ class CurtainManualHardwareUtilityTests(unittest.TestCase):
 
         prompted.assert_not_called()
         move.assert_not_called()
+
+    def test_stop_sequence_sends_one_move_then_one_stop(self):
+        move = Mock(return_value="The curtain is moving to 50 percent closed.")
+        stop = Mock(return_value="Curtain movement stopped.")
+        sleep = Mock()
+
+        result = run_stop_test(
+            50,
+            2,
+            input_func=lambda _prompt: "MOVE CURTAIN TO 50 THEN STOP",
+            move_func=move,
+            stop_func=stop,
+            sleep_func=sleep,
+        )
+
+        move.assert_called_once_with(50)
+        sleep.assert_called_once_with(2)
+        stop.assert_called_once_with()
+        self.assertIn("Stop result: Curtain movement stopped.", result)
+
+    def test_stop_sequence_does_not_stop_after_failed_movement(self):
+        move = Mock(return_value="I could not connect to the curtain over Bluetooth.")
+        stop = Mock()
+        sleep = Mock()
+
+        result = run_stop_test(
+            50,
+            2,
+            input_func=lambda _prompt: "MOVE CURTAIN TO 50 THEN STOP",
+            move_func=move,
+            stop_func=stop,
+            sleep_func=sleep,
+        )
+
+        self.assertIn("Stop was not sent.", result)
+        sleep.assert_not_called()
+        stop.assert_not_called()
+
+    def test_stop_sequence_cancellation_sends_nothing(self):
+        move = Mock()
+        stop = Mock()
+
+        result = run_stop_test(
+            50,
+            2,
+            input_func=lambda _prompt: "no",
+            move_func=move,
+            stop_func=stop,
+        )
+
+        self.assertEqual(result, "Cancelled. No Curtain command was sent.")
+        move.assert_not_called()
+        stop.assert_not_called()
 
 
 if __name__ == "__main__":

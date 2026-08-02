@@ -9,6 +9,10 @@ testing the full CLAP voice flow. Its movement mode validates the target,
 requires an exact target-specific keyboard phrase, sends only one trusted
 command, never retries, and exits.
 
+The `stop-test` action is a separately confirmed two-command sequence: one
+validated position command followed by one Stop command after a bounded delay.
+Neither command is retried, and Stop is not sent if movement was rejected.
+
 ## Safety and Setup
 
 - [ ] No person, pet, or object can be caught in the moving curtain.
