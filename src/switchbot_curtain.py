@@ -20,7 +20,7 @@ SWITCHBOT_SERVICE_UUIDS = {
 CURTAIN_3_DEVICE_TYPE = 0x7B
 
 GET_STATUS_PAYLOAD = bytes.fromhex("5702")
-STOP_PAYLOAD = bytes.fromhex("570f450100ff")
+STOP_PAYLOAD = bytes.fromhex("570f45010001")
 
 RESPONSE_ERRORS = {
     0x02: "The curtain rejected the command.",

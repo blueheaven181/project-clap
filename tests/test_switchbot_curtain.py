@@ -207,7 +207,7 @@ class CurtainProtocolTests(unittest.TestCase):
         self.assertEqual(build_position_payload(0), bytes.fromhex("570f450105ff00"))
         self.assertEqual(build_position_payload(50), bytes.fromhex("570f450105ff32"))
         self.assertEqual(build_position_payload(100), bytes.fromhex("570f450105ff64"))
-        self.assertEqual(STOP_PAYLOAD, bytes.fromhex("570f450100ff"))
+        self.assertEqual(STOP_PAYLOAD, bytes.fromhex("570f45010001"))
 
     def test_status_response(self):
         status = parse_status_response(bytes((1, 80, 42, 1, 0, 5, 50, 0)))
