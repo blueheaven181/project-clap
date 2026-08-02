@@ -45,6 +45,9 @@
   as one continuous clip to prevent doubled or overlapping voice output
 - A Windows named-mutex guard prevents multiple CLAP voice listeners from
   running simultaneously and creating duplicated speech or microphone prompts
+- A separate one-shot Curtain hardware utility proves status and position
+  control before the full voice workflow, with exact typed confirmation and no
+  automatic movement retry
 
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date

@@ -4,6 +4,11 @@ Interactive hardware tests remain separate from automated tests. Perform them
 only with a clear curtain path, a charged motor, and the iPhone app ready as a
 fallback. Record results locally without recording the Bluetooth address.
 
+Use `src/switchbot_curtain_manual_test.py` to prove the hardware protocol before
+testing the full CLAP voice flow. Its movement mode validates the target,
+requires an exact target-specific keyboard phrase, sends only one trusted
+command, never retries, and exits.
+
 ## Safety and Setup
 
 - [ ] No person, pet, or object can be caught in the moving curtain.
