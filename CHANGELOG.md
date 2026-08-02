@@ -52,6 +52,8 @@
   command followed by one Stop command, with no retry of either operation
 - The Curtain Stop packet uses the device-proven `...0001` protocol variant;
   the alternative `...00FF` variant was rejected by this Curtain 3 with `0x05`
+- Real-device isolated checks verified advertisement status, exact percentage,
+  bounded Stop, full Close, and full Open before voice-path testing
 
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date

@@ -13,6 +13,21 @@ The `stop-test` action is a separately confirmed two-command sequence: one
 validated position command followed by one Stop command after a bounded delay.
 Neither command is retried, and Stop is not sent if movement was rejected.
 
+## Isolated Protocol Results
+
+- [x] Read-only diagnostic completed scan, GATT inspection, notification,
+  status request, and disconnect successfully.
+- [x] No-travel 0% command was accepted while already fully open.
+- [x] Requested 10% position was reached and reported exactly.
+- [x] Stop was accepted during movement and halted at 32% before the 50% target.
+- [x] Full Close reached and reported 100%.
+- [x] Full Open reached and reported 0%.
+- [x] Each isolated movement required exact target-specific typed confirmation.
+- [x] No isolated movement or Stop command was retried automatically.
+
+These checks prove the local BLE protocol independently. Spoken confirmation
+and full CLAP routing checks below remain intentionally separate and pending.
+
 ## Safety and Setup
 
 - [ ] No person, pet, or object can be caught in the moving curtain.
