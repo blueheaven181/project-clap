@@ -128,6 +128,12 @@ automatically. The ignored `config/switchbot.local.json` contains the private
 Windows Bluetooth address. General Ollama conversation has no path to this BLE
 client or its raw packets.
 
+Hardware validation is kept outside the main listener. The one-shot manual
+utility supports read-only status, one exactly confirmed position command, and
+a bounded move-then-Stop sequence. It never retries a movement. A Windows named
+mutex also prevents duplicate CLAP listener processes from speaking or listening
+simultaneously.
+
 On Windows, CLAP keeps its primary thread available to desktop and system-audio
 dependencies. Curtain BLE operations run on a dedicated worker thread with a
 private asyncio event loop, isolating Bleak's WinRT callbacks from the main

@@ -45,7 +45,13 @@ The isolated and trusted-voice results together complete the applicable initial
 real-device validation. Remaining negative-environment cases are covered by the
 automated suite or may be repeated manually during future maintenance.
 
-## Safety and Setup
+## Repeatable Maintenance Checklist
+
+The unchecked items below are retained as a reusable checklist for future
+maintenance or environment changes; they do not indicate that the initial
+integration checkpoint is incomplete.
+
+### Safety and Setup
 
 - [ ] No person, pet, or object can be caught in the moving curtain.
 - [ ] Curtain 3 remains installed and calibrated in the SwitchBot app.
@@ -55,13 +61,13 @@ automated suite or may be repeated manually during future maintenance.
 - [ ] The SwitchBot app is not holding the Curtain BLE connection.
 - [ ] The iPhone app still opens, closes, and stops the curtain manually.
 
-## Read-Only First Test
+### Read-Only First Test
 
 - [ ] Ask “What position is the curtain?” and confirm no movement occurs.
 - [ ] Compare CLAP's reported position with the SwitchBot app.
 - [ ] Carefully verify the movement indicator while moving from the app.
 
-## Confirmation Safety
+### Confirmation Safety
 
 - [ ] “Open the curtain” followed by silence does not move it.
 - [ ] Failed or unrecognized speech does not move it.
@@ -70,7 +76,7 @@ automated suite or may be repeated manually during future maintenance.
 - [ ] Unrelated wording containing “yes” does not move it.
 - [ ] “Yes yes yes” confirms exactly one movement.
 
-## Movement Commands
+### Movement Commands
 
 - [ ] Confirmed “Open the curtain” moves toward 0% and fully opens.
 - [ ] Confirmed “Close the curtain” moves toward 100% and fully closes.
@@ -78,7 +84,7 @@ automated suite or may be repeated manually during future maintenance.
 - [ ] Confirmed “Stop the curtain” stops active movement promptly.
 - [ ] Values -1%, 101%, and decimals are rejected without movement.
 
-## Failure Handling
+### Failure Handling
 
 - [ ] Missing local config produces a setup message without movement.
 - [ ] Disabled Windows Bluetooth produces a safe connection failure.
@@ -86,7 +92,7 @@ automated suite or may be repeated manually during future maintenance.
 - [ ] Low-battery, busy, or malformed responses cause no automatic retry.
 - [ ] After each failure, the iPhone app still controls the curtain normally.
 
-## Completion
+### Completion
 
 - [ ] Restore ignored local configuration after negative testing.
 - [ ] Run the complete automated suite again.

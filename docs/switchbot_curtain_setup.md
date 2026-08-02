@@ -55,6 +55,24 @@ git check-ignore -v config/switchbot.local.json
    GATT connection or send a command packet.
 
 The iPhone app remains the manual fallback if Windows Bluetooth is unavailable.
+iPhone Bluetooth may remain enabled during normal use, but close the app's
+active Curtain screen before a CLAP command. The phone and Windows can take
+turns controlling the device; they should not issue commands simultaneously.
+
+## Isolated Hardware Verification
+
+Prove BLE behavior independently before launching the full CLAP listener:
+
+```powershell
+.\.venv\Scripts\python.exe .\src\switchbot_curtain_manual_test.py status
+.\.venv\Scripts\python.exe .\src\switchbot_curtain_manual_test.py position 10
+.\.venv\Scripts\python.exe .\src\switchbot_curtain_manual_test.py stop-test 50 --delay 2
+```
+
+Movement actions display a target-specific phrase that must be typed exactly.
+They send only the displayed trusted command or sequence, never retry, and exit.
+The installed Curtain 3 has completed status, percentage, moving Stop, full
+Close, full Open, and trusted-voice verification successfully.
 
 ## Automated Verification
 

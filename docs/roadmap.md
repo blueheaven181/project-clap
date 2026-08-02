@@ -411,7 +411,7 @@ Future improvements:
 
 ## Sprint 5.0 — Smart Curtain Integration
 
-Status: Software Complete; Hardware Validation Pending
+Status: Completed
 
 Objective: Control SwitchBot Curtain 3 through CLAP.
 

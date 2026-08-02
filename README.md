@@ -200,6 +200,12 @@ The private Windows Bluetooth address belongs only in the ignored
 follow `docs/switchbot_curtain_setup.md`. Never put a real address in source,
 tests, documentation, chat, or Git.
 
+The initial real-device checkpoint is complete: isolated and trusted-voice
+tests verified status, percentage movement, Stop, full Open, full Close, safe
+confirmation cancellation, and no automatic movement retries. iPhone Bluetooth
+may remain enabled, but close the SwitchBot device screen before a CLAP command
+so the phone does not hold the Curtain's single active BLE connection.
+
 ### Trading Workspace Automation
 
 - Opens EUR/USD TradingView chart
@@ -461,6 +467,8 @@ project-clap
 |   |-- switchbot_curtain.py
 |   |-- switchbot_curtain_discovery.py
 |   |-- switchbot_curtain_diagnostic.py
+|   |-- switchbot_curtain_manual_test.py
+|   |-- single_instance.py
 |   |-- greeting.py
 |   |-- news.py
 |   |-- spotify.py
@@ -474,7 +482,10 @@ project-clap
 |-- tests
 |   |-- test_articulation_coach.py
 |   |-- test_google_calendar.py
-|   `-- test_google_tasks.py
+|   |-- test_google_tasks.py
+|   |-- test_single_instance.py
+|   |-- test_switchbot_curtain.py
+|   `-- test_switchbot_curtain_manual.py
 |-- .gitignore
 |-- CHANGELOG.md
 |-- LICENSE
@@ -582,8 +593,6 @@ Project CLAP follows a local-first security approach.
 - Refine pause, continue, repeat, and stop behavior
 - Add news to the optional daily briefing
 - Improve command and conversation routing
-- Validate Google Tasks with end-to-end voice testing
-- Validate SwitchBot Curtain 3 using the separate manual hardware checklist
 - Add smart-lighting scenes
 - Build morning, gym, relaxation, and party modes
 - Package CLAP as a Windows application

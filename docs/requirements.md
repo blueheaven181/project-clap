@@ -73,6 +73,8 @@
   responses, device errors, and timeouts shall fail safely without auto-retry.
 - Bluetooth addresses and private device information shall remain in ignored
   local configuration.
+- Initial real-device validation shall separately prove BLE status, percentage,
+  Stop, Open, and Close before testing trusted voice routing.
 
 ### Local AI
 
@@ -102,6 +104,5 @@
 
 - Improve wake-word reliability at longer distances.
 - Replace fixed-duration voice recording with smarter listening.
-- Validate the initial SwitchBot Curtain 3 integration with real hardware.
 - Package CLAP as a Windows application.
 - Evaluate a secure mobile companion.

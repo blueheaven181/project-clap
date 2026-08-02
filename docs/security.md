@@ -349,6 +349,10 @@ Project CLAP currently provides:
 - Strict Curtain intent parsing and 0-to-100 position validation
 - Ignored local-only storage for the Curtain Bluetooth address
 - Fixed official BLE packets in a dedicated module with no local-AI authority
+- No automatic retry after a Curtain movement or Stop command
+- A single-listener Windows guard to prevent duplicate confirmation sessions
+- One active Curtain BLE controller at a time; the iPhone device screen should
+  be closed before CLAP connects
 - Git exclusions for Google OAuth credentials and tokens
 - Timezone-aware Calendar event payloads
 - Shared Google OAuth authorization limited to Calendar events and Tasks

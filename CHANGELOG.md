@@ -1,7 +1,7 @@
-## Unreleased — Google Tasks Checkpoint
+## Unreleased — Google Tasks and SwitchBot Curtain Checkpoints
 
-**Date:** 2026-08-01
-**Status:** Development Checkpoint
+**Date:** 2026-08-02
+**Status:** Completed Development Checkpoints
 
 ### Added
 
@@ -142,10 +142,11 @@
 
 ### Tested
 
-- The focused Curtain suite passes all 26 simulated-hardware tests without
-  connecting to or moving a real device
-- Python compilation and all 86 non-interactive automated regression tests pass;
-  manual microphone and Curtain hardware checks remain separate
+- The focused Curtain protocol and manual-utility suites pass all 36 simulated
+  tests without connecting to or moving a real device
+- Python compilation and all 99 non-interactive automated regression tests pass
+- Separate real-device testing completed the initial Curtain hardware and
+  trusted-voice checklist
 
 - The focused Google Tasks and Calendar suites pass all 26 tests
 - The complete automated regression suite passes all 48 tests; interactive
