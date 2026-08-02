@@ -26,7 +26,24 @@ Neither command is retried, and Stop is not sent if movement was rejected.
 - [x] No isolated movement or Stop command was retried automatically.
 
 These checks prove the local BLE protocol independently. Spoken confirmation
-and full CLAP routing checks below remain intentionally separate and pending.
+and full CLAP routing were tested separately and are recorded below.
+
+## Trusted Voice Results
+
+- [x] Spoken status reported 0% without movement or confirmation.
+- [x] Repeated affirmative confirmation authorized exactly one movement.
+- [x] Mixed affirmative and negative confirmation cancelled without movement.
+- [x] Explicit denial cancelled without movement.
+- [x] Failed or unrecognized confirmation cancelled without movement.
+- [x] An out-of-range 101% request was rejected before confirmation and BLE.
+- [x] Natural Close reached and reported 100%.
+- [x] Natural Open reached and reported 0%.
+- [x] Natural Stop was confirmed, accepted, and left the stationary Curtain at 0%.
+- [x] Every Curtain voice interaction returned directly to wake-word standby.
+
+The isolated and trusted-voice results together complete the applicable initial
+real-device validation. Remaining negative-environment cases are covered by the
+automated suite or may be repeated manually during future maintenance.
 
 ## Safety and Setup
 

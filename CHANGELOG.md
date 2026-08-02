@@ -54,6 +54,9 @@
   the alternative `...00FF` variant was rejected by this Curtain 3 with `0x05`
 - Real-device isolated checks verified advertisement status, exact percentage,
   bounded Stop, full Close, and full Open before voice-path testing
+- Trusted voice checks verified status, repeated confirmation, mixed and denied
+  cancellation, failed-speech cancellation, range validation, Open, Close,
+  percentage movement, Stop, and direct return to wake-word standby
 
 - Google Tasks pending-task reading from the default task list
 - Due-today task filtering using the `Asia/Dubai` date

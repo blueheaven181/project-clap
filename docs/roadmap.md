@@ -435,7 +435,7 @@ Planned work:
 - [x] Keep the Bluetooth address in ignored local configuration
 - [x] Add automated intent, confirmation, BLE payload, timeout, and regression tests
 - [x] Document a separate interactive hardware checklist
-- [ ] Complete the real-device checklist on the installed Curtain 3
+- [x] Complete the applicable real-device checklist on the installed Curtain 3
 - [x] Test without breaking existing CLAP modules
 
 Example commands:
