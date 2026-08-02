@@ -200,6 +200,9 @@ The private Windows Bluetooth address belongs only in the ignored
 follow `docs/switchbot_curtain_setup.md`. Never put a real address in source,
 tests, documentation, chat, or Git.
 
+The sanitized integration history and final resolution for each encountered
+issue are recorded in `docs/switchbot_curtain_issue_log.md`.
+
 The initial real-device checkpoint is complete: isolated and trusted-voice
 tests verified status, percentage movement, Stop, full Open, full Close, safe
 confirmation cancellation, and no automatic movement retries. iPhone Bluetooth
@@ -446,6 +449,7 @@ project-clap
 |   |-- retrospective_2026-08-01.md
 |   |-- security.md
 |   |-- switchbot_curtain_manual_test_checklist.md
+|   |-- switchbot_curtain_issue_log.md
 |   |-- switchbot_curtain_setup.md
 |   `-- roadmap.md
 |

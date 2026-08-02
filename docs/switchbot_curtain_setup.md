@@ -6,6 +6,9 @@ CLAP uses SwitchBot's official local Bluetooth Low Energy protocol because this
 installation has no SwitchBot Hub. No SwitchBot account, API token, API secret,
 cloud service, or internet connection is required.
 
+For the complete sanitized symptom, cause, resolution, and verification history,
+see `switchbot_curtain_issue_log.md`.
+
 ## Private Local Information
 
 The only required private value is the Curtain 3 address discovered by Windows

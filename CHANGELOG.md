@@ -87,9 +87,9 @@
 
 ### Fixed
 
-- CLAP selects the Windows MTA COM threading model before desktop/audio imports,
-  preventing `pythoncom` GUI/STA initialization from disabling Bleak callbacks
-  during trusted Curtain commands
+- Curtain BLE runs on a dedicated Windows worker thread, resolving the earlier
+  Bleak callback failure without forcing the audio thread into an incompatible
+  COM mode
 
 - Conversation mode now exits immediately for natural or repeated stop phrases
   such as "stop now" and "stop stop stop" instead of continuing to listen
