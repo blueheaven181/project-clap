@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 
 PROJECT_FOLDER = Path(__file__).resolve().parent.parent
@@ -51,6 +51,50 @@ class SpotifyAuthTests(unittest.TestCase):
             "PUT",
             "/me/player/play",
             {"context_uri": "spotify:playlist:abc123"},
+            expect_json=False,
+        )
+
+    @patch("spotify_auth.spotify_api_request")
+    def test_pause_uses_official_player_endpoint(self, request):
+        self.assertTrue(spotify_auth.pause_playback())
+        request.assert_called_once_with(
+            "PUT", "/me/player/pause", expect_json=False
+        )
+
+    @patch("spotify_auth.spotify_api_request")
+    def test_transport_endpoints(self, request):
+        spotify_auth.resume_playback()
+        spotify_auth.next_track()
+        spotify_auth.previous_track()
+        self.assertEqual(
+            [
+                call("PUT", "/me/player/play", expect_json=False),
+                call("POST", "/me/player/next", expect_json=False),
+                call("POST", "/me/player/previous", expect_json=False),
+            ],
+            request.call_args_list,
+        )
+
+    @patch("spotify_auth.spotify_api_request")
+    def test_search_and_play_track_uses_top_match(self, request):
+        request.side_effect = [
+            {"tracks": {"items": [{
+                "name": "Smooth Criminal",
+                "uri": "spotify:track:abc123",
+                "artists": [{"name": "Michael Jackson"}],
+            }]}},
+            None,
+        ]
+        self.assertEqual(
+            {"name": "Smooth Criminal", "artists": "Michael Jackson"},
+            spotify_auth.search_and_play_track("smooth criminal"),
+        )
+        self.assertEqual("GET", request.call_args_list[0].args[0])
+        request.assert_called_with(
+            "PUT",
+            "/me/player/play",
+            {"uris": ["spotify:track:abc123"]},
+            expect_json=False,
         )
 
 

@@ -36,17 +36,30 @@ class SpotifyTests(unittest.TestCase):
         self.assertTrue(spotify.play_spotify())
         press.assert_called_once_with("playpause")
 
+    @patch("spotify.previous_track", return_value=True)
+    @patch("spotify.next_track", return_value=True)
+    @patch("spotify.resume_playback", return_value=True)
+    @patch("spotify.pause_playback", return_value=True)
     @patch("spotify.pyautogui.press")
-    def test_existing_transport_controls_are_preserved(self, press):
+    def test_transport_controls_use_api(
+        self, press, pause, resume, next_api, previous_api
+    ):
         spotify.pause_spotify()
         spotify.resume_spotify()
         spotify.stop_spotify()
         spotify.next_spotify_track()
         spotify.previous_spotify_track()
-        self.assertEqual(
-            ["playpause", "playpause", "stop", "nexttrack", "prevtrack"],
-            [call.args[0] for call in press.call_args_list],
-        )
+        press.assert_not_called()
+        self.assertEqual(2, pause.call_count)
+        resume.assert_called_once_with()
+        next_api.assert_called_once_with()
+        previous_api.assert_called_once_with()
+
+    @patch("spotify.pyautogui.press")
+    @patch("spotify.pause_playback", side_effect=RuntimeError("offline"))
+    def test_stop_retains_media_key_fallback(self, _pause, press):
+        self.assertTrue(spotify.stop_spotify())
+        press.assert_called_once_with("playpause")
 
     def test_parse_artist_search(self):
         self.assertEqual(
@@ -74,6 +87,17 @@ class SpotifyTests(unittest.TestCase):
 
     def test_non_search_command_is_not_parsed(self):
         self.assertIsNone(spotify.parse_spotify_search_request("pause Spotify"))
+
+    def test_parse_natural_play_request_with_in_spotify(self):
+        self.assertEqual(
+            "smooth criminal",
+            spotify.parse_spotify_play_request(
+                "can you play Smooth Criminal in Spotify"
+            ),
+        )
+
+    def test_transport_command_is_not_specific_play_request(self):
+        self.assertIsNone(spotify.parse_spotify_play_request("resume Spotify"))
 
     def test_search_uri_is_encoded_and_type_qualified(self):
         self.assertEqual(
@@ -126,6 +150,22 @@ class SpotifyTests(unittest.TestCase):
     def test_song_voice_command_routes_to_search(self, search, _speak):
         self.assertTrue(command_router.route_command("find the song Yellow"))
         search.assert_called_once_with("yellow", "track")
+
+    @patch("command_router.speak")
+    @patch(
+        "command_router.play_spotify_track",
+        return_value={"name": "Smooth Criminal", "artists": "Michael Jackson"},
+    )
+    def test_natural_play_command_routes_to_exact_track(self, play, speak):
+        self.assertTrue(
+            command_router.route_command(
+                "can you play Smooth Criminal in Spotify"
+            )
+        )
+        play.assert_called_once_with("smooth criminal")
+        speak.assert_called_once_with(
+            "Playing Smooth Criminal by Michael Jackson on Spotify."
+        )
 
 
 if __name__ == "__main__":

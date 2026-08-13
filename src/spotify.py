@@ -7,7 +7,14 @@ from urllib.parse import quote
 
 import pyautogui
 
-from spotify_auth import start_context_playback
+from spotify_auth import (
+    next_track,
+    pause_playback,
+    previous_track,
+    resume_playback,
+    search_and_play_track,
+    start_context_playback,
+)
 
 
 SPOTIFY_SEARCH_TYPES = {
@@ -80,6 +87,29 @@ def parse_spotify_search_request(command):
         return None
 
     return {"query": body, "type": search_type}
+
+
+def parse_spotify_play_request(command):
+    """Parse a natural request to play one specific Spotify track."""
+
+    normalized = " ".join(command.strip().lower().split())
+    match = re.match(
+        r"^(?:(?:can|could|would) you )?play (?:the (?:song|track) )?"
+        r"(?P<query>.+?) (?:on|in) spotify$",
+        normalized,
+    )
+    if not match:
+        return None
+    query = match.group("query").strip(" .?!")
+    if not query or len(query) > 200:
+        return None
+    return query
+
+
+def play_spotify_track(query):
+    """Play Spotify's top track result and return its display metadata."""
+
+    return search_and_play_track(query)
 
 
 def build_spotify_search_uri(query, search_type=None):
@@ -194,7 +224,13 @@ def pause_spotify():
     """
 
     print("Pausing Spotify...")
-    pyautogui.press("playpause")
+    try:
+        pause_playback()
+        return True
+    except Exception as error:
+        print(f"Spotify API pause unavailable; using media-key fallback: {error}")
+        pyautogui.press("playpause")
+        return True
 
 
 def resume_spotify():
@@ -203,7 +239,13 @@ def resume_spotify():
     """
 
     print("Resuming Spotify...")
-    pyautogui.press("playpause")
+    try:
+        resume_playback()
+        return True
+    except Exception as error:
+        print(f"Spotify API resume unavailable; using media-key fallback: {error}")
+        pyautogui.press("playpause")
+        return True
 
 
 def stop_spotify():
@@ -212,7 +254,13 @@ def stop_spotify():
     """
 
     print("Stopping Spotify...")
-    pyautogui.press("stop")
+    try:
+        pause_playback()
+        return True
+    except Exception as error:
+        print(f"Spotify API pause unavailable; using media-key fallback: {error}")
+        pyautogui.press("playpause")
+        return True
 
 
 def next_spotify_track():
@@ -221,7 +269,13 @@ def next_spotify_track():
     """
 
     print("Skipping to the next track...")
-    pyautogui.press("nexttrack")
+    try:
+        next_track()
+        return True
+    except Exception as error:
+        print(f"Spotify API next unavailable; using media-key fallback: {error}")
+        pyautogui.press("nexttrack")
+        return True
 
 
 def previous_spotify_track():
@@ -230,7 +284,13 @@ def previous_spotify_track():
     """
 
     print("Returning to the previous track...")
-    pyautogui.press("prevtrack")
+    try:
+        previous_track()
+        return True
+    except Exception as error:
+        print(f"Spotify API previous unavailable; using media-key fallback: {error}")
+        pyautogui.press("prevtrack")
+        return True
 
 
 if __name__ == "__main__":

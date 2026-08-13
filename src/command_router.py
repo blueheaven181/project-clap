@@ -20,6 +20,8 @@ from spotify import (
     pause_spotify,
     play_spotify,
     play_spotify_mood,
+    play_spotify_track,
+    parse_spotify_play_request,
     parse_spotify_search_request,
     previous_spotify_track,
     resume_spotify,
@@ -487,8 +489,15 @@ def route_command(command):
         )
         return True
 
-
-
+    spotify_play_query = parse_spotify_play_request(command)
+    if spotify_play_query:
+        result = play_spotify_track(spotify_play_query)
+        if result:
+            artist_text = f" by {result['artists']}" if result["artists"] else ""
+            speak(f"Playing {result['name']}{artist_text} on Spotify.")
+        else:
+            speak(f"I could not find {spotify_play_query} on Spotify.")
+        return True
 
     spotify_search = parse_spotify_search_request(command)
     if spotify_search:

@@ -111,7 +111,7 @@ def get_access_token():
     return token["access_token"]
 
 
-def spotify_api_request(method, path, body=None):
+def spotify_api_request(method, path, body=None, expect_json=True):
     data = None if body is None else json.dumps(body).encode("utf-8")
     request = Request(
         API_BASE_URL + path,
@@ -123,14 +123,55 @@ def spotify_api_request(method, path, body=None):
         method=method,
     )
     with urlopen(request, timeout=20) as response:
-        if response.status == 204:
+        raw_body = response.read()
+        if not expect_json or not raw_body:
             return None
-        return json.load(response)
+        return json.loads(raw_body.decode("utf-8-sig"))
 
 
 def start_context_playback(context_uri):
-    spotify_api_request("PUT", "/me/player/play", {"context_uri": context_uri})
+    spotify_api_request(
+        "PUT", "/me/player/play", {"context_uri": context_uri}, expect_json=False
+    )
     return True
+
+
+def pause_playback():
+    spotify_api_request("PUT", "/me/player/pause", expect_json=False)
+    return True
+
+
+def resume_playback():
+    spotify_api_request("PUT", "/me/player/play", expect_json=False)
+    return True
+
+
+def next_track():
+    spotify_api_request("POST", "/me/player/next", expect_json=False)
+    return True
+
+
+def previous_track():
+    spotify_api_request("POST", "/me/player/previous", expect_json=False)
+    return True
+
+
+def search_and_play_track(query):
+    search_path = "/search?" + urlencode({
+        "q": query,
+        "type": "track",
+        "limit": 1,
+    })
+    result = spotify_api_request("GET", search_path)
+    items = result.get("tracks", {}).get("items", [])
+    if not items:
+        return None
+    track = items[0]
+    spotify_api_request(
+        "PUT", "/me/player/play", {"uris": [track["uri"]]}, expect_json=False
+    )
+    artists = ", ".join(artist["name"] for artist in track.get("artists", []))
+    return {"name": track["name"], "artists": artists}
 
 
 def authorize():
