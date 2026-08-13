@@ -13,6 +13,7 @@ CONFIG_PATH = PROJECT_FOLDER / "config" / "conversation_voice.local.json"
 DEFAULT_CONFIG = {
     "enabled": False,
     "backend": "ollama_sentence_stream",
+    "model": "llama3.2:1b",
     "minimum_chunk_characters": 48,
     "maximum_chunk_characters": 180,
 }
@@ -39,6 +40,10 @@ def load_conversation_voice_config(path=CONFIG_PATH):
 
     if local_config.get("backend") == "ollama_sentence_stream":
         config["backend"] = local_config["backend"]
+
+    model = local_config.get("model")
+    if isinstance(model, str) and model.strip() and len(model.strip()) <= 100:
+        config["model"] = model.strip()
 
     for key in ("minimum_chunk_characters", "maximum_chunk_characters"):
         value = local_config.get(key)
@@ -98,6 +103,7 @@ def stream_ollama_sentences(
             "model": model,
             "messages": messages,
             "stream": True,
+            "think": False,
             "options": options,
         },
         stream=True,

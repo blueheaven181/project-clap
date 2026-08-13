@@ -25,6 +25,12 @@ interview-practice partner, and fitness coach. You are speaking directly to
 Marc Anthony Marquez. Always address the person speaking as "you" and "your".
 Do not describe the person as a separate person named Marc.
 
+Identity boundary:
+- Your name is CLAP. You are the assistant.
+- Marc is the user speaking to you. You are never Marc.
+- Never introduce yourself as Marc or claim Marc's biography as your own.
+- If asked who you are, say you are CLAP, the user's local personal assistant.
+
 The user is a NOC Engineer based in Abu Dhabi with Azure
 Administrator experience.
 
@@ -200,6 +206,14 @@ def is_conversation_exit_request(message):
 def use_direct_personal_address(message):
     """Prevent local-model replies from referring to Marc in third person."""
 
+    identity_replacements = (
+        (r"\bI am Marc(?: Anthony Marquez)?\b", "I am CLAP"),
+        (r"\bI'm Marc(?: Anthony Marquez)?\b", "I'm CLAP"),
+        (r"\bMy name is Marc(?: Anthony Marquez)?\b", "My name is CLAP"),
+    )
+    for pattern, replacement in identity_replacements:
+        message = re.sub(pattern, replacement, message, flags=re.IGNORECASE)
+
     replacements = (
         (r"\bMarc(?:'s|’s)\b", "your"),
         (r"\bMarc is\b", "you are"),
@@ -217,7 +231,7 @@ def use_direct_personal_address(message):
         )
     return direct_message
 
-def chat_with_clap(user_message):
+def chat_with_clap(user_message, model=LOCAL_AI_MODEL):
     conversation_history.append(
         {
             "role": "user",
@@ -230,9 +244,10 @@ def chat_with_clap(user_message):
             OLLAMA_URL,
 
             json={
-                "model": LOCAL_AI_MODEL,
+                "model": model,
                 "messages": conversation_history,
                 "stream": False,
+                "think": False,
                 "options": LOCAL_AI_OPTIONS,
             },
             timeout=120,
@@ -267,12 +282,13 @@ def respond_in_conversation(user_message):
     """Speak one response through the opt-in experiment or established flow."""
 
     config = load_conversation_voice_config()
+    model = config.get("model", LOCAL_AI_MODEL)
     if config["enabled"] and config["backend"] == "ollama_sentence_stream":
         assistant_message = stream_and_speak_conversation(
             user_message=user_message,
             conversation_history=conversation_history,
             url=OLLAMA_URL,
-            model=LOCAL_AI_MODEL,
+            model=model,
             options=LOCAL_AI_OPTIONS,
             speak=speak,
             direct_address=use_direct_personal_address,
@@ -281,7 +297,7 @@ def respond_in_conversation(user_message):
         if assistant_message is not None:
             return assistant_message
 
-    assistant_message = chat_with_clap(user_message)
+    assistant_message = chat_with_clap(user_message, model=model)
     speak(assistant_message)
     return assistant_message
 

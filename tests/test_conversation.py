@@ -16,6 +16,16 @@ from conversation import (
 
 
 class PersonalAddressTests(unittest.TestCase):
+    def test_assistant_cannot_introduce_itself_as_marc(self):
+        self.assertEqual(
+            "I'm CLAP, your local assistant.",
+            use_direct_personal_address("I'm Marc, your local assistant."),
+        )
+        self.assertEqual(
+            "My name is CLAP.",
+            use_direct_personal_address("My name is Marc Anthony Marquez."),
+        )
+
     def test_marc_is_addressed_as_the_user(self):
         response = (
             "You want to improve Marc's articulation. "
@@ -89,6 +99,19 @@ class ConversationExitTests(unittest.TestCase):
 
 
 class ConversationVoiceExperimentTests(unittest.TestCase):
+    def test_local_model_is_configurable(self):
+        import json
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "conversation.json"
+            path.write_text(
+                json.dumps({"enabled": True, "model": "qwen3:8b"}),
+                encoding="utf-8",
+            )
+            config = conversation_voice.load_conversation_voice_config(path)
+        self.assertEqual("qwen3:8b", config["model"])
+
     def test_missing_config_keeps_experiment_disabled(self):
         missing = Path("does-not-exist-conversation-voice.json")
         config = conversation_voice.load_conversation_voice_config(missing)
@@ -122,7 +145,7 @@ class ConversationVoiceExperimentTests(unittest.TestCase):
         response = conversation.respond_in_conversation("hello")
 
         self.assertEqual("Established response.", response)
-        chat.assert_called_once_with("hello")
+        chat.assert_called_once_with("hello", model="llama3.2:1b")
         speak.assert_called_once_with("Established response.")
 
     @patch("conversation.chat_with_clap", return_value="Fallback response.")
@@ -147,11 +170,15 @@ class ConversationVoiceExperimentTests(unittest.TestCase):
 
         self.assertEqual("Fallback response.", response)
         stream_response.assert_called_once()
-        chat.assert_called_once_with("hello")
+        chat.assert_called_once_with("hello", model="llama3.2:1b")
         speak.assert_called_once_with("Fallback response.")
 
 
 class PromptPrecedenceTests(unittest.TestCase):
+    def test_prompt_keeps_assistant_and_user_identity_separate(self):
+        self.assertIn("Your name is CLAP", conversation.SYSTEM_PROMPT)
+        self.assertIn("You are never Marc", conversation.SYSTEM_PROMPT)
+
     def test_direct_questions_take_precedence_over_profile_goals(self):
         self.assertIn(
             "Answer a direct question directly before offering anything else.",

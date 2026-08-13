@@ -54,6 +54,7 @@ class OllamaSentenceStreamingTests(unittest.TestCase):
             chunks,
         )
         self.assertTrue(post.call_args.kwargs["stream"])
+        self.assertFalse(post.call_args.kwargs["json"]["think"])
 
     @patch("conversation_voice.stream_ollama_sentences")
     def test_streamed_chunks_are_spoken_and_saved_to_history(self, stream):

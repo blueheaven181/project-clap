@@ -1,6 +1,7 @@
 {
   "enabled": false,
   "backend": "ollama_sentence_stream",
+  "model": "llama3.2:1b",
   "minimum_chunk_characters": 48,
   "maximum_chunk_characters": 180
 }
