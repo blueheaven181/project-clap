@@ -10,6 +10,7 @@ import ctypes
 from pathlib import Path
 
 from clap_presence_preview import STATE_STYLE, blend, make_points, rotate_point
+from runtime_paths import data_path
 
 
 SIZE = 510
@@ -17,10 +18,7 @@ TRANSPARENT = "#010203"
 STATES = ("standby", "listening", "thinking", "speaking")
 STATE_HOST = "127.0.0.1"
 STATE_PORT = 47621
-POSITION_PATH = (
-    Path(__file__).resolve().parent.parent
-    / "data" / "private" / "floating_orb_position.json"
-)
+POSITION_PATH = data_path("data", "private", "floating_orb_position.json")
 ORB_MUTEX_NAME = "Local\\ProjectCLAPFloatingOrb"
 _orb_mutex_handle = None
 

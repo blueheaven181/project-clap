@@ -10,6 +10,7 @@ from conversation_voice import (
     load_conversation_voice_config,
     stream_and_speak_conversation,
 )
+from runtime_paths import data_path
 
 
 OLLAMA_URL = "http://localhost:11434/api/chat"
@@ -99,12 +100,7 @@ def load_marc_profile():
     Load Marc's private local profile without committing it to GitHub.
     """
 
-    project_folder = Path(__file__).resolve().parent.parent
-    profile_path = (
-        project_folder
-        / "config"
-        / "marc_profile.local.json"
-    )
+    profile_path = data_path("config", "marc_profile.local.json")
 
     try:
         with profile_path.open(

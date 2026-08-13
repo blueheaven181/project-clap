@@ -6,13 +6,13 @@ import subprocess
 import sys
 import threading
 from pathlib import Path
+from runtime_paths import DATA_ROOT, IS_FROZEN, data_path
 
 
 HOST = "127.0.0.1"
 PORT = 47621
 VALID_STATES = {"standby", "listening", "thinking", "speaking"}
-PROJECT_FOLDER = Path(__file__).resolve().parent.parent
-CONFIG_PATH = PROJECT_FOLDER / "config" / "presence.local.json"
+CONFIG_PATH = data_path("config", "presence.local.json")
 
 _state = "standby"
 _lock = threading.Lock()
@@ -60,11 +60,17 @@ def start_presence_window():
             preview_name = "clap_floating_orb_preview.py"
     except (OSError, json.JSONDecodeError):
         pass
-    preview = Path(__file__).with_name(preview_name)
-    executable = Path(sys.executable)
-    pythonw = executable.with_name("pythonw.exe")
-    if pythonw.exists():
-        executable = pythonw
+    if IS_FROZEN:
+        command = [sys.executable, "--orb", "--live"]
+        working_folder = DATA_ROOT
+    else:
+        preview = Path(__file__).with_name(preview_name)
+        executable = Path(sys.executable)
+        pythonw = executable.with_name("pythonw.exe")
+        if pythonw.exists():
+            executable = pythonw
+        command = [str(executable), str(preview), "--live"]
+        working_folder = preview.parent.parent
 
     creationflags = 0
     if sys.platform == "win32":
@@ -75,8 +81,8 @@ def start_presence_window():
 
     try:
         subprocess.Popen(
-            [str(executable), str(preview), "--live"],
-            cwd=str(preview.parent.parent),
+            command,
+            cwd=str(working_folder),
             close_fds=True,
             creationflags=creationflags,
         )

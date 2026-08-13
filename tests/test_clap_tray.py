@@ -12,6 +12,16 @@ import clap_tray
 
 
 class ClapTrayTests(unittest.TestCase):
+    @patch("clap_tray.sys.frozen", True, create=True)
+    def test_packaged_modes_relaunch_same_executable(self):
+        self.assertEqual(
+            [sys.executable, "--listener"], clap_tray.listener_command()
+        )
+        self.assertEqual(
+            [sys.executable, "--orb", "--live"],
+            clap_tray.orb_command(live=True),
+        )
+
     def test_controller_prevents_duplicate_owned_listener(self):
         process = MagicMock()
         process.poll.return_value = None

@@ -11,11 +11,11 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlencode, urlparse
 from urllib.request import Request, urlopen
+from runtime_paths import data_path, ensure_data_parent
 
 
-PROJECT_FOLDER = Path(__file__).resolve().parent.parent
-CONFIG_PATH = PROJECT_FOLDER / "config" / "spotify_api.local.json"
-TOKEN_PATH = PROJECT_FOLDER / "config" / "spotify_token.local.json"
+CONFIG_PATH = data_path("config", "spotify_api.local.json")
+TOKEN_PATH = data_path("config", "spotify_token.local.json")
 AUTHORIZE_URL = "https://accounts.spotify.com/authorize"
 TOKEN_URL = "https://accounts.spotify.com/api/token"
 API_BASE_URL = "https://api.spotify.com/v1"
@@ -80,7 +80,10 @@ def load_token(path=TOKEN_PATH):
 
 
 def save_token(token, path=TOKEN_PATH):
-    Path(path).write_text(json.dumps(token, indent=2), encoding="utf-8")
+    ensure_data_parent(path).write_text(
+        json.dumps(token, indent=2),
+        encoding="utf-8",
+    )
 
 
 def refresh_access_token(config, refresh_token):

@@ -12,6 +12,7 @@ from speech_voice_config import (
     load_speech_voice_config,
 )
 from presence_state import get_presence_state, set_presence_state
+from runtime_paths import data_path
 
 
 speech_voice_selection = load_speech_voice_config()
@@ -20,7 +21,7 @@ SPEECH_RATE = speech_voice_selection["rate"]
 SPEECH_CHANNEL_NUMBER = 1
 SPEECH_VOLUME = 1.0
 
-PROJECT_FOLDER = Path(__file__).resolve().parent.parent
+SPEECH_FOLDER = data_path("data", "private", "speech")
 
 _speech_channel = None
 _last_spoken_message = ""
@@ -37,7 +38,7 @@ def cleanup_old_speech_files():
     Remove temporary speech files left by interrupted CLAP sessions.
     """
 
-    for speech_file in PROJECT_FOLDER.glob("speech_*.mp3"):
+    for speech_file in SPEECH_FOLDER.glob("speech_*.mp3"):
         try:
             speech_file.unlink()
         except OSError as error:
@@ -210,10 +211,8 @@ def _speak_locked(message):
     _last_spoken_message = str(message)
     previous_presence_state = get_presence_state()
 
-    filename = (
-        PROJECT_FOLDER
-        / f"speech_{uuid.uuid4().hex}.mp3"
-    )
+    SPEECH_FOLDER.mkdir(parents=True, exist_ok=True)
+    filename = SPEECH_FOLDER / f"speech_{uuid.uuid4().hex}.mp3"
 
     async def generate(voice, rate):
         communicate = edge_tts.Communicate(

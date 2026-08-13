@@ -31,6 +31,7 @@ MANIFEST
 #   before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+!ProjectCLAP.spec
 
 # Installer logs
 pip-log.txt
@@ -236,3 +237,7 @@ recordings/
 data/private/
 config/*.local.json
 .wake-env/
+
+# Windows packaging output
+build/
+dist/

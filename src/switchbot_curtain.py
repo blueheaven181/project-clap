@@ -5,9 +5,10 @@ import json
 import re
 import threading
 from pathlib import Path
+from runtime_paths import data_path
 
 
-CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "switchbot.local.json"
+CONFIG_PATH = data_path("config", "switchbot.local.json")
 WRITE_CHARACTERISTIC = "cba20002-224d-11e6-9fb8-0002a5d5c51b"
 NOTIFY_CHARACTERISTIC = "cba20003-224d-11e6-9fb8-0002a5d5c51b"
 CONNECT_TIMEOUT_SECONDS = 8

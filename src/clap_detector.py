@@ -28,6 +28,7 @@ from greeting import (
 from pathlib import Path
 from openwakeword.model import Model
 from wake_word_config import load_wake_word_selection
+from runtime_paths import RESOURCE_ROOT, data_path
 from presence_state import start_presence_window, set_presence_state
 from weather import get_weather
 from system_health import get_system_health
@@ -88,8 +89,10 @@ ignore_activation_until = 0.0
 
 
 
-project_folder = Path(__file__).resolve().parent.parent
-wake_word_selection = load_wake_word_selection(project_folder)
+wake_word_selection = load_wake_word_selection(
+    RESOURCE_ROOT,
+    config_path=data_path("config", "wake_word.local.json"),
+)
 wake_word_model_path = wake_word_selection["model_path"]
 WAKE_WORD_THRESHOLD = wake_word_selection["threshold"]
 

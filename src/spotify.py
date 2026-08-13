@@ -6,6 +6,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 import pyautogui
+from runtime_paths import data_path
 
 from spotify_auth import (
     next_track,
@@ -152,12 +153,7 @@ def load_spotify_playlists():
     Load Marc's private Spotify mood-playlist configuration.
     """
 
-    project_folder = Path(__file__).resolve().parent.parent
-    playlist_path = (
-        project_folder
-        / "config"
-        / "spotify_playlists.local.json"
-    )
+    playlist_path = data_path("config", "spotify_playlists.local.json")
 
     try:
         with playlist_path.open(

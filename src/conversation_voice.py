@@ -5,10 +5,10 @@ import re
 from pathlib import Path
 
 import requests
+from runtime_paths import data_path
 
 
-PROJECT_FOLDER = Path(__file__).resolve().parent.parent
-CONFIG_PATH = PROJECT_FOLDER / "config" / "conversation_voice.local.json"
+CONFIG_PATH = data_path("config", "conversation_voice.local.json")
 
 DEFAULT_CONFIG = {
     "enabled": False,

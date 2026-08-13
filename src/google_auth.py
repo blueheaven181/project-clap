@@ -3,11 +3,11 @@ from pathlib import Path
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+from runtime_paths import data_path
 
 
-PROJECT_FOLDER = Path(__file__).resolve().parent.parent
-CREDENTIALS_PATH = PROJECT_FOLDER / "config" / "credentials.json"
-TOKEN_PATH = PROJECT_FOLDER / "config" / "token.json"
+CREDENTIALS_PATH = data_path("config", "credentials.json")
+TOKEN_PATH = data_path("config", "token.json")
 
 CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.events"
 TASKS_SCOPE = "https://www.googleapis.com/auth/tasks"
@@ -39,5 +39,7 @@ def get_google_credentials():
         )
         credentials = flow.run_local_server(port=0, prompt="consent")
 
+    if isinstance(TOKEN_PATH, Path):
+        TOKEN_PATH.parent.mkdir(parents=True, exist_ok=True)
     TOKEN_PATH.write_text(credentials.to_json(), encoding="utf-8")
     return credentials

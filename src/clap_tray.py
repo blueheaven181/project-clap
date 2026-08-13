@@ -12,10 +12,33 @@ from pathlib import Path
 
 import pystray
 from PIL import Image, ImageDraw
+from runtime_paths import DATA_ROOT, IS_FROZEN, SOURCE_ROOT, data_path
 
 
-PROJECT_FOLDER = Path(__file__).resolve().parent.parent
-LOG_FOLDER = PROJECT_FOLDER / "data" / "private" / "logs"
+PROJECT_FOLDER = SOURCE_ROOT
+WORKING_FOLDER = DATA_ROOT if IS_FROZEN else SOURCE_ROOT
+LOG_FOLDER = data_path("data", "private", "logs")
+
+
+def listener_command():
+    if getattr(sys, "frozen", False):
+        return [sys.executable, "--listener"]
+    return [sys.executable, str(PROJECT_FOLDER / "src" / "clap_detector.py")]
+
+
+def orb_command(live=True):
+    if getattr(sys, "frozen", False):
+        command = [sys.executable, "--orb"]
+    else:
+        command = [
+            str(Path(sys.executable).with_name("pythonw.exe"))
+            if Path(sys.executable).with_name("pythonw.exe").exists()
+            else sys.executable,
+            str(PROJECT_FOLDER / "src" / "clap_floating_orb_preview.py"),
+        ]
+    if live:
+        command.append("--live")
+    return command
 
 
 class ClapController:
@@ -37,8 +60,8 @@ class ClapController:
             log_path = LOG_FOLDER / "clap.log"
             log_handle = log_path.open("a", encoding="utf-8")
             self.process = self._popen(
-                [sys.executable, str(PROJECT_FOLDER / "src" / "clap_detector.py")],
-                cwd=str(PROJECT_FOLDER),
+                listener_command(),
+                cwd=str(WORKING_FOLDER),
                 stdout=log_handle,
                 stderr=subprocess.STDOUT,
                 creationflags=(
@@ -95,15 +118,9 @@ def create_tray_image(size=64):
 def open_orb(_icon=None, _item=None):
     """Open a standalone floating orb without starting the listener."""
 
-    pythonw = Path(sys.executable).with_name("pythonw.exe")
-    executable = pythonw if pythonw.exists() else Path(sys.executable)
     subprocess.Popen(
-        [
-            str(executable),
-            str(PROJECT_FOLDER / "src" / "clap_floating_orb_preview.py"),
-            "--live",
-        ],
-        cwd=str(PROJECT_FOLDER),
+        orb_command(live=True),
+        cwd=str(WORKING_FOLDER),
         close_fds=True,
     )
 
@@ -191,8 +208,24 @@ def run_application():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--preview", action="store_true")
+    parser.add_argument("--listener", action="store_true")
+    parser.add_argument("--orb", action="store_true")
+    parser.add_argument("--live", action="store_true")
     args = parser.parse_args()
-    if args.preview:
+    selected_modes = sum((args.preview, args.listener, args.orb))
+    if selected_modes > 1:
+        raise SystemExit("Select only one CLAP runtime mode.")
+    if args.listener:
+        import clap_detector  # noqa: F401 - module is the listener entry point
+    elif args.orb:
+        from clap_floating_orb_preview import (
+            FloatingOrbPreview,
+            acquire_orb_instance,
+        )
+
+        if acquire_orb_instance():
+            FloatingOrbPreview(live=args.live).run()
+    elif args.preview:
         run_preview()
     else:
         run_application()

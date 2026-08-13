@@ -8,10 +8,10 @@ import winsound
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
+from runtime_paths import data_path
 
 
-PROJECT_FOLDER = Path(__file__).resolve().parent.parent
-STATE_PATH = PROJECT_FOLDER / "data" / "private" / "activation_greetings.json"
+STATE_PATH = data_path("data", "private", "activation_greetings.json")
 
 
 def get_day_period(hour):

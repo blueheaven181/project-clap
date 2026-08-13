@@ -3,11 +3,12 @@
 import json
 import re
 from pathlib import Path
+from runtime_paths import data_path
 
 
 DEFAULT_VOICE = "en-US-GuyNeural"
 DEFAULT_RATE = "+8%"
-CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "speech_voice.local.json"
+CONFIG_PATH = data_path("config", "speech_voice.local.json")
 
 _VOICE_PATTERN = re.compile(r"^[a-z]{2,3}-[A-Z]{2}-[A-Za-z]+(?:Multilingual)?Neural$")
 _RATE_PATTERN = re.compile(r"^[+-](?:[0-9]|[1-4][0-9]|50)%$")

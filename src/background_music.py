@@ -1,13 +1,10 @@
 from pathlib import Path
 
 import pygame
+from runtime_paths import data_path
 
 
-MUSIC_PATH = (
-    Path(__file__).resolve().parent.parent
-    / "assets"
-    / "briefing_music.mp3"
-)
+MUSIC_PATH = data_path("assets", "briefing_music.mp3")
 
 _background_music_paused = False
 
