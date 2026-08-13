@@ -226,6 +226,7 @@ speech*.mp3
 !.env.example
 config/credentials.json
 config/token.json
+config/token.revoked.json
 config/secrets.*
 *.pem
 *.key

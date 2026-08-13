@@ -52,6 +52,7 @@ from voice_commands import (
     is_repeated_exact_word,
     listen_until_response,
 )
+from activation_feedback import acknowledge_activation
 
 
 
@@ -334,10 +335,7 @@ with sd.InputStream(
 
         if double_clap_detected or wake_word_detected:
 
-           speak(
-               f"{get_greeting()}. CLAP is online. "
-               "How can I help? Say a command, or ask me anything."
-           )
+           acknowledge_activation(speak, get_greeting)
 
 
 

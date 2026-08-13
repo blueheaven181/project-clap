@@ -41,6 +41,21 @@ def convert_aed_to_php(amount):
     )
 
 
+def convert_php_to_aed(amount):
+    """Convert Philippine pesos to UAE dirhams using the live USD cross-rate."""
+
+    url = "https://open.er-api.com/v6/latest/USD"
+    response = requests.get(url, timeout=10)
+    response.raise_for_status()
+    data = response.json()
+    phpaed_rate = data["rates"]["AED"] / data["rates"]["PHP"]
+    converted_amount = round(amount * phpaed_rate, 2)
+    return (
+        f"{amount:g} Philippine pesos is approximately "
+        f"{converted_amount:,.2f} UAE dirhams."
+    )
+
+
 
 
 def get_forex():

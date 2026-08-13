@@ -8,6 +8,7 @@ from articulation_coach import (
 )
 from forex import (
     convert_aed_to_php,
+    convert_php_to_aed,
     get_forex,
     open_forex_charts,
 )
@@ -618,7 +619,21 @@ def route_command(command):
 
         if amount_match:
             amount = float(amount_match.group(1))
-            conversion_report = convert_aed_to_php(amount)
+            peso_position = min(
+                position for term in ("peso", "php")
+                if (position := command.find(term)) >= 0
+            ) if any(term in command for term in ("peso", "php")) else -1
+            dirham_position = min(
+                position for term in ("dirham", "aed")
+                if (position := command.find(term)) >= 0
+            ) if any(term in command for term in ("dirham", "aed")) else -1
+
+            if peso_position >= 0 and (
+                dirham_position < 0 or peso_position < dirham_position
+            ):
+                conversion_report = convert_php_to_aed(amount)
+            else:
+                conversion_report = convert_aed_to_php(amount)
 
             print(conversion_report)
             speak(conversion_report)
