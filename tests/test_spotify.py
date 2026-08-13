@@ -99,6 +99,13 @@ class SpotifyTests(unittest.TestCase):
     def test_transport_command_is_not_specific_play_request(self):
         self.assertIsNone(spotify.parse_spotify_play_request("resume Spotify"))
 
+    @patch("command_router.stop_spotify")
+    @patch("command_router.speak")
+    def test_stop_music_routes_to_spotify_pause(self, speak, stop):
+        self.assertTrue(command_router.route_command("stop music"))
+        speak.assert_called_once_with("Stopping Spotify.")
+        stop.assert_called_once_with()
+
     def test_search_uri_is_encoded_and_type_qualified(self):
         self.assertEqual(
             "spotify:search:track%3AYellow%20Submarine",
@@ -119,12 +126,30 @@ class SpotifyTests(unittest.TestCase):
         self.assertTrue(spotify.play_spotify_mood("relaxing"))
         start.assert_called_once_with("spotify:playlist:abc123")
 
+    @patch("spotify.time.sleep")
+    @patch("spotify.os.startfile")
+    @patch(
+        "spotify.start_context_playback",
+        side_effect=[RuntimeError("no active device"), True],
+    )
+    @patch("spotify.load_spotify_playlists", return_value={"relaxing": "spotify:playlist:abc123"})
+    def test_mood_opens_spotify_and_retries_when_device_is_inactive(
+        self, _playlists, start, startfile, sleep
+    ):
+        self.assertTrue(spotify.play_spotify_mood("relaxing"))
+        startfile.assert_called_once_with("spotify:playlist:abc123")
+        sleep.assert_called_once_with(5)
+        self.assertEqual(2, start.call_count)
+
+    @patch("spotify.time.sleep")
     @patch("spotify.os.startfile")
     @patch("spotify.start_context_playback", side_effect=RuntimeError("offline"))
     @patch("spotify.load_spotify_playlists", return_value={"relaxing": "spotify:playlist:abc123"})
-    def test_mood_retains_desktop_fallback(self, _playlists, _start, startfile):
-        self.assertTrue(spotify.play_spotify_mood("relaxing"))
-        startfile.assert_called_once_with("spotify:playlist:abc123")
+    def test_mood_reports_failure_after_one_safe_retry(
+        self, _playlists, start, _startfile, _sleep
+    ):
+        self.assertFalse(spotify.play_spotify_mood("relaxing"))
+        self.assertEqual(2, start.call_count)
 
     @patch("spotify.os.startfile")
     @patch("spotify.get_spotify_launcher", return_value=Path("Spotify.exe"))

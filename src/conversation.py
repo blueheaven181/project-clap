@@ -203,6 +203,18 @@ def is_conversation_exit_request(message):
     )
 
 
+def is_follow_up_denial(message):
+    """Accept natural repeated denials without swallowing real commands."""
+
+    words = re.findall(r"[a-z']+", message.lower().replace("â€™", "'"))
+    if not words:
+        return False
+    allowed = {"no", "nope", "nah", "thank", "thanks", "you", "please"}
+    return any(word in {"no", "nope", "nah"} for word in words) and all(
+        word in allowed for word in words
+    )
+
+
 def use_direct_personal_address(message):
     """Prevent local-model replies from referring to Marc in third person."""
 

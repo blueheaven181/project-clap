@@ -41,7 +41,7 @@ class ActivationFeedbackTests(unittest.TestCase):
             )
 
     @patch("activation_feedback.play_activation_tone")
-    def test_later_activation_uses_tone_without_speech(self, tone):
+    def test_later_activation_uses_personal_acknowledgement(self, tone):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "state.json"
             now = datetime(2026, 8, 13, 13)
@@ -54,13 +54,19 @@ class ActivationFeedbackTests(unittest.TestCase):
                 ),
             )
             self.assertEqual(
-                "tone",
+                "personal_acknowledgement",
                 activation_feedback.acknowledge_activation(
                     speak, greeting, now, path
                 ),
             )
-            speak.assert_called_once_with("Good afternoon Marc.")
-            tone.assert_called_once_with()
+            self.assertEqual(
+                [
+                    unittest.mock.call("Good afternoon Marc."),
+                    unittest.mock.call("Yes, Marc?"),
+                ],
+                speak.call_args_list,
+            )
+            tone.assert_not_called()
 
 
 if __name__ == "__main__":

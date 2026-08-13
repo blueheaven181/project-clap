@@ -11,6 +11,7 @@ if not acquire_clap_instance():
 
 from conversation import (
     is_conversation_exit_request,
+    is_follow_up_denial,
     start_voice_conversation,
 )
 
@@ -492,9 +493,13 @@ with sd.InputStream(
                             break
 
 
-                        if any(
-                            phrase in follow_up
-                            for phrase in no_words
+                        normalized_follow_up = follow_up.strip().lower()
+                        if (
+                            normalized_follow_up in no_words
+                            or is_follow_up_denial(normalized_follow_up)
+                            or is_conversation_exit_request(
+                                normalized_follow_up
+                            )
                         ):
                             speak("Okay Marc, standing by.")
                             break

@@ -197,9 +197,15 @@ def play_spotify_mood(mood):
         start_context_playback(context_uri)
         return True
     except Exception as error:
-        print(f"Spotify API playback unavailable; using desktop fallback: {error}")
+        print(f"Spotify playback device unavailable; opening Spotify: {error}")
         os.startfile(playlist_uri)
-        return True
+        time.sleep(5)
+        try:
+            start_context_playback(context_uri)
+            return True
+        except Exception as retry_error:
+            print(f"Spotify playback retry failed: {retry_error}")
+            return False
 
 
 def normalize_spotify_context_uri(value):

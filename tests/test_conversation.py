@@ -11,6 +11,7 @@ import conversation
 import conversation_voice
 from conversation import (
     is_conversation_exit_request,
+    is_follow_up_denial,
     use_direct_personal_address,
 )
 
@@ -40,6 +41,15 @@ class PersonalAddressTests(unittest.TestCase):
 
 
 class ConversationExitTests(unittest.TestCase):
+    def test_natural_repeated_follow_up_denials(self):
+        for phrase in ("no", "no no", "no no no", "nope", "no thank you"):
+            with self.subTest(phrase=phrase):
+                self.assertTrue(is_follow_up_denial(phrase))
+
+    def test_denial_parser_does_not_swallow_commands(self):
+        self.assertFalse(is_follow_up_denial("stop music"))
+        self.assertFalse(is_follow_up_denial("no pause spotify"))
+
     def test_natural_and_repeated_stop_phrases_are_recognized(self):
         for phrase in (
             "stop now",

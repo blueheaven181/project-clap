@@ -65,5 +65,5 @@ def acknowledge_activation(speak, greeting, now=None, path=STATE_PATH):
     if should_speak_period_greeting(now=now, path=path):
         speak(f"{greeting()}.")
         return "greeting"
-    play_activation_tone()
-    return "tone"
+    speak("Yes, Marc?")
+    return "personal_acknowledgement"
