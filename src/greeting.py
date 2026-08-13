@@ -11,6 +11,7 @@ from speech_voice_config import (
     DEFAULT_VOICE,
     load_speech_voice_config,
 )
+from presence_state import get_presence_state, set_presence_state
 
 
 speech_voice_selection = load_speech_voice_config()
@@ -99,6 +100,12 @@ def is_speaking():
     )
 
     return channel_is_busy or _speech_paused
+
+
+def was_speech_stopped():
+    """Return whether the most recent speech clip was stopped by control."""
+
+    return _speech_stopped
 
 
 def set_speech_control_handler(handler):
@@ -201,6 +208,7 @@ def _speak_locked(message):
     global _speech_stopped
 
     _last_spoken_message = str(message)
+    previous_presence_state = get_presence_state()
 
     filename = (
         PROJECT_FOLDER
@@ -233,6 +241,7 @@ def _speak_locked(message):
         _speech_stopped = False
         _speech_control_event.clear()
 
+        set_presence_state("speaking")
         speech_channel.play(speech_sound)
 
         while True:
@@ -277,6 +286,7 @@ def _speak_locked(message):
             pygame.time.wait(50)
 
     finally:
+        set_presence_state(previous_presence_state)
         _speech_paused = False
         _speech_control_event.clear()
 

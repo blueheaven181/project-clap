@@ -3,6 +3,7 @@ import time
 import speech_recognition as sr
 
 from greeting import speak
+from presence_state import set_presence_state
 
 
 def is_repeated_exact_word(response, expected_word):
@@ -19,6 +20,7 @@ def listen_for_response(
 ):
     """Listen until a pause, with a maximum duration for one response."""
 
+    set_presence_state("listening")
     recognizer = sr.Recognizer()
     recognizer.pause_threshold = pause_threshold
 
@@ -46,6 +48,7 @@ def listen_for_response(
         response = recognizer.recognize_google(audio, language="en-US")
 
         print("You said:", response)
+        set_presence_state("thinking")
         return response.lower()
 
     except sr.WaitTimeoutError:
@@ -60,6 +63,7 @@ def listen_for_response(
     except Exception as error:
         print("Microphone error:", error)
 
+    set_presence_state("thinking")
     return ""
 
 

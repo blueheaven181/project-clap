@@ -22,10 +22,12 @@ from greeting import (
     request_speech_control,
     set_speech_control_handler,
     speak,
+    was_speech_stopped,
 )
 from pathlib import Path
 from openwakeword.model import Model
 from wake_word_config import load_wake_word_selection
+from presence_state import start_presence_window, set_presence_state
 from weather import get_weather
 from system_health import get_system_health
 from forex import get_forex, open_forex_charts
@@ -152,16 +154,19 @@ def handle_speech_control():
         normalized_response = response.strip().lower()
 
         if normalized_response in continue_phrases:
+            set_presence_state("speaking")
             resume_background_music()
             return "continue"
 
         if normalized_response in repeat_phrases:
+            set_presence_state("speaking")
             resume_background_music()
             return "repeat"
 
         if (
             normalized_response in stop_phrases
             or is_repeated_exact_word(normalized_response, "stop")
+            or is_conversation_exit_request(normalized_response)
         ):
             stop_background_music()
             return "stop"
@@ -306,6 +311,8 @@ def detect_activation(indata, frames, time_info, status):
 
 
 
+start_presence_window()
+set_presence_state("standby")
 print("Listening for double clap or Hey CLAP...")
 
 with sd.InputStream(
@@ -379,6 +386,7 @@ with sd.InputStream(
                     time.monotonic() + ACTIVATION_COOLDOWN
                 )
 
+                set_presence_state("standby")
                 print("Listening for double clap or Hey CLAP...")
                 continue
 
@@ -456,7 +464,10 @@ with sd.InputStream(
            ):
                     route_command(response)
 
-                    while should_offer_command_follow_up(response):
+                    while (
+                        not was_speech_stopped()
+                        and should_offer_command_follow_up(response)
+                    ):
                         speak(
                         "Is there anything else I can help you with? "
                           "Say your next command, or say no."
@@ -497,6 +508,7 @@ with sd.InputStream(
                     last_clap_time = time.monotonic()
                     ignore_activation_until = time.monotonic() + ACTIVATION_COOLDOWN
 
+                    set_presence_state("standby")
                     print("Listening for double clap or Hey CLAP...")
                     continue
 
@@ -523,6 +535,7 @@ with sd.InputStream(
                 time.monotonic() + ACTIVATION_COOLDOWN
             )
 
+            set_presence_state("standby")
             print("Listening for double clap or Hey CLAP...")
             continue
 
@@ -576,6 +589,7 @@ with sd.InputStream(
                             + ACTIVATION_COOLDOWN
                         )
 
+                        set_presence_state("standby")
                         print(
                             "Listening for double clap "
                             "or Hey CLAP..."

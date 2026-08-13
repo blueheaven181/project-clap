@@ -12,6 +12,13 @@ import greeting
 
 
 class SpeechPausePolicyTests(unittest.TestCase):
+    def test_stopped_speech_status_is_exposed_for_callers(self):
+        with patch.object(greeting, "_speech_stopped", True):
+            self.assertTrue(greeting.was_speech_stopped())
+
+        with patch.object(greeting, "_speech_stopped", False):
+            self.assertFalse(greeting.was_speech_stopped())
+
     def test_speech_playback_is_serialized(self):
         first_started = threading.Event()
         release_first = threading.Event()
