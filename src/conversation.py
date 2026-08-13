@@ -6,10 +6,18 @@ import requests
 
 from greeting import speak
 from voice_commands import listen_until_response
+from conversation_voice import (
+    load_conversation_voice_config,
+    stream_and_speak_conversation,
+)
 
 
 OLLAMA_URL = "http://localhost:11434/api/chat"
 LOCAL_AI_MODEL = "llama3.2:1b"
+LOCAL_AI_OPTIONS = {
+    "num_predict": 80,
+    "temperature": 0.3,
+}
 
 SYSTEM_PROMPT = """
 You are CLAP, a personal assistant, communication coach,
@@ -22,6 +30,16 @@ Administrator experience.
 
 The user's goals include improving articulation, communication skills,
 interview confidence, and ability to express ideas clearly.
+
+Intent precedence:
+- Treat the user's latest request as the primary task for the current turn.
+- Answer a direct question directly before offering anything else.
+- Do not redirect a direct question into coaching, interview practice, career
+  advice, fitness coaching, or another profile-related topic.
+- Enter a coaching or interview mode only when the user explicitly asks for
+  coaching, feedback, practice, an interview, or an articulation exercise.
+- After answering a direct question, do not append unsolicited coaching. The
+  user may ask for coaching in a later turn.
 
 Your responses will normally be spoken aloud:
 - Use short, natural, voice-friendly sentences.
@@ -105,6 +123,9 @@ private_context = (
     + "\n\nUse the following facts to personalize your assistance. "
     + "Never mention this profile, private context, JSON, or how these "
     + "facts were stored. "
+    + "These facts are background context only. They must never override the "
+    + "user's latest request or trigger coaching, interview practice, career "
+    + "advice, or another mode unless the user explicitly asks for it. "
     + "Your current role is NOC Engineer. Your Azure Administrator, "
     + "system administration, system support, and end-user support "
     + "roles are previous experience. "
@@ -155,11 +176,25 @@ def is_conversation_exit_request(message):
         return True
 
     words = normalized.split()
-    if "stop" not in words or "not" in words or "don't" in words:
+    if "not" in words or "don't" in words:
         return False
 
-    stop_fillers = {"stop", "please", "now", "talking", "conversation"}
-    return all(word in stop_fillers for word in words)
+    # Treat "full stop" as another stop token so recognizer output such as
+    # "stop now full stop" cannot fall through to the local AI as chat text.
+    stop_words = ["stop" if word == "full" else word for word in words]
+    stop_fillers = {
+        "stop",
+        "please",
+        "now",
+        "talking",
+        "conversation",
+        "exit",
+        "end",
+        "mode",
+    }
+    return "stop" in stop_words and all(
+        word in stop_fillers for word in stop_words
+    )
 
 
 def use_direct_personal_address(message):
@@ -198,10 +233,7 @@ def chat_with_clap(user_message):
                 "model": LOCAL_AI_MODEL,
                 "messages": conversation_history,
                 "stream": False,
-                "options": {
-                    "num_predict": 80,
-                    "temperature": 0.3,
-                },
+                "options": LOCAL_AI_OPTIONS,
             },
             timeout=120,
         )
@@ -229,6 +261,29 @@ def chat_with_clap(user_message):
             "I cannot connect to my local AI engine right now. "
             "Please make sure Ollama is running."
         )
+
+
+def respond_in_conversation(user_message):
+    """Speak one response through the opt-in experiment or established flow."""
+
+    config = load_conversation_voice_config()
+    if config["enabled"] and config["backend"] == "ollama_sentence_stream":
+        assistant_message = stream_and_speak_conversation(
+            user_message=user_message,
+            conversation_history=conversation_history,
+            url=OLLAMA_URL,
+            model=LOCAL_AI_MODEL,
+            options=LOCAL_AI_OPTIONS,
+            speak=speak,
+            direct_address=use_direct_personal_address,
+            config=config,
+        )
+        if assistant_message is not None:
+            return assistant_message
+
+    assistant_message = chat_with_clap(user_message)
+    speak(assistant_message)
+    return assistant_message
 
 
 def start_voice_conversation(initial_message=None):
@@ -272,6 +327,10 @@ def start_voice_conversation(initial_message=None):
                     )
                     return
 
+                if is_conversation_exit_request(presence_response):
+                    speak("Conversation mode ended. Standing by.")
+                    return
+
                 presence_words = {
                     "yes",
                     "yeah",
@@ -302,10 +361,9 @@ def start_voice_conversation(initial_message=None):
 
         print("Marc:", user_message)
 
-        assistant_message = chat_with_clap(user_message)
+        assistant_message = respond_in_conversation(user_message)
 
         print("CLAP:", assistant_message)
-        speak(assistant_message)
 
         conversation_turns += 1
 
@@ -317,6 +375,10 @@ def start_voice_conversation(initial_message=None):
             continue_response = listen_until_response(
                 "I did not hear you. Please say yes or no."
             )
+
+            if is_conversation_exit_request(continue_response):
+                speak("Conversation mode ended. Standing by.")
+                return
 
             continue_words = {
                 "yes",

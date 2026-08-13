@@ -9,7 +9,10 @@ if not acquire_clap_instance():
     raise SystemExit(1)
 
 
-from conversation import start_voice_conversation
+from conversation import (
+    is_conversation_exit_request,
+    start_voice_conversation,
+)
 
 
 
@@ -22,6 +25,7 @@ from greeting import (
 )
 from pathlib import Path
 from openwakeword.model import Model
+from wake_word_config import load_wake_word_selection
 from weather import get_weather
 from system_health import get_system_health
 from forex import get_forex, open_forex_charts
@@ -43,6 +47,7 @@ from background_music import (
     stop_background_music,
 )
 from voice_commands import (
+    is_repeated_exact_word,
     listen_until_response,
 )
 
@@ -55,7 +60,7 @@ CLAP_SHARPNESS_THRESHOLD = 6.0
 DOUBLE_CLAP_WINDOW = 1.0
 CLAP_COOLDOWN = 0.3
 SPEECH_CONTROL_CLAP_THRESHOLD = 12
-SPEECH_CONTROL_SHARPNESS_THRESHOLD = 8.0
+SPEECH_CONTROL_SHARPNESS_THRESHOLD = 6.0
 SPEECH_CONTROL_DOUBLE_CLAP_WINDOW = 0.8
 SPEECH_CONTROL_MIN_CLAP_GAP = 0.18
 SPEECH_CONTROL_PEAK_THRESHOLD = 0.55
@@ -76,18 +81,21 @@ ignore_activation_until = 0.0
 
 
 
-def get_wake_word_model_path():
-    project_folder = Path(__file__).resolve().parent.parent
+project_folder = Path(__file__).resolve().parent.parent
+wake_word_selection = load_wake_word_selection(project_folder)
+wake_word_model_path = wake_word_selection["model_path"]
+WAKE_WORD_THRESHOLD = wake_word_selection["threshold"]
 
-    return (
-        project_folder
-        / "models"
-        / "wake_words"
-        / "hey_Clap.onnx"
-    )
+if wake_word_selection["warning"]:
+    print("Wake-word candidate configuration warning:", wake_word_selection["warning"])
+    print("Using the production wake-word model.")
 
-
-wake_word_model_path = get_wake_word_model_path()
+print(
+    "Wake-word model selected:",
+    wake_word_selection["source"],
+    wake_word_model_path,
+    f"threshold={WAKE_WORD_THRESHOLD:.2f}",
+)
 
 if not wake_word_model_path.exists():
     raise FileNotFoundError(
@@ -151,7 +159,10 @@ def handle_speech_control():
             resume_background_music()
             return "repeat"
 
-        if normalized_response in stop_phrases:
+        if (
+            normalized_response in stop_phrases
+            or is_repeated_exact_word(normalized_response, "stop")
+        ):
             stop_background_music()
             return "stop"
 
@@ -353,7 +364,10 @@ with sd.InputStream(
                normalized_response
            )
 
-           if normalized_response in no_words:
+           if (
+               normalized_response in no_words
+               or is_conversation_exit_request(normalized_response)
+           ):
                 speak("Okay Marc, standing by.")
 
                 wake_word_model.reset()
@@ -519,7 +533,7 @@ with sd.InputStream(
                     forex_report = get_forex()
                     calendar_report = get_todays_calendar()
 
-                    print(greeting)
+                    print(get_greeting())
                     print(weather_report)
                     print(system_report)
                     print(forex_report)

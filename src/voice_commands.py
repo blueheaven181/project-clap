@@ -5,6 +5,13 @@ import speech_recognition as sr
 from greeting import speak
 
 
+def is_repeated_exact_word(response, expected_word):
+    """Accept one or more repetitions of one exact control word."""
+
+    words = response.strip().lower().split()
+    return bool(words) and all(word == expected_word for word in words)
+
+
 def listen_for_response(
     phrase_time_limit=8,
     timeout_seconds=5,

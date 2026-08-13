@@ -11,6 +11,16 @@ import voice_commands
 
 
 class VoiceRetryTests(unittest.TestCase):
+    def test_repeated_stop_words_are_accepted(self):
+        self.assertTrue(
+            voice_commands.is_repeated_exact_word("stop stop", "stop")
+        )
+
+    def test_mixed_stop_words_are_rejected(self):
+        self.assertFalse(
+            voice_commands.is_repeated_exact_word("yes stop", "stop")
+        )
+
     @patch("voice_commands.time.sleep")
     @patch("voice_commands.speak")
     @patch("voice_commands.listen_for_response", return_value="")

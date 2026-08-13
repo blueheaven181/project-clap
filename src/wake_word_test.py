@@ -1,3 +1,4 @@
+import argparse
 import time
 from pathlib import Path
 
@@ -9,7 +10,10 @@ from openwakeword.model import Model
 SAMPLE_RATE = 16000
 CHUNK_SIZE = 1280
 MICROPHONE_INDEX = 1
-DETECTION_THRESHOLD = 0.5
+# Keep the diagnostic aligned with clap_detector.py. Do not lower this without
+# measuring both real wake phrases and nearby-speaker false activations.
+DETECTION_THRESHOLD = 0.30
+NEAR_MISS_THRESHOLD = 0.10
 DETECTION_COOLDOWN = 2.0
 
 
@@ -24,8 +28,8 @@ def get_model_path():
     )
 
 
-def listen_for_wake_word():
-    model_path = get_model_path()
+def listen_for_wake_word(model_path=None):
+    model_path = Path(model_path) if model_path else get_model_path()
 
     if not model_path.exists():
         print("Wake-word model was not found.")
@@ -37,8 +41,10 @@ def listen_for_wake_word():
     )
 
     last_detection_time = 0.0
+    highest_near_miss = 0.0
 
     print("Listening for the test wake word...")
+    print("Diagnostic model:", model_path)
     print('Say "Hey CLAP". Press Ctrl + C to stop.')
 
     with sd.InputStream(
@@ -61,6 +67,16 @@ def listen_for_wake_word():
 
             predictions = wake_word_model.predict(audio_frame)
 
+            highest_score = max(predictions.values(), default=0.0)
+            if NEAR_MISS_THRESHOLD <= highest_score < DETECTION_THRESHOLD:
+                highest_near_miss = max(highest_near_miss, highest_score)
+            elif highest_score < NEAR_MISS_THRESHOLD and highest_near_miss:
+                print(
+                    "WAKE WORD NEAR MISS:",
+                    f"peak_score={highest_near_miss:.2f}",
+                )
+                highest_near_miss = 0.0
+
             for model_name, score in predictions.items():
                 current_time = time.monotonic()
 
@@ -76,11 +92,25 @@ def listen_for_wake_word():
                     )
 
                     last_detection_time = current_time
+                    highest_near_miss = 0.0
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Standalone wake-word diagnostic; does not start CLAP commands."
+    )
+    parser.add_argument(
+        "--model-path",
+        type=Path,
+        help="Optional model used only for this diagnostic. Production remains the default.",
+    )
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
+    args = parse_args()
     try:
-        listen_for_wake_word()
+        listen_for_wake_word(args.model_path)
     except KeyboardInterrupt:
         print("\nWake-word test stopped.")
     except Exception as error:

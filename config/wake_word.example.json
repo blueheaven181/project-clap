@@ -1,0 +1,5 @@
+{
+  "enabled": false,
+  "model_path": "models/wake_words/hey_Clap.onnx",
+  "threshold": 0.3
+}

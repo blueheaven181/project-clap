@@ -234,3 +234,4 @@ config/secrets.*
 recordings/
 data/private/
 config/*.local.json
+.wake-env/
