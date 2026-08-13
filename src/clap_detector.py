@@ -80,7 +80,9 @@ last_clap_time = 0
 
 SAMPLE_RATE = 16000
 CHUNK_SIZE = 1280
-MICROPHONE_INDEX = 1
+# Resolve the Windows default input when the stream opens. Device indexes are
+# volatile across local, remote-desktop, and packaged PortAudio sessions.
+MICROPHONE_INDEX = None
 
 WAKE_WORD_THRESHOLD = 0.30
 ACTIVATION_COOLDOWN = 3.0

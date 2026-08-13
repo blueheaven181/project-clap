@@ -1,6 +1,7 @@
 import time
 
 import speech_recognition as sr
+from microphone_config import select_named_microphone
 
 from greeting import speak
 from presence_state import set_presence_state
@@ -25,7 +26,10 @@ def listen_for_response(
     recognizer.pause_threshold = pause_threshold
 
     try:
-        with sr.Microphone(device_index=1) as source:
+        microphone_index = select_named_microphone(
+            sr.Microphone.list_microphone_names()
+        )
+        with sr.Microphone(device_index=microphone_index) as source:
             print("Adjusting for background noise...")
             recognizer.adjust_for_ambient_noise(source, duration=0.5)
 
