@@ -21,6 +21,15 @@ class PresenceStateTests(unittest.TestCase):
             (presence_state.HOST, presence_state.PORT),
         )
 
+    @patch("src.presence_state.socket.socket")
+    def test_visualizer_shutdown_is_sent_locally(self, socket_class):
+        channel = MagicMock()
+        socket_class.return_value.__enter__.return_value = channel
+        presence_state.stop_presence_window()
+        channel.sendto.assert_called_once_with(
+            b"shutdown", (presence_state.HOST, presence_state.PORT)
+        )
+
     def test_invalid_state_is_rejected(self):
         with self.assertRaises(ValueError):
             presence_state.set_presence_state("executing_command")

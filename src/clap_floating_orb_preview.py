@@ -6,6 +6,7 @@ import socket
 import sys
 import time
 import tkinter as tk
+import ctypes
 from pathlib import Path
 
 from clap_presence_preview import STATE_STYLE, blend, make_points, rotate_point
@@ -20,6 +21,27 @@ POSITION_PATH = (
     Path(__file__).resolve().parent.parent
     / "data" / "private" / "floating_orb_position.json"
 )
+ORB_MUTEX_NAME = "Local\\ProjectCLAPFloatingOrb"
+_orb_mutex_handle = None
+
+
+def acquire_orb_instance(kernel32=None):
+    """Allow only one floating Production Orb per Windows session."""
+
+    global _orb_mutex_handle
+    if sys.platform != "win32":
+        return True
+    if kernel32 is None:
+        kernel32 = ctypes.windll.kernel32
+    kernel32.CreateMutexW.restype = ctypes.c_void_p
+    handle = kernel32.CreateMutexW(None, False, ORB_MUTEX_NAME)
+    if not handle:
+        raise ctypes.WinError()
+    if kernel32.GetLastError() == 183:
+        kernel32.CloseHandle(handle)
+        return False
+    _orb_mutex_handle = handle
+    return True
 
 
 class FloatingOrbPreview:
@@ -152,6 +174,9 @@ class FloatingOrbPreview:
             while True:
                 payload, _address = self.state_socket.recvfrom(64)
                 state = payload.decode("ascii", errors="ignore")
+                if state == "shutdown":
+                    self.root.destroy()
+                    return
                 if state in STATES:
                     self.set_state(state)
         except BlockingIOError:
@@ -225,4 +250,5 @@ class FloatingOrbPreview:
 
 
 if __name__ == "__main__":
-    FloatingOrbPreview(live="--live" in sys.argv[1:]).run()
+    if acquire_orb_instance():
+        FloatingOrbPreview(live="--live" in sys.argv[1:]).run()

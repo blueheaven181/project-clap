@@ -40,6 +40,16 @@ def set_presence_state(state):
         pass
 
 
+def stop_presence_window():
+    """Best-effort request for the optional visualizer to close."""
+
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as channel:
+            channel.sendto(b"shutdown", (HOST, PORT))
+    except OSError:
+        pass
+
+
 def start_presence_window():
     """Launch the optional visualizer; never make CLAP depend on it."""
 

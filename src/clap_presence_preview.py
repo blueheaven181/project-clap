@@ -134,6 +134,9 @@ class PresencePreview:
             while True:
                 payload, _address = self.state_socket.recvfrom(64)
                 state = payload.decode("ascii", errors="ignore")
+                if state == "shutdown":
+                    self.root.destroy()
+                    return
                 if state in STATE_STYLE:
                     self.set_state(state)
         except BlockingIOError:

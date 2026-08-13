@@ -17,7 +17,9 @@ playsound==1.2.2
 propcache==0.5.2
 psutil==7.2.2
 PyAudio==0.2.14
+Pillow==11.3.0
 PyAutoGUI==0.9.54
+pystray==0.19.5
 pycparser==3.0
 pygame==2.6.1
 PyGetWindow==0.0.9
