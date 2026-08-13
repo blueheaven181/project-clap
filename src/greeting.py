@@ -6,9 +6,16 @@ from pathlib import Path
 
 import edge_tts
 import pygame
+from speech_voice_config import (
+    DEFAULT_RATE,
+    DEFAULT_VOICE,
+    load_speech_voice_config,
+)
 
 
-VOICE = "en-US-GuyNeural"
+speech_voice_selection = load_speech_voice_config()
+VOICE = speech_voice_selection["voice"]
+SPEECH_RATE = speech_voice_selection["rate"]
 SPEECH_CHANNEL_NUMBER = 1
 SPEECH_VOLUME = 1.0
 
@@ -37,6 +44,17 @@ def cleanup_old_speech_files():
 
 
 cleanup_old_speech_files()
+
+if speech_voice_selection["warning"]:
+    print("Speech voice configuration warning:", speech_voice_selection["warning"])
+    print("Using the default speech voice.")
+
+print(
+    "Speech voice selected:",
+    speech_voice_selection["source"],
+    VOICE,
+    f"rate={SPEECH_RATE}",
+)
 
 
 def get_speech_channel():
@@ -189,16 +207,22 @@ def _speak_locked(message):
         / f"speech_{uuid.uuid4().hex}.mp3"
     )
 
-    async def generate():
+    async def generate(voice, rate):
         communicate = edge_tts.Communicate(
             _last_spoken_message,
-            VOICE,
-            rate="+8%",
+            voice,
+            rate=rate,
         )
         await communicate.save(str(filename))
 
     try:
-        asyncio.run(generate())
+        try:
+            asyncio.run(generate(VOICE, SPEECH_RATE))
+        except Exception as error:
+            if VOICE == DEFAULT_VOICE and SPEECH_RATE == DEFAULT_RATE:
+                raise
+            print("Selected speech voice failed; using default:", type(error).__name__)
+            asyncio.run(generate(DEFAULT_VOICE, DEFAULT_RATE))
 
         speech_channel = get_speech_channel()
         speech_sound = pygame.mixer.Sound(str(filename))
