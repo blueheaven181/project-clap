@@ -1,6 +1,7 @@
 """Fail-safe state bridge for CLAP's optional visual presence window."""
 
 import socket
+import json
 import subprocess
 import sys
 import threading
@@ -10,6 +11,8 @@ from pathlib import Path
 HOST = "127.0.0.1"
 PORT = 47621
 VALID_STATES = {"standby", "listening", "thinking", "speaking"}
+PROJECT_FOLDER = Path(__file__).resolve().parent.parent
+CONFIG_PATH = PROJECT_FOLDER / "config" / "presence.local.json"
 
 _state = "standby"
 _lock = threading.Lock()
@@ -40,7 +43,14 @@ def set_presence_state(state):
 def start_presence_window():
     """Launch the optional visualizer; never make CLAP depend on it."""
 
-    preview = Path(__file__).with_name("clap_presence_preview.py")
+    preview_name = "clap_presence_preview.py"
+    try:
+        config = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+        if config.get("mode") == "floating":
+            preview_name = "clap_floating_orb_preview.py"
+    except (OSError, json.JSONDecodeError):
+        pass
+    preview = Path(__file__).with_name(preview_name)
     executable = Path(sys.executable)
     pythonw = executable.with_name("pythonw.exe")
     if pythonw.exists():
@@ -62,4 +72,3 @@ def start_presence_window():
         )
     except OSError as error:
         print("CLAP presence window unavailable:", type(error).__name__)
-
