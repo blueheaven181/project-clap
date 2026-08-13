@@ -1,21 +1,111 @@
 import json
 import os
+import re
 import time
 from pathlib import Path
+from urllib.parse import quote
 
 import pyautogui
 
+from spotify_auth import start_context_playback
+
+
+SPOTIFY_SEARCH_TYPES = {
+    "artist": "artist",
+    "artists": "artist",
+    "song": "track",
+    "songs": "track",
+    "track": "track",
+    "tracks": "track",
+    "album": "album",
+    "albums": "album",
+    "playlist": "playlist",
+    "playlists": "playlist",
+}
+
+
+def get_spotify_launcher():
+    """Return this Windows user's Spotify launcher, if installed."""
+
+    candidates = (
+        Path(os.environ.get("LOCALAPPDATA", ""))
+        / "Microsoft"
+        / "WindowsApps"
+        / "Spotify.exe",
+        Path(os.environ.get("APPDATA", "")) / "Spotify" / "Spotify.exe",
+    )
+
+    return next((path for path in candidates if path.is_file()), None)
+
 
 def open_spotify():
+    launcher = get_spotify_launcher()
+    if launcher is None:
+        print("Spotify is not installed for the current Windows user.")
+        return False
 
-    spotify_path = r"C:\Users\marcm\AppData\Roaming\Spotify\Spotify.exe"
+    os.startfile(str(launcher))
+    return True
 
-    os.startfile(spotify_path)
+
+def parse_spotify_search_request(command):
+    """Return a safe Spotify search query and optional content type."""
+
+    normalized = " ".join(command.strip().lower().split())
+    patterns = (
+        r"^(?:search|find|look up) (?:spotify )?(?:for )?(?P<body>.+)$",
+        r"^(?:play|open) (?:the )?(?P<body>.+?) on spotify$",
+    )
+    body = None
+    for pattern in patterns:
+        match = re.match(pattern, normalized)
+        if match:
+            body = match.group("body").strip()
+            break
+
+    if not body:
+        return None
+
+    search_type = None
+    type_match = re.match(
+        r"^(?:the )?(artist|artists|song|songs|track|tracks|album|albums|playlist|playlists)\s+(?:called |named )?(?P<query>.+)$",
+        body,
+    )
+    if type_match:
+        search_type = SPOTIFY_SEARCH_TYPES[type_match.group(1)]
+        body = type_match.group("query").strip()
+
+    body = re.sub(r"\s+on spotify$", "", body).strip(" .?!")
+    if not body or len(body) > 200:
+        return None
+
+    return {"query": body, "type": search_type}
+
+
+def build_spotify_search_uri(query, search_type=None):
+    search_text = query.strip()
+    if search_type:
+        if search_type not in {"artist", "track", "album", "playlist"}:
+            raise ValueError("Unsupported Spotify search type")
+        search_text = f"{search_type}:{search_text}"
+    return "spotify:search:" + quote(search_text, safe="")
+
+
+def search_spotify(query, search_type=None):
+    """Open Spotify's results page without selecting or playing a result."""
+
+    if get_spotify_launcher() is None:
+        print("Spotify is not installed for the current Windows user.")
+        return False
+
+    os.startfile(build_spotify_search_uri(query, search_type))
+    return True
 
 
 def play_spotify():
 
-    open_spotify()
+    if not open_spotify():
+        return False
 
     # Give Spotify time to launch
     time.sleep(8)
@@ -23,7 +113,8 @@ def play_spotify():
     print("Sending play command...")
 
     # Media play/pause key
-    pyautogui.press("space")
+    pyautogui.press("playpause")
+    return True
 
 
 def load_spotify_playlists():
@@ -71,16 +162,29 @@ def play_spotify_mood(mood):
 
     print(f"Playing {normalized_mood} Spotify music...")
 
-    # Stop existing media before selecting the new playlist.
-    pyautogui.press("stop")
+    context_uri = normalize_spotify_context_uri(playlist_uri)
+    try:
+        start_context_playback(context_uri)
+        return True
+    except Exception as error:
+        print(f"Spotify API playback unavailable; using desktop fallback: {error}")
+        os.startfile(playlist_uri)
+        return True
 
-    os.startfile(playlist_uri)
 
-    # Give Spotify time to open the selected playlist.
-    time.sleep(5)
+def normalize_spotify_context_uri(value):
+    """Return an album, artist, or playlist Spotify context URI."""
 
-    pyautogui.press("space")
-    return True
+    cleaned = str(value).strip()
+    if re.fullmatch(r"spotify:(?:album|artist|playlist):[A-Za-z0-9]+", cleaned):
+        return cleaned
+    match = re.match(
+        r"https?://open\.spotify\.com/(album|artist|playlist)/([A-Za-z0-9]+)",
+        cleaned,
+    )
+    if match:
+        return f"spotify:{match.group(1)}:{match.group(2)}"
+    raise ValueError("Unsupported Spotify playback context.")
 
 
 

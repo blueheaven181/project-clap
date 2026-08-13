@@ -20,8 +20,10 @@ from spotify import (
     pause_spotify,
     play_spotify,
     play_spotify_mood,
+    parse_spotify_search_request,
     previous_spotify_track,
     resume_spotify,
+    search_spotify,
     stop_spotify,
 )
 from system_volume import (
@@ -487,6 +489,20 @@ def route_command(command):
 
 
 
+
+    spotify_search = parse_spotify_search_request(command)
+    if spotify_search:
+        search_description = spotify_search["type"] or "Spotify"
+        speak(
+            f"Showing {search_description} search results for "
+            f"{spotify_search['query']}."
+        )
+        if not search_spotify(
+            spotify_search["query"],
+            spotify_search["type"],
+        ):
+            speak("Spotify is not installed for this Windows user.")
+        return True
 
     mood_commands = {
         "relaxing": {

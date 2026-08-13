@@ -66,7 +66,7 @@ def blend(first, second, amount):
 class PresencePreview:
     def __init__(self, live=False):
         self.root = tk.Tk()
-        self.root.title("CLAP Presence Preview")
+        self.root.title("CLAP")
         self.root.geometry(f"{WIDTH}x{HEIGHT}+90+70")
         self.root.configure(bg="#070816")
         self.root.minsize(620, 620)
@@ -103,13 +103,6 @@ class PresencePreview:
                 self.root.destroy()
                 return
 
-        self.title_item = self.canvas.create_text(
-            WIDTH / 2,
-            42,
-            text="CLAP",
-            fill="#d7e5ff",
-            font=("Segoe UI Semibold", 18),
-        )
         self.state_item = self.canvas.create_text(
             WIDTH / 2,
             HEIGHT - 88,
@@ -117,14 +110,6 @@ class PresencePreview:
             fill=STATE_STYLE["standby"][0],
             font=("Segoe UI Semibold", 13),
         )
-        self.hint_item = self.canvas.create_text(
-            WIDTH / 2,
-            HEIGHT - 40,
-            text="1  STANDBY     2  LISTENING     3  THINKING     4  SPEAKING",
-            fill="#68769c",
-            font=("Segoe UI", 9),
-        )
-
         for key, state in (("1", "standby"), ("2", "listening"),
                            ("3", "thinking"), ("4", "speaking")):
             self.root.bind(key, lambda _event, value=state: self.set_state(value))
@@ -216,9 +201,7 @@ class PresencePreview:
             )
             self.canvas.itemconfigure(self.particles[index], fill=color)
 
-        self.canvas.coords(self.title_item, center_x, 42)
         self.canvas.coords(self.state_item, center_x, height - 88)
-        self.canvas.coords(self.hint_item, center_x, height - 40)
         self.root.after(25, self.animate)
 
     def run(self):
