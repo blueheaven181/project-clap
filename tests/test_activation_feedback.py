@@ -13,6 +13,48 @@ import activation_feedback
 
 
 class ActivationFeedbackTests(unittest.TestCase):
+    def test_activation_returns_after_first_understood_command(self):
+        listen = unittest.mock.Mock(return_value="weather")
+        speak = unittest.mock.Mock()
+        self.assertEqual(
+            "weather",
+            activation_feedback.listen_for_activation_command(listen, speak),
+        )
+        listen.assert_called_once_with()
+        speak.assert_not_called()
+
+    def test_activation_returns_to_standby_after_two_silent_attempts(self):
+        listen = unittest.mock.Mock(side_effect=["", ""])
+        speak = unittest.mock.Mock()
+        self.assertEqual(
+            "",
+            activation_feedback.listen_for_activation_command(listen, speak),
+        )
+        self.assertEqual(2, listen.call_count)
+        self.assertEqual(
+            [
+                unittest.mock.call(
+                    "I did not hear you. Please say your command again."
+                ),
+                unittest.mock.call(
+                    "No response heard. Returning to standby."
+                ),
+            ],
+            speak.call_args_list,
+        )
+
+    def test_second_attempt_can_supply_command(self):
+        listen = unittest.mock.Mock(side_effect=["", "system health"])
+        speak = unittest.mock.Mock()
+        self.assertEqual(
+            "system health",
+            activation_feedback.listen_for_activation_command(listen, speak),
+        )
+        self.assertEqual(2, listen.call_count)
+        speak.assert_called_once_with(
+            "I did not hear you. Please say your command again."
+        )
+
     @patch("activation_feedback.winsound.PlaySound")
     def test_tone_uses_supported_synchronous_memory_flag(self, play_sound):
         activation_feedback.play_activation_tone()

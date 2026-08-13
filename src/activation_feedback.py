@@ -67,3 +67,17 @@ def acknowledge_activation(speak, greeting, now=None, path=STATE_PATH):
         return "greeting"
     speak("Yes, Marc?")
     return "personal_acknowledgement"
+
+
+def listen_for_activation_command(listen, speak):
+    """Use at most two listening attempts after one activation."""
+
+    response = listen()
+    if response:
+        return response
+    speak("I did not hear you. Please say your command again.")
+    response = listen()
+    if response:
+        return response
+    speak("No response heard. Returning to standby.")
+    return ""

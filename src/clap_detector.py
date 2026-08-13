@@ -53,7 +53,10 @@ from voice_commands import (
     is_repeated_exact_word,
     listen_until_response,
 )
-from activation_feedback import acknowledge_activation
+from activation_feedback import (
+    acknowledge_activation,
+    listen_for_activation_command,
+)
 
 
 
@@ -340,12 +343,23 @@ with sd.InputStream(
 
 
 
-           response = listen_for_response()
+           response = listen_for_activation_command(
+               listen_for_response,
+               speak,
+           )
 
            if not response:
-              response = listen_until_response(
-                    "I did not hear you. Please say your command again."
-              )
+                wake_word_model.reset()
+                clap_times.clear()
+                double_clap_detected = False
+                wake_word_detected = False
+                last_clap_time = time.monotonic()
+                ignore_activation_until = (
+                    time.monotonic() + ACTIVATION_COOLDOWN
+                )
+                set_presence_state("standby")
+                print("Listening for double clap or Hey CLAP...")
+                continue
 
 
 

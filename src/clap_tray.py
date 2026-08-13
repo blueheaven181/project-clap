@@ -124,6 +124,8 @@ def preview_menu():
 
 
 def application_menu(controller, icon):
+    from presence_state import stop_presence_window
+
     def refresh():
         icon.update_menu()
 
@@ -139,6 +141,9 @@ def application_menu(controller, icon):
         controller.restart()
         refresh()
 
+    def hide_orb(_icon=None, _item=None):
+        stop_presence_window()
+
     def exit_clap(_icon=None, _item=None):
         controller.stop()
         icon.stop()
@@ -151,7 +156,8 @@ def application_menu(controller, icon):
             None,
             enabled=False,
         ),
-        pystray.MenuItem("Open Floating Orb", open_orb),
+        pystray.MenuItem("Show Orb", open_orb),
+        pystray.MenuItem("Hide Orb", hide_orb),
         pystray.MenuItem("Start listening", start, enabled=lambda _item: not controller.is_running()),
         pystray.MenuItem("Pause listening", pause, enabled=lambda _item: controller.is_running()),
         pystray.MenuItem("Restart CLAP", restart, enabled=lambda _item: controller.is_running()),

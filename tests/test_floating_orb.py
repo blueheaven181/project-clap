@@ -34,6 +34,11 @@ class FakeKernel32:
 
 
 class FloatingOrbTests(unittest.TestCase):
+    def test_standby_is_smaller_and_active_states_show_status(self):
+        self.assertEqual((0.72, False), floating.target_presentation("standby"))
+        for state in ("listening", "thinking", "speaking"):
+            self.assertEqual((1.0, True), floating.target_presentation(state))
+
     @patch("clap_floating_orb_preview.sys.platform", "win32")
     def test_first_orb_is_allowed(self):
         kernel = FakeKernel32(0)

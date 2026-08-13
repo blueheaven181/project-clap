@@ -46,6 +46,15 @@ class ClapTrayTests(unittest.TestCase):
         self.assertIn("Start listening", rendered)
         self.assertIn("Exit Preview", rendered)
 
+    @patch("presence_state.stop_presence_window")
+    def test_application_menu_offers_show_and_hide_orb(self, _stop):
+        controller = MagicMock()
+        controller.is_running.return_value = True
+        icon = MagicMock()
+        rendered = str(clap_tray.application_menu(controller, icon))
+        self.assertIn("Show Orb", rendered)
+        self.assertIn("Hide Orb", rendered)
+
     @patch("clap_tray.subprocess.Popen")
     def test_open_orb_launches_only_visual_preview(self, popen):
         clap_tray.open_orb()

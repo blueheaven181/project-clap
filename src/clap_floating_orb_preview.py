@@ -25,6 +25,14 @@ ORB_MUTEX_NAME = "Local\\ProjectCLAPFloatingOrb"
 _orb_mutex_handle = None
 
 
+def target_presentation(state):
+    """Return adaptive orb scale and whether its status stays visible."""
+
+    if state == "standby":
+        return 0.72, False
+    return 1.0, True
+
+
 def acquire_orb_instance(kernel32=None):
     """Allow only one floating Production Orb per Windows session."""
 
@@ -88,6 +96,8 @@ class FloatingOrbPreview:
         )
         self.state = "standby"
         self.started = time.perf_counter()
+        self.state_changed_at = self.started
+        self.visual_scale = 1.0
         self.drag_origin = None
         self.live = live
         self.available = True
@@ -158,6 +168,7 @@ class FloatingOrbPreview:
 
     def set_state(self, state):
         self.state = state
+        self.state_changed_at = time.perf_counter()
         self.canvas.itemconfigure(
             self.status_item,
             text=state.upper(),
@@ -190,6 +201,8 @@ class FloatingOrbPreview:
             return
         elapsed = time.perf_counter() - self.started
         primary, secondary, energy = STATE_STYLE[self.state]
+        target_scale, persistent_status = target_presentation(self.state)
+        self.visual_scale += (target_scale - self.visual_scale) * 0.10
         pulse_speed = {
             "standby": 1.0,
             "listening": 2.1,
@@ -197,18 +210,25 @@ class FloatingOrbPreview:
             "speaking": 4.0,
         }[self.state]
         pulse = 1 + (0.025 + energy * 0.035) * math.sin(elapsed * pulse_speed)
-        radius = 186 * pulse
+        radius = 186 * pulse * self.visual_scale
         yaw = elapsed * (0.13 if self.state == "standby" else 0.25)
         pitch = 0.18 * math.sin(elapsed * 0.32)
         center_x = SIZE / 2
         center_y = SIZE / 2 - 17
 
-        self.canvas.itemconfigure(
-            self.handle,
-            outline=blend(secondary, primary, 0.60),
-            fill=blend("#0b1028", secondary, 0.18 + energy * 0.06),
+        show_status = persistent_status or (
+            time.perf_counter() - self.state_changed_at < 2.0
         )
-        self.canvas.itemconfigure(self.status_item, fill=primary)
+        handle_state = "normal" if show_status else "hidden"
+        for item in (self.handle_shadow, self.handle, self.status_item):
+            self.canvas.itemconfigure(item, state=handle_state)
+        if show_status:
+            self.canvas.itemconfigure(
+                self.handle,
+                outline=blend(secondary, primary, 0.60),
+                fill=blend("#0b1028", secondary, 0.18 + energy * 0.06),
+            )
+            self.canvas.itemconfigure(self.status_item, fill=primary)
 
         for index, (x, y, z, seed) in enumerate(self.points):
             wave = math.sin(elapsed * (2.0 + energy * 2.0) + y * 8 + seed * 2.5)
@@ -230,7 +250,10 @@ class FloatingOrbPreview:
             py = center_y + ry * radius * perspective
             depth = (rz + 1) / 2
             color = blend(secondary, primary, min(1, max(0, depth + 0.12)))
-            size = 0.9 if depth < 0.34 else 1.5 if depth < 0.78 else 2.3
+            if self.state == "standby":
+                color = blend("#17203d", color, 0.56)
+            size = (0.9 if depth < 0.34 else 1.5 if depth < 0.78 else 2.3)
+            size *= 0.78 + self.visual_scale * 0.22
             self.canvas.coords(
                 self.particles[index],
                 px - size, py - size, px + size, py + size,
