@@ -5,6 +5,7 @@ from microphone_config import select_named_microphone
 
 from greeting import speak
 from presence_state import set_presence_state
+from wake_audio_session import suspend_wake_stream
 
 
 def is_repeated_exact_word(response, expected_word):
@@ -26,28 +27,41 @@ def listen_for_response(
     recognizer.pause_threshold = pause_threshold
 
     try:
-        microphone_index = select_named_microphone(
-            sr.Microphone.list_microphone_names()
-        )
-        with sr.Microphone(device_index=microphone_index) as source:
-            print("Adjusting for background noise...")
-            recognizer.adjust_for_ambient_noise(source, duration=0.5)
+        # PyAudio and the wake-word backend cannot reliably share the same
+        # packaged Windows input stream. Pause wake detection only while this
+        # command-listening turn owns the preferred microphone. Resolve by
+        # name each time because packaged PyAudio's default can differ from
+        # the Windows/sounddevice default.
+        with suspend_wake_stream():
+            microphone_names = sr.Microphone.list_microphone_names()
+            microphone_index = select_named_microphone(microphone_names)
+            if microphone_index is None:
+                print("Command microphone selected: Windows default", flush=True)
+            else:
+                print(
+                    "Command microphone selected:",
+                    microphone_names[microphone_index],
+                    flush=True,
+                )
+            with sr.Microphone(device_index=microphone_index) as source:
+                print("Adjusting for background noise...")
+                recognizer.adjust_for_ambient_noise(source, duration=0.5)
 
-            recognizer.energy_threshold = max(
-                recognizer.energy_threshold,
-                300,
-            )
-            recognizer.dynamic_energy_threshold = True
+                recognizer.energy_threshold = max(
+                    recognizer.energy_threshold,
+                    300,
+                )
+                recognizer.dynamic_energy_threshold = True
 
-            print(
-                "Listening until you finish speaking "
-                f"(up to {phrase_time_limit} seconds)..."
-            )
-            audio = recognizer.listen(
-                source,
-                timeout=timeout_seconds,
-                phrase_time_limit=phrase_time_limit,
-            )
+                print(
+                    "Listening until you finish speaking "
+                    f"(up to {phrase_time_limit} seconds)..."
+                )
+                audio = recognizer.listen(
+                    source,
+                    timeout=timeout_seconds,
+                    phrase_time_limit=phrase_time_limit,
+                )
 
         response = recognizer.recognize_google(audio, language="en-US")
 

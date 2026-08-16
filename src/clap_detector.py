@@ -58,6 +58,8 @@ from activation_feedback import (
     acknowledge_activation,
     listen_for_activation_command,
 )
+from microphone_config import select_sounddevice_input
+from wake_audio_session import register_wake_stream
 
 
 
@@ -80,9 +82,12 @@ last_clap_time = 0
 
 SAMPLE_RATE = 16000
 CHUNK_SIZE = 1280
-# Resolve the Windows default input when the stream opens. Device indexes are
-# volatile across local, remote-desktop, and packaged PortAudio sessions.
-MICROPHONE_INDEX = None
+MICROPHONE_INDEX = select_sounddevice_input(sd.query_devices())
+print(
+    "Wake microphone selected:",
+    sd.query_devices(MICROPHONE_INDEX)["name"],
+    flush=True,
+)
 
 WAKE_WORD_THRESHOLD = 0.30
 ACTIVATION_COOLDOWN = 3.0
@@ -215,15 +220,7 @@ def detect_activation(indata, frames, time_info, status):
     # Wake-word detection is disabled while CLAP is speaking.
     # This prevents CLAP from hearing its own voice as "Hey CLAP".
     if not currently_speaking:
-        audio_frame = np.clip(
-            indata.flatten(),
-            -1.0,
-            1.0,
-        )
-
-        audio_frame = (
-            audio_frame * 32767
-        ).astype(np.int16)
+        audio_frame = np.asarray(indata.flatten(), dtype=np.int16)
 
         predictions = wake_word_model.predict(audio_frame)
 
@@ -253,9 +250,8 @@ def detect_activation(indata, frames, time_info, status):
             return
 
     # Check for a physical double clap.
-    volume = np.linalg.norm(indata) * 10
-
-    samples = indata.flatten()
+    samples = np.asarray(indata.flatten(), dtype=np.float32) / 32768.0
+    volume = np.linalg.norm(samples) * 10
     peak = np.max(np.abs(samples))
     rms = np.sqrt(np.mean(samples ** 2)) + 0.000001
     sharpness = peak / rms
@@ -330,10 +326,12 @@ with sd.InputStream(
     device=MICROPHONE_INDEX,
     samplerate=SAMPLE_RATE,
     channels=1,
-    dtype="float32",
+    dtype="int16",
     blocksize=CHUNK_SIZE,
     latency="high",
-):
+) as activation_stream:
+
+     register_wake_stream(activation_stream)
 
      while True:
 
