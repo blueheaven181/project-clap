@@ -39,6 +39,12 @@ class FloatingOrbTests(unittest.TestCase):
         for state in ("listening", "thinking", "speaking"):
             self.assertEqual((1.0, True), floating.target_presentation(state))
 
+    def test_standby_status_reveals_for_hover_or_recent_change(self):
+        self.assertTrue(floating.should_show_status("standby", 3.0, True))
+        self.assertTrue(floating.should_show_status("standby", 1.0, False))
+        self.assertFalse(floating.should_show_status("standby", 3.0, False))
+        self.assertTrue(floating.should_show_status("listening", 30.0, False))
+
     @patch("clap_floating_orb_preview.sys.platform", "win32")
     def test_first_orb_is_allowed(self):
         kernel = FakeKernel32(0)

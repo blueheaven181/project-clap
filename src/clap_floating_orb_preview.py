@@ -31,6 +31,12 @@ def target_presentation(state):
     return 1.0, True
 
 
+def should_show_status(state, seconds_since_change, reveal_requested=False):
+    """Keep active status visible and reveal standby controls on request."""
+
+    return state != "standby" or seconds_since_change < 2.0 or reveal_requested
+
+
 def acquire_orb_instance(kernel32=None):
     """Allow only one floating Production Orb per Windows session."""
 
@@ -92,6 +98,10 @@ class FloatingOrbPreview:
             fill=STATE_STYLE["standby"][0],
             font=("Segoe UI Semibold", 10),
         )
+        self.hover_grip = self.canvas.create_line(
+            246, 478, 264, 478,
+            fill="#526fb8", width=4, capstyle=tk.ROUND,
+        )
         self.state = "standby"
         self.started = time.perf_counter()
         self.state_changed_at = self.started
@@ -100,6 +110,7 @@ class FloatingOrbPreview:
         self.live = live
         self.available = True
         self.state_socket = None
+        self.handle_reveal_until = 0.0
 
         if live:
             self.state_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -116,9 +127,16 @@ class FloatingOrbPreview:
         for target in (self.canvas, self.root):
             target.bind("<ButtonPress-1>", self.begin_drag)
             target.bind("<B1-Motion>", self.drag)
-        for item in (self.handle_shadow, self.handle, self.status_item):
+        for item in (
+            self.handle_shadow,
+            self.handle,
+            self.status_item,
+            self.hover_grip,
+        ):
             self.canvas.tag_bind(item, "<ButtonPress-1>", self.begin_drag)
             self.canvas.tag_bind(item, "<B1-Motion>", self.drag)
+            self.canvas.tag_bind(item, "<Enter>", self.reveal_handle)
+            self.canvas.tag_bind(item, "<Motion>", self.reveal_handle)
         self.root.bind("<space>", self.cycle_state)
         for key, state in (("1", "standby"), ("2", "listening"),
                            ("3", "thinking"), ("4", "speaking")):
@@ -147,6 +165,7 @@ class FloatingOrbPreview:
             pass
 
     def begin_drag(self, event):
+        self.reveal_handle()
         self.drag_origin = (
             event.x_root,
             event.y_root,
@@ -163,6 +182,11 @@ class FloatingOrbPreview:
             f"+{window_y + event.y_root - start_y}"
         )
         self.save_position()
+
+    def reveal_handle(self, _event=None):
+        """Reveal the standby drag capsule long enough to acquire it."""
+
+        self.handle_reveal_until = time.perf_counter() + 2.5
 
     def set_state(self, state):
         self.state = state
@@ -214,12 +238,19 @@ class FloatingOrbPreview:
         center_x = SIZE / 2
         center_y = SIZE / 2 - 17
 
-        show_status = persistent_status or (
-            time.perf_counter() - self.state_changed_at < 2.0
+        now = time.perf_counter()
+        show_status = persistent_status or should_show_status(
+            self.state,
+            now - self.state_changed_at,
+            reveal_requested=now < self.handle_reveal_until,
         )
         handle_state = "normal" if show_status else "hidden"
         for item in (self.handle_shadow, self.handle, self.status_item):
             self.canvas.itemconfigure(item, state=handle_state)
+        self.canvas.itemconfigure(
+            self.hover_grip,
+            state="hidden" if show_status else "normal",
+        )
         if show_status:
             self.canvas.itemconfigure(
                 self.handle,
