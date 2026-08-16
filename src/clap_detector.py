@@ -59,7 +59,7 @@ from activation_feedback import (
     listen_for_activation_command,
 )
 from microphone_config import select_sounddevice_input
-from wake_audio_session import register_wake_stream
+from wake_audio_session import register_wake_stream, submit_wake_audio
 
 
 
@@ -201,6 +201,9 @@ def detect_activation(indata, frames, time_info, status):
     global wake_word_detected
     global last_clap_time
     global ignore_activation_until
+
+    if submit_wake_audio(indata):
+        return
 
     currently_speaking = is_speaking()
 

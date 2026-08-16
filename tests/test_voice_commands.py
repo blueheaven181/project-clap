@@ -10,7 +10,36 @@ sys.path.insert(0, str(PROJECT_FOLDER / "src"))
 import voice_commands
 
 
+class PackagedRecognitionTests(unittest.TestCase):
+    @patch("voice_commands.subprocess.Popen")
+    @patch("voice_commands.requests.Session")
+    def test_packaged_recognition_ignores_windows_proxy_settings(
+        self, session_class, popen
+    ):
+        response = unittest.mock.MagicMock()
+        response.text = '{"result":[{"alternative":[{"transcript":"system health"}],"final":true}]}'
+        session_class.return_value.post.return_value = response
+        popen.return_value.communicate.return_value = (b"flac", b"")
+        popen.return_value.returncode = 0
+        audio = voice_commands.sr.AudioData(b"\x00\x00" * 1600, 16000, 2)
+
+        result = voice_commands.recognize_google_packaged(audio)
+
+        self.assertEqual(result, "system health")
+        self.assertFalse(session_class.return_value.trust_env)
+        response.raise_for_status.assert_called_once_with()
+        self.assertEqual(
+            popen.call_args.kwargs["creationflags"],
+            getattr(voice_commands.subprocess, "CREATE_NO_WINDOW", 0),
+        )
+
+
 class VoiceRetryTests(unittest.TestCase):
+    def test_late_microphone_close_error_is_contained(self):
+        microphone = unittest.mock.MagicMock()
+        microphone.__exit__.side_effect = RuntimeError("driver release")
+        self.assertFalse(voice_commands.close_microphone_safely(microphone))
+
     def test_repeated_stop_words_are_accepted(self):
         self.assertTrue(
             voice_commands.is_repeated_exact_word("stop stop", "stop")

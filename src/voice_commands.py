@@ -1,11 +1,20 @@
 import time
+import sys
+import subprocess
 
 import speech_recognition as sr
+import requests
+from speech_recognition.recognizers.google import (
+    ENDPOINT,
+    OutputParser,
+    create_request_builder,
+)
+from speech_recognition.audio import get_flac_converter
 from microphone_config import select_named_microphone
 
 from greeting import speak
 from presence_state import set_presence_state
-from wake_audio_session import suspend_wake_stream
+from wake_audio_session import capture_command_audio, suspend_wake_stream
 
 
 def is_repeated_exact_word(response, expected_word):
@@ -13,6 +22,47 @@ def is_repeated_exact_word(response, expected_word):
 
     words = response.strip().lower().split()
     return bool(words) and all(word == expected_word for word in words)
+
+
+def close_microphone_safely(microphone):
+    """Close PyAudio without discarding audio on a late Windows driver error."""
+
+    try:
+        microphone.__exit__(None, None, None)
+        return True
+    except Exception as error:
+        print("Command microphone close warning:", error, flush=True)
+        return False
+
+
+def recognize_google_packaged(audio, language="en-US"):
+    """Recognize speech without Windows proxy discovery in frozen builds."""
+
+    builder = create_request_builder(endpoint=ENDPOINT, language=language)
+    wav_data = audio.get_wav_data(convert_width=2)
+    process = subprocess.Popen(
+        [get_flac_converter(), "--stdout", "--totally-silent", "--best", "-"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+    )
+    flac_data, _ = process.communicate(wav_data)
+    if process.returncode:
+        raise sr.RequestError("Packaged audio conversion failed.")
+    session = requests.Session()
+    session.trust_env = False
+    try:
+        response = session.post(
+            builder.build_url(),
+            data=flac_data,
+            headers={"Content-Type": f"audio/x-flac; rate={audio.sample_rate}"},
+            timeout=15,
+        )
+        response.raise_for_status()
+    except requests.RequestException as error:
+        raise sr.RequestError(str(error)) from error
+    return OutputParser(show_all=False, with_confidence=False).parse(response.text)
 
 
 def listen_for_response(
@@ -26,44 +76,72 @@ def listen_for_response(
     recognizer = sr.Recognizer()
     recognizer.pause_threshold = pause_threshold
 
+    stage = "initialization"
     try:
+        if getattr(sys, "frozen", False):
+            stage = "shared-stream capture"
+            print("Command microphone selected: shared Fifine wake stream", flush=True)
+            print("Adjusting for background noise...")
+            print(
+                "Listening until you finish speaking "
+                f"(up to {phrase_time_limit} seconds)..."
+            )
+            try:
+                pcm = capture_command_audio(
+                    timeout_seconds=timeout_seconds,
+                    phrase_time_limit=phrase_time_limit,
+                    pause_threshold=pause_threshold,
+                )
+            except TimeoutError as error:
+                raise sr.WaitTimeoutError(str(error)) from error
+            stage = "audio preparation"
+            audio = sr.AudioData(pcm, sample_rate=16000, sample_width=2)
+        else:
         # PyAudio and the wake-word backend cannot reliably share the same
         # packaged Windows input stream. Pause wake detection only while this
         # command-listening turn owns the preferred microphone. Resolve by
         # name each time because packaged PyAudio's default can differ from
         # the Windows/sounddevice default.
-        with suspend_wake_stream():
-            microphone_names = sr.Microphone.list_microphone_names()
-            microphone_index = select_named_microphone(microphone_names)
-            if microphone_index is None:
-                print("Command microphone selected: Windows default", flush=True)
-            else:
-                print(
-                    "Command microphone selected:",
-                    microphone_names[microphone_index],
-                    flush=True,
-                )
-            with sr.Microphone(device_index=microphone_index) as source:
-                print("Adjusting for background noise...")
-                recognizer.adjust_for_ambient_noise(source, duration=0.5)
+            with suspend_wake_stream():
+                microphone_names = sr.Microphone.list_microphone_names()
+                microphone_index = select_named_microphone(microphone_names)
+                if microphone_index is None:
+                    print("Command microphone selected: Windows default", flush=True)
+                else:
+                    print(
+                        "Command microphone selected:",
+                        microphone_names[microphone_index],
+                        flush=True,
+                    )
+                microphone = sr.Microphone(device_index=microphone_index)
+                source = microphone.__enter__()
+                try:
+                    print("Adjusting for background noise...")
+                    recognizer.adjust_for_ambient_noise(source, duration=0.5)
 
-                recognizer.energy_threshold = max(
-                    recognizer.energy_threshold,
-                    300,
-                )
-                recognizer.dynamic_energy_threshold = True
+                    recognizer.energy_threshold = max(
+                        recognizer.energy_threshold,
+                        300,
+                    )
+                    recognizer.dynamic_energy_threshold = True
 
-                print(
-                    "Listening until you finish speaking "
-                    f"(up to {phrase_time_limit} seconds)..."
-                )
-                audio = recognizer.listen(
-                    source,
-                    timeout=timeout_seconds,
-                    phrase_time_limit=phrase_time_limit,
-                )
+                    print(
+                        "Listening until you finish speaking "
+                        f"(up to {phrase_time_limit} seconds)..."
+                    )
+                    audio = recognizer.listen(
+                        source,
+                        timeout=timeout_seconds,
+                        phrase_time_limit=phrase_time_limit,
+                    )
+                finally:
+                    close_microphone_safely(microphone)
 
-        response = recognizer.recognize_google(audio, language="en-US")
+        stage = "speech recognition"
+        if getattr(sys, "frozen", False):
+            response = recognize_google_packaged(audio, language="en-US")
+        else:
+            response = recognizer.recognize_google(audio, language="en-US")
 
         print("You said:", response)
         set_presence_state("thinking")
@@ -79,7 +157,7 @@ def listen_for_response(
         print("Voice service error:", error)
 
     except Exception as error:
-        print("Microphone error:", error)
+        print(f"Voice pipeline error during {stage}:", error, flush=True)
 
     set_presence_state("thinking")
     return ""
