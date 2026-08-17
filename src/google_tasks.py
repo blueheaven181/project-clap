@@ -11,15 +11,30 @@ from google_calendar import ABU_DHABI_TIMEZONE
 DEFAULT_TASK_LIST = "@default"
 
 
+def _normalize_spoken_task_command(command):
+    """Normalize common speech-to-text splits without broadening intent."""
+
+    normalized = command.strip().lower()
+    normalized = re.sub(r"\bto\s+day\b", "today", normalized)
+    # Google Speech commonly renders "tasks due today" as "10 June today"
+    # for this microphone/accent. Keep the alias exact and read-only.
+    match = re.fullmatch(r"(?:10|ten)\s+june\s+(today|tomorrow)", normalized)
+    if match:
+        return f"tasks due {match.group(1)}"
+    return normalized
+
+
 def is_task_read_request(command):
     """Return True for supported requests to read pending Google Tasks."""
 
-    normalized = command.strip().lower()
+    normalized = _normalize_spoken_task_command(command)
     return any(
         re.search(pattern, normalized)
         for pattern in (
             r"\bwhat (?:pending )?tasks? do i have\b",
             r"\bwhat tasks? (?:is|are) due (?:today|tomorrow)\b",
+            r"\btasks? due (?:today|tomorrow)\b",
+            r"\bpainting tasks? (?:is |are |due )?(?:today|tomorrow)\b",
             r"\bdo i have (?:any )?(?:pending )?tasks?"
             r"(?: (?:due )?(?:today|tomorrow))?\b",
             r"\bwhat (?:is|are) my (?:pending )?tasks?"
@@ -33,7 +48,7 @@ def is_task_read_request(command):
 def get_requested_task_due_day(command):
     """Return today or tomorrow when a Tasks read requests that due day."""
 
-    normalized = command.strip().lower()
+    normalized = _normalize_spoken_task_command(command)
     if not is_task_read_request(normalized):
         return None
 

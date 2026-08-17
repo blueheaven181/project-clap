@@ -47,6 +47,8 @@ class TaskIntentAndParsingTests(unittest.TestCase):
             "What are my task today?",
             "What are my task tomorrow?",
             "Read my pending tasks.",
+            "Painting task due today",
+            "10 June today",
         ):
             with self.subTest(command=command):
                 self.assertTrue(is_task_read_request(command))
@@ -59,6 +61,9 @@ class TaskIntentAndParsingTests(unittest.TestCase):
             "What are my task today?": "today",
             "What are my task tomorrow?": "tomorrow",
             "Do I have tasks due tomorrow?": "tomorrow",
+            "Pending task due to day": "today",
+            "Painting task due today": "today",
+            "10 June today": "today",
         }
         for command, expected_day in commands.items():
             with self.subTest(command=command):
@@ -311,6 +316,9 @@ class TaskRoutingTests(unittest.TestCase):
             "Do I have task today?",
             "What are my task today?",
             "What task is due today?",
+            "Pending task due to day",
+            "Painting task due today",
+            "10 June today",
         ):
             with self.subTest(command=command):
                 get_tasks.reset_mock()
